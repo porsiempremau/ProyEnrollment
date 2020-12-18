@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30320.27
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GFD.Siscom.Enrollment", "GFD.Siscom.Enrollment\GFD.Siscom.Enrollment.csproj", "{F93BA0A8-CAF5-499E-9C06-F2D927617860}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F93BA0A8-CAF5-499E-9C06-F2D927617860}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F93BA0A8-CAF5-499E-9C06-F2D927617860}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F93BA0A8-CAF5-499E-9C06-F2D927617860}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F93BA0A8-CAF5-499E-9C06-F2D927617860}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3A6B6E15-7657-40EF-B146-CDA7E3E15D95}
+	EndGlobalSection
+EndGlobal
