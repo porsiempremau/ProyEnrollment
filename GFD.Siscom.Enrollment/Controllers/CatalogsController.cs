@@ -12,5 +12,6 @@ namespace GFD.Siscom.Enrollment.Controllers
         {
             return View();
         }
+
     }
 }
