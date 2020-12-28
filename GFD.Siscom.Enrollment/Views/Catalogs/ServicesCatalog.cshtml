@@ -1,0 +1,189 @@
+﻿@model List<ServicesVM>
+
+<div class="app-page-title">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div class="page-title-icon">
+                <i class="pe-7s-medal icon-gradient bg-tempting-azure">
+                </i>
+            </div>
+            <div>
+                Catálogo @ViewData["Title"]
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#modalCreateEdit" onclick="openModalToCreate()">
+            Agregar Nuevo
+            <i class="fas fa-plus" title="Agregar Nuevo"></i>
+        </button>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12">
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <table style="width: 100%;" id="TableServices" class="table table-hover table-striped table-bordered">
+                    <thead class="style-theads">
+                        <tr>
+                            <th width="25%">Descripción</th>
+                            <th width="20%">Orden</th>
+                            <th width="20%">En Contrato</th>
+                            <th width="25%">Status</th>
+                            <th width="10%"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+                        @{
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Name</td>
+                                    <td>@item.Order</td>
+                                    <td>@(item.InAgreement.ToString() == "True" ? "Si" : "No")</td>
+                                    <td>@(item.IsActive.ToString() == "True" ? "Activo" : "Inactivo")</td>
+                                    <td>
+                                        <a class="nav-link btn-flush" onclick="getOneService(@item.Id)" data-toggle="modal" data-target="#modalCreateEdit"
+                                           data-caret="false" style="margin: 0 auto;">
+                                            <i class="far fa-edit" title="Editar"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+
+    <div class="modal fade" id="modalCreateEdit" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modalHeader" style="background-color:#036681;padding: 1rem;">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-7 col-md-10 col-lg-10">
+                            <p id="TitleModal" class="subtitle bold white-color" style="margin-bottom: 0px;"></p>
+                        </div>
+                        <div class="col-xs-6 col-sm-5 col-md-2 col-lg-2" style="float:right;">
+                            <button type="button" style="color: white;" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <form id="FormData" onsubmit="CreateEdit(event)">
+                        <div class="row" id="ContentModal">
+                            <div id="divId" class="col-md-6"></div>
+                            <div class="col-md-6"></div>
+
+                            <div class="col-md-12">
+                                <label>Nombre:</label>
+                                <input id="name" name="name" class="form-control" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Orden:</label>
+                                <input id="order" name="order" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label>Comercial:</label>
+                                <select id="haveTax" name="haveTax" class="form-control">
+                                    <option value="true">Si</option>
+                                    <option value="false">No</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>En Contrato:</label>
+                                <select id="inAgreement" name="inAgreement" class="form-control">
+                                    <option value="true">Si</option>
+                                    <option value="false">No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Status:</label>
+                                <select id="isActive" name="isActive" class="form-control">
+                                    <option value="true">Activo</option>
+                                    <option value="false">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" form="FormData">Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        window.onload = function () {
+            Block();
+            setTimeout(() => {
+                loadDataTable("TableServices");
+                UnBlock();
+            }, 1700)
+        }
+
+        function getOneService(id) {
+            Block();
+            axios.get('/Services/Get/' + id).then(response => {
+                var data = response.data;
+                $("#TitleModal").html("Modificar");
+                $("#divId").html(`
+                    <label>Id:</label>
+                    <input id="id" name="id" class="form-control" readonly />
+                `);
+                $("#id").val(data.id);
+                $("#name").val(data.name);
+                $("#order").val(data.order);
+                $("#haveTax").val(data.haveTax ? "true" : "false");
+                $("#inAgreement").val(data.inAgreement ? "true" : "false");
+                $("#isActive").val(data.isActive ? "true" : "false");
+                UnBlock();
+            }).catch(error => {
+                UnBlock();
+            })
+        }
+
+        function openModalToCreate() {
+            $("#TitleModal").html("Agregar");
+            $("#divId").html("");
+            $("#name").val("");
+            $("#order").val("");
+            $("#haveTax").val("true");
+            $("#inAgreement").val("true");
+            $("#isActive").val("true");
+        }
+
+        function CreateEdit(event) {
+            event.preventDefault();
+            Block();
+            var form = document.querySelector("#FormData");
+            var data = serialize(form);
+            axios.post("/Services/Post", data).then(response => {
+                UnBlock();
+                Swal.fire({
+                    title: "Bien",
+                    text: response.data,
+                    type: 'success',
+                    showConfirmButton: true,
+                }).then(response => {
+                    $("#modalCreateEdit").hide();
+                    $(".modal-backdrop").hide();
+                    window.location.href = "/Services/Get/0";
+                });
+            }).catch(error => {
+                UnBlock();
+            })
+        }
+
+    </script>
+}

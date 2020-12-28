@@ -1,0 +1,278 @@
+﻿
+
+<div class="app-page-title">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div class="page-title-icon">
+                <i class="pe-7s-medal icon-gradient bg-tempting-azure">
+                </i>
+            </div>
+            <div>
+                Catálogo @ViewData["Title"]
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3">
+        <label>Estados:</label>
+        <select id="states" name="states" class="form-control" onchange="SearchTownByIdState(this.value, 'towns')"></select>
+    </div>
+    <div class="col-md-3">
+        <label>Minicipio:</label>
+        <select id="towns" name="towns" class="form-control" onchange="SearchSuburbByIdTown(this.value)"></select>
+    </div>
+    <div class="col-md-6">
+        <button type="button" class="btn btn-primary float-right margin-top-btns" data-toggle="modal" data-target="#modalCreateEdit" onclick="openModalToCreate()">
+            Agregar Nuevo
+            <i class="fas fa-plus" title="Agregar Nuevo"></i>
+        </button>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12">
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <table style="width: 100%;" id="Table" class="table table-hover table-striped table-bordered">
+                    <thead class="style-theads">
+                        <tr>
+                            <th width="90%">Nombre</th>
+                            <th width="10%"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <div class="modal fade" id="modalCreateEdit" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modalHeader" style="background-color:#036681;padding: 1rem;">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-7 col-md-10 col-lg-10">
+                            <p id="TitleModal" class="subtitle bold white-color" style="margin-bottom: 0px;"></p>
+                        </div>
+                        <div class="col-xs-6 col-sm-5 col-md-2 col-lg-2" style="float:right;">
+                            <button type="button" style="color: white;" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <form id="FormData" onsubmit="CreateEdit(event)">
+                        <div class="row" id="ContentModal">
+                            <div id="divId" class="col-md-6"></div>
+                            <div class="col-md-6"></div>
+
+                            <div class="col-md-12">
+                                <label>Colonia:</label>
+                                <input type="text" id="name" name="name" class="form-control" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Clasificación:</label>
+                                <select id="clasification" name="clasification" class="form-control"></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Región:</label>
+                                <select id="region" name="region" class="form-control"></select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" form="FormData">Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var __idTown = "";
+
+        window.onload = function () {
+            GetCountries("states");
+            SearchTownByIdState(21, "towns");
+            SearchSuburbByIdTown(2);
+        }
+
+        function GetCountries(idSelect) {
+            Block();
+            var select = document.getElementById(idSelect);
+            axios.get("/States/Get/0?isToSelect=true").then(response => {
+                var data = response.data;
+                if (data.length > 0) {
+                    data.forEach(x => {
+                        var option = document.createElement("option");
+                        option.text = x.name;
+                        option.value = x.id;
+                        if (x.id == 21) {
+                            option.selected = true;
+                        }
+                        select.appendChild(option);
+                    });
+                }
+                UnBlock();
+            }).catch(error => {
+                UnBlock();
+            })
+        }
+
+        function SearchTownByIdState(id, idSelect) {
+            Block();
+            __idState = id;
+            $("#" + idSelect).html("");
+            var select = document.getElementById(idSelect);
+            axios.get("/Towns/SearchTownByIdState/" + __idState + "/0").then(response => {
+                var data = response.data;
+                if (data.length > 0) {
+                    data.forEach(x => {
+                        var option = document.createElement("option");
+                        option.text = x.name;
+                        option.value = x.id;
+                        if (x.id == 2) {
+                            option.selected = true;
+                        }
+                        select.appendChild(option);
+                    });
+                }
+                UnBlock();
+            }).catch(error => {
+                UnBlock();
+            })
+        }
+
+        function SearchSuburbByIdTown(id) {
+            Block();
+            __idTown = id;
+            ClearDataTable("Table");
+            $("#tbody").html("");
+            axios.get("/Suburbs/SearchSuburbByIdTown/" + __idTown + "/0").then(response => {
+                var data = response.data;
+                if (data.length > 0) {
+                    data.forEach(x => {
+                        $("#tbody").append(`
+                            <tr>
+                                <td>${x.name}</td>
+                                <td>
+                                    <a class="nav-link btn-flush" onclick="openModalToEdit(${x.id})" data-toggle="modal" data-target="#modalCreateEdit"
+                                    data-caret="false" style="margin: 0 auto;">
+                                        <i class="far fa-edit" title="Editar"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                    loadDataTable("Table");
+                    UnBlock();
+                } else {
+                    UnBlock()
+                    Swal.fire({
+                        title: "Disculpa",
+                        text: 'No se encontraron datos',
+                        type: 'info',
+                        showConfirmButton: true,
+                    });
+                    $("#tbody").append(`
+                        <tr>
+                           <td colspan="2" style="text-align: center; font-size: 14px;">Sin Datos</td>
+                        </tr>
+                    `);
+                }
+            }).catch(error => { })
+        }
+
+        function openModalToEdit(id) {
+            Block();
+            axios.get("/Suburbs/SearchSuburbByIdTown/" + __idTown + "/" + id).then(response => {
+                var data = response.data;
+                console.log("Data Edit: ", data);
+                $("#TitleModal").html("Modificar");
+                $("#divId").html(`
+                        <label>Id:</label>
+                        <input id="id" name="id" class="form-control" readonly />
+                    `);
+                $("#id").val(data.id);
+                $("#name").val(data.name);
+
+                getListDataToSelect("clasification", "/Clasifications/Get/0?isToSelect=true", data.clasificationsId);
+                getListDataToSelect("region", "/Regions/Get/0?isToSelect=true", data.regionsId);
+                UnBlock();
+            }).catch(error => {
+                UnBlock();
+            })
+        }
+
+        function openModalToCreate() {
+            $("#TitleModal").html("Agregar");
+            $("#divId").html("");
+            $("#id").val("");
+            $("#name").val("");
+
+            getListDataToSelect("clasification", "/Clasifications/Get/0?isToSelect=true", 0, "clasificación");
+            getListDataToSelect("region", "/Regions/Get/0?isToSelect=true", 0, "región");
+        }
+
+        function getListDataToSelect(idSelect, url, idSeleted, name) {
+            $("#" + idSelect).html("");
+            Block();
+            axios.get(url).then(response => {
+                var data = response.data;
+                if (data.length > 0) {
+                    data.forEach(x => {
+                        if (idSeleted == x.id) {
+                            $("#" + idSelect).append(`<option value="${x.id}" selected>${x.name}</option>`);
+                        } else {
+                            $("#" + idSelect).append(`<option value="${x.id}">${x.name}</option>`);
+                        }
+                    });
+                } else {
+                    $("#" + idSelect).html(`
+                        <option value="0">Sin ${name}</option>
+                    `);
+                }
+                UnBlock();
+            }).catch(error => {
+                $("#" + idSelect).html(`
+                    <option value="0">Sin ${name}</option>
+                `);
+                UnBlock();
+            });
+        }
+
+        function CreateEdit(event) {
+            event.preventDefault();
+            Block();
+            var form = document.querySelector("#FormData"),
+                data = serialize(form);
+
+            axios.post("/Suburbs/Post/" + __idTown, data).then(response => {
+                UnBlock();
+                Swal.fire({
+                    title: "Bien",
+                    text: response.data,
+                    type: 'success',
+                    showConfirmButton: true,
+                }).then(response => {
+                    $("#modalCreateEdit").hide();
+                    $(".modal-backdrop").hide();
+                    window.location.href = "/Suburbs/Index";
+                });
+            }).catch(error => {
+                UnBlock();
+                Swal.fire({
+                    title: "Disculpa",
+                    text: error.response.data.error,
+                    type: 'info',
+                    showConfirmButton: true,
+                })
+            })
+        }
+    </script>
+}

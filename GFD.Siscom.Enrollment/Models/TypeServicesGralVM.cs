@@ -9,10 +9,10 @@ namespace GFD.Siscom.Enrollment.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string Description { get; set; }
         public string Acronym { get; set; }
         public string IntakeAcronym { get; set; }
         public bool IsActive { get; set; }
-
-
+        public int clasificationGroup { get; set; }
     }
 }

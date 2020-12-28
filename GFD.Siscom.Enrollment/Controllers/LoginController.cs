@@ -8,12 +8,14 @@ using GFD.Siscom.Enrollment.Extensions;
 using GFD.Siscom.Enrollment.Models;
 using GFD.Siscom.Enrollment.Utilities.Parameters;
 using GFD.Siscom.Enrollment.Utilities.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace GFD.Siscom.Enrollment.Controllers
-{    
+{
+    [ViewLayout("_LoginLayout")]
     public class LoginController : Controller
     {
         private readonly IOptions<BaseModel> appSettings;
@@ -24,16 +26,22 @@ namespace GFD.Siscom.Enrollment.Controllers
             appSettings = app;
             RequestsApi = new RequestApi(appSettings.Value.WebApiBaseUrl);
         }
-        
-        public IActionResult Index()
+
+        //[Anonymous()]
+        [HttpGet("{msg?}")]
+        [HttpGet("Login/{msg?}")]
+        [HttpGet("Login/Index/{msg?}")]
+        public IActionResult Index([FromRoute] string msg = "")
         {
-            return View();
+            return View("~/Views/Login/Index.cshtml", msg);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Index(string UserEmail, string UserPass)
+        [HttpPost("Login/login")]
+        public async Task<IActionResult> Index(IFormCollection collection)
         {
-            var login = await RequestsApi.SendURIAsync("/api/Auth/login", HttpMethod.Post, new StringContent("{\"UserName\": \"" + UserEmail + "\", \"Password\": \"" + UserPass + "\"}", Encoding.UTF8, "application/json"));
+            string User = collection["UserEmail"].ToString();
+            string Password = collection["UserPass"].ToString();
+            var login = await RequestsApi.SendURIAsync("/api/Auth/login", HttpMethod.Post, new StringContent("{\"UserName\": \"" + User + "\", \"Password\": \"" + Password + "\"}", Encoding.UTF8, "application/json"));
             if (login.Contains("error"))
             {
                 return Conflict(login);
@@ -56,8 +64,7 @@ namespace GFD.Siscom.Enrollment.Controllers
                 //}
 
             }
-            //return Ok();
-            return RedirectToAction("Index", "Home");
+            return Ok();
         }
     }
 }
