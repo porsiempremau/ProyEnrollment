@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GFD.Siscom.Enrollment.Utilities.Auth;
+using GFD.Siscom.Enrollment.Utilities;
 using GFD.Siscom.Enrollment.Utilities.Parameters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -70,8 +71,9 @@ namespace GFD.Siscom.Enrollment
 
             app.UseCookiePolicy();
             app.UseSession();
+
             Auth.Services = app.ApplicationServices;
-            //Platform.Services = app.ApplicationServices;
+            Plataform.Services = app.ApplicationServices;
 
             app.UseRouting();
 

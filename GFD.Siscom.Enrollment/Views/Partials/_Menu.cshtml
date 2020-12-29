@@ -1,4 +1,5 @@
-﻿
+﻿@using GFD.Siscom.Enrollment.Utilities;
+
 <div class="app-sidebar sidebar-shadow">
     <div class="app-header__logo">
         <div class="logo-src"></div>
@@ -201,6 +202,18 @@
                                 </a>
                             </li>*@
                     </ul>
+                </li>
+                @{ 
+                    var controller = ViewContext.RouteData.Values["Controller"].ToString() + "-" + ViewContext.RouteData.Values["Action"].ToString();
+                }
+                <li class="@(controller == "Agreement-Index" ? "mm-active" : "")">
+                    @if (Plataform.IsAyuntamiento)
+                    {
+                        <a href="/Agreement/List">Predios</a>
+                    } else
+                    {
+                        <a href="/Agreement/List">Contratos</a>
+                    }
                 </li>
                 @*<li>
                         <a href="#">

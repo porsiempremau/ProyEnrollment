@@ -1,16 +1,77 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
+using GFD.Siscom.Enrollment.Models;
+using GFD.Siscom.Enrollment.Utilities.Auth;
+using GFD.Siscom.Enrollment.Utilities.Parameters;
+using GFD.Siscom.Enrollment.Utilities.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace GFD.Siscom.Enrollment.Controllers
 {
     public class AgreementController : Controller
     {
+        private readonly IOptions<BaseModel> appSettings; 
+        private RequestApi RequestsApi { get; set; }
+        public AgreementController(IOptions<BaseModel> app)
+        {
+            appSettings = app;
+            RequestsApi = new RequestApi(appSettings.Value.WebApiBaseUrl);
+        }
+        [HttpGet("Agreement/List")]
         public IActionResult Index()
         {
-            return View();
+            return View("~/Views/Agreements/ListAgreement.cshtml");
+        }
+
+        [HttpGet("Agreement/Get/List")]
+        public async Task<IActionResult> GetAgreementList([FromQuery] string name = "", [FromQuery] string account = "",
+            [FromQuery] string rfc = "", [FromQuery] string address = "")
+        {
+            try
+            {
+                var type = 0;
+                var StringSearch = "";
+
+                if (account != "")
+                {
+                    type = 1;
+                    StringSearch = account;
+                }
+                if (name != "")
+                {
+                    type = 2;
+                    StringSearch = name;
+                }
+                if (address != "")
+                {
+                    type = 3;
+                    StringSearch = address;
+                }
+                if (rfc != "")
+                {
+                    type = 4;
+                    StringSearch = rfc;
+                }
+
+                var url = "/api/Agreements/FindAgreementParam?Type=" + type + "&StringSearch=" + StringSearch;
+                var result = await RequestsApi.SendURIAsync(url, HttpMethod.Get, Auth.Login.Token);
+                if (result.Contains("error"))
+                {
+                    return Conflict(result);
+                }
+                var data = JsonConvert.DeserializeObject<List<AgreementListVM>>(result);
+                return Ok(data);
+
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
         }
     }
 }
