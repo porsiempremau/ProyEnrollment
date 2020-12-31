@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using GFD.Siscom.Enrollment.Models;
 using GFD.Siscom.Enrollment.Utilities.Auth;
 using GFD.Siscom.Enrollment.Utilities.Parameters;
 using GFD.Siscom.Enrollment.Utilities.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -73,5 +75,51 @@ namespace GFD.Siscom.Enrollment.Controllers
                 return null;
             }
         }
+
+        [HttpGet("Agreement/EditCreateView")]
+        public IActionResult EditCreateView()
+        {
+            return View("~/Views/Agreements/AgreementCreateEdit.cshtml");
+        }
+
+        [HttpGet("Agreement/GetData")]
+        public async Task<IActionResult> GetData()
+        {
+            try
+            {
+                var result = await RequestsApi.SendURIAsync("/api/Agreements/GetData", HttpMethod.Get, Auth.Login.Token);
+                if (result.Contains("error"))
+                {
+                    return Conflict(result);
+                }
+                return Ok(JsonConvert.DeserializeObject<AgreementDataVM>(result));
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
+        [HttpPost("Agreement/CreateEdit")]
+        public async Task<IActionResult> CreateEditAgreement([FromBody] AgreementVM agreement)
+        {
+            try
+            {
+                var body = new StringContent(JsonConvert.SerializeObject(agreement), Encoding.UTF8, "application/json");
+                var result = await RequestsApi.SendURIAsync("/api/Agreements/", HttpMethod.Post, Auth.Login.Token, body);
+                if (result.Contains("error"))
+                {
+                    return Conflict(result);
+                }
+                return Ok(result);
+
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
+
     }
 }

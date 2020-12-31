@@ -1,0 +1,129 @@
+﻿@using GFD.Siscom.Enrollment.Utilities;
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Características del Contrato</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Contrato Principal:</label>
+                        <input class="form-control form-control-sm" id="agreementPrincipal" name="agreementPrincipal" />
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-GFD margin-top-btns">Buscar</button>
+                    </div>
+                </div>
+                <br />
+                <br />
+                <div class="row">
+                    <input type="hidden" id="ID" name="ID" value="@(Model != null ? Model?.Id : 0)" />
+                    <div class="col-md-6">
+                        @if (Plataform.IsAyuntamiento)
+                        {<label>Tipo Predio</label> }
+                        else
+                        { <label>Tipo de Toma:</label>}
+                        <select class="form-control form-control-sm" id="typeIntake" name="typeIntake"></select>
+                    </div>
+                    <div class="col-md-6">
+                        @if (Plataform.IsAyuntamiento)
+                        {<label>Estado de Conservación:</label> }
+                        else
+                        { <label>Tipo de Régimen:</label>}
+                        <select class="form-control form-control-sm" id="typeRegime" name="typeRegime"></select>
+                    </div>
+
+                    <div class="col-md-6">
+                        @if (Plataform.IsAyuntamiento)
+                        {<label>Uso Predio:</label> }
+                        else
+                        { <label>Tipo de Uso:</label>}
+                        <select class="form-control form-control-sm" id="typeUse" name="typeUse"></select>
+                    </div>
+                    <div class="col-md-6">
+                        @if (Plataform.IsAyuntamiento)
+                        {<label>Clasificación Zona:</label> }
+                        else
+                        { <label>Tipo de Comercio:</label>}
+                        <select class="form-control form-control-sm" id="typeCommertialBusiness" name="typeCommertialBusiness"></select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Tipo de Clasificación:</label>
+                        <select class="form-control form-control-sm" id="typeClassification" name="typeClassification"></select>
+                    </div>
+                    <div class="col-md-6">
+                        @if (Plataform.IsAyuntamiento)
+                        {<label>Tipo Inpuesto:</label> }
+                        else
+                        { <label>Tipo de Servicio:</label>}
+                        <select class="form-control form-control-sm" id="typeService" name="typeService"></select>
+                    </div>
+
+                    @if (!Plataform.IsAyuntamiento)
+                    {
+                        <div class="col-md-6">
+                            <label>Diametro:</label>
+                            <select class="form-control form-control-sm" id="diameter" name="diameter"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Tipo de Consumo:</label>
+                            <select class="form-control form-control-sm" id="typeConsume" name="typeConsume"></select>
+                        </div>
+                    }
+
+                    <div class="col-md-6">
+                        <label>Observaciones:</label>
+                        <textarea class="form-control form-control-sm" id="observations" name="observations" value="N/A"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                @if (Plataform.IsAyuntamiento)
+                {<p>Impuestos</p> }
+                else
+                { <p>Servicios</p>}
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <select class="form-control form-control-sm" id="services" name="services" multiple></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Periocidad</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Tipo de Periodo:</label>
+                        <select class="form-control form-control-sm" id="typePeriod" name="typePeriod"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Ruta</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <input type="number" class="form-control form-control-sm" id="route" name="route" min="0" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,24 @@
+﻿class AgreementVM {
+    Id;
+    Account;
+    Route;
+    Derivatives;
+    TypeServiceId;
+    TypeUseId;
+    TypeConsumeId;
+    TypeRegimeId;
+    TypePeriodId;
+    TypeCommertialBusinessId;
+    TypeStateServiceId;
+    TypeIntakeId;
+    TypeClasificationId;
+    DiameterId;
+    TypeAgreement;
+    AgreementPrincipalId;
+    UserId;
+    Observations;
+    ServicesId;
+    Adresses;
+    Clients;
+    AgreementDetails;
+}

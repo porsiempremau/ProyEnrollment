@@ -16,6 +16,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
     <link href="~/css/Loader.css" rel="stylesheet" />
+    <style>
+        .swal2-container {
+            zoom: 0.77;
+        }
+    </style>
 </head>
 <body>
     <div class="app-container app-theme-white body-tabs-shadow fixed-header fixed-sidebar">
@@ -27,7 +32,7 @@
                 <div class="app-main__inner">
                     @RenderBody()
                 </div>
-                
+
                 <div class="app-wrapper-footer">
                     <partial name="~/Views/Partials/_Footer.cshtml" />
                 </div>
@@ -40,6 +45,7 @@
     <script type="text/javascript" src="~/assets/scripts/main.cba69814a806ecc7945a.js"></script>
     <script src="~/js/DataTables.js"></script>
     <script src="~/js/SerializerForm.js"></script>
+    <script src="~/js/Models.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
@@ -55,21 +61,11 @@
     @RenderSection("Scripts", required: false)
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> <!-- PARA EL DRAGGABLE DE LOS MODALES -->
     <script>
-        function Block() {
-            $.blockUI({ message: null });
-            document.getElementById("loader").style.display = "block";
-            document.getElementsByClassName("blockOverlay")[0].style.zIndex = 10000;
-        }
-
-        function UnBlock() {
-            document.getElementById("loader").style.display = "none";
-            $.unblockUI();
-        }
-
         $(".modal-dialog").draggable({
             handle: ".modalHeader"
         });
     </script>
+    <script src="~/js/JavaScriptGeneral.js"></script>
 
     <div id="loader" class="sk-chase" style="display: none;">
         <div class="sk-chase-dot"></div>

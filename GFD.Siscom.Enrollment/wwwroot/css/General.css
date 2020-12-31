@@ -14,7 +14,6 @@ td {
     font-size: 13px !important;
 }
 
-
 th{
     font-size: 14px;
     font-weight: 200 !important;
@@ -22,4 +21,38 @@ th{
 
 .margin-top-btns{
     margin-top: 30px !important;
+}
+
+.btn-GFD{
+    background-color:#036681;
+    color: white;
+}
+
+.btn-GFD:hover {
+    background-color: #00b3ba;
+    color: white;
+}
+
+.title-head {
+    background-color: #036681;
+    color: white !important;
+    padding-top: 10px;
+    padding-bottom: 0px;
+    padding-left: 17px;
+    text-transform: uppercase;
+    font-size: 17px !important;
+}
+
+#resultadoRFC,
+#resultadoINE,
+#resultadoCURP {
+    background-color: #c70000;
+    color: white;
+    font-weight: bold;
+}
+
+#resultadoRFC.ok,
+#resultadoINE.ok,
+#resultadoCURP.ok{
+    background-color: #49bf7b;
 }

@@ -66,5 +66,12 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
             return Ok();
         }
+
+        [HttpPost]
+        public ActionResult Logout()
+        {
+            HttpContext.Session.Remove("Login");
+            return View("Index");
+        }
     }
 }

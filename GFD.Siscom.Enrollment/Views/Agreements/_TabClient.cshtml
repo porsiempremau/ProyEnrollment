@@ -1,0 +1,130 @@
+﻿
+<div class="row">
+    <div class="col-md-8">
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Información</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-md-12" style="margin-bottom: 10px;">
+                        <input type="checkbox" class="form-check" id="moralPerson" name="moralPerson" />
+                        <label>Persona Moral:</label>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label>Nombre:</label>
+                        <input type="text" class="form-control form-control-sm" id="nameClient" name="nameClient" required/>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Paterno:</label>
+                        <input type="text" class="form-control form-control-sm" id="lastName" name="lastName" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Materno:</label>
+                        <input type="text" class="form-control form-control-sm" id="secondLastName" name="secondLastName" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>RFC:</label>
+                        <input type="text" class="form-control form-control-sm" id="rfc" name="rfc" maxlength="13" 
+                               onkeyup="this.value = this.value.toUpperCase();" oninput="validarCampo(this, 'resultadoRFC', 'RFC')"/>
+                        <pre id="resultadoRFC" style="padding-left: 7px;"></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <label>INE:</label>
+                        <input type="text" class="form-control form-control-sm" id="ine" name="ine" maxlength="13"
+                               onkeyup="this.value = this.value.toUpperCase();" oninput="validarCampo(this, 'resultadoINE', 'INE')" />
+                        <pre id="resultadoINE" style="padding-left: 7px;"></pre>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>CURP:</label>
+                        <input type="text" class="form-control form-control-sm" id="curp" name="curp" maxlength="18"
+                               onkeyup="this.value = this.value.toUpperCase();" oninput="validarCurp(this, 'resultadoCURP')" />
+                        <pre id="resultadoCURP" style="padding-left: 7px;"></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Correo:</label>
+                        <input type="email" class="form-control form-control-sm" id="email" name="email" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Télefonos de Contacto</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Télefono:</label>
+                        <input type="text" class="form-control form-control-sm" id="phone" name="phone" pattern="[0-9]{10}" maxlength="10"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Tipo de Contacto:</label>
+                        <select type="text" class="form-control form-control-sm" id="typeContact" name="typeContact"></select>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" class="btn btn-GFD float-right" onclick="addNumberPhoneToTable()">Agregar</button>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <table style="width: 100%;" id="TableContacts" class="table table-hover table-striped table-bordered">
+                            <thead class="style-theads">
+                                <tr>
+                                    <th width="45%">Teléfono</th>
+                                    <th width="45%">Tipo</th>
+                                    <th width="10%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyContacts"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function startSectionClient() {
+        RenderSelectOption("typeContact", __typeContacts);
+    }
+
+    function addNumberPhoneToTable() {
+        var number = GetValue("phone", false),
+            type = document.getElementById("typeContact").value;
+        __listaNumbers.push({ number, type });
+        $("#tbodyContacts").html("");
+        __listaNumbers.forEach(x => {
+            var descriptionType = getDescriptionTypeContact(x.type, __typeContacts);
+            $("#tbodyContacts").append(`
+                <tr>
+                    <td>${x.number}</td>
+                    <td>${descriptionType}</td>
+                    <td>
+                        <a class="nav-link btn-flush" onclick="deleteNumber()" type="button"
+                           data-caret="false" style="margin: 0 auto;">
+                            <i class="far fa-trash-alt" title="Eliminar Número"></i>
+                        </a>
+                    </td>
+                </tr>
+            `);
+        });
+    }
+
+    function deleteNumber() {
+
+    }
+</script>

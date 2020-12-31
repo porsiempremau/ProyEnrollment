@@ -26,11 +26,11 @@ namespace GFD.Siscom.Enrollment.Services
         }
 
         [HttpGet("CatalogTypes/Get")]
-        public async Task<IActionResult> Get([FromQuery] string type, [FromQuery] string name, [FromQuery] bool isToSelect)
+        public async Task<IActionResult> Get([FromQuery] string type, [FromQuery] bool isToSelect, [FromQuery] string name = "")
         {
             try
             {
-                ViewData["Title"] = name;
+                
                 var result = await RequestsApi.SendURIAsync("/api/" + type , HttpMethod.Get, Auth.Login.Token);
                 if (result.Contains("error"))
                 {
@@ -44,6 +44,7 @@ namespace GFD.Siscom.Enrollment.Services
                 }
                 else
                 {
+                    ViewData["Title"] = name;
                     return View("~/Views/Catalogs/CatalogsGeneral.cshtml", new { type = type, data = data });
                 }
             }

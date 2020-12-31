@@ -21,7 +21,7 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#modalCreateEdit" onclick="openModalToCreate('@data["type"]')">
+        <button type="button" class="btn btn-GFD float-right" data-toggle="modal" data-target="#modalCreateEdit" onclick="openModalToCreate('@data["type"]')">
             Agregar Nuevo
             <i class="fas fa-plus" title="Agregar Nuevo"></i>
         </button>
@@ -84,7 +84,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary" form="FormData">Guardar</button>
+                    <button type="submit" class="btn btn-GFD" form="FormData">Guardar</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                 </div>
             </div>
@@ -266,7 +266,6 @@
         function FillSelectAcronymIntake(idSelect, value) {
             axios.get('/CatalogTypes/Get?type=TypeIntakes&name=TypeIntake&isToSelect=true').then(response => {
                 var data = response.data;
-                //console.log(data);
                 data.forEach(x => {
                     var option = document.createElement("option");
                     option.text = x.acronym;
