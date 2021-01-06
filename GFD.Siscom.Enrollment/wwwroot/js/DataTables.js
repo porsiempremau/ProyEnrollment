@@ -1,5 +1,5 @@
 ﻿
-function loadDataTable(idTable) {
+function loadDataTable(idTable, type = "") {
     //var Y = "30vh";
     //var columns = [];
     //if (modal == "BusquedaMatricula" || modal == "BusquedaPadreTutor") {
@@ -20,6 +20,15 @@ function loadDataTable(idTable) {
     //} else {
     //    columns = null;
     //}
+    var paging = true,
+        scrollY = "",
+        scrollColapse = false;
+
+    if (type == "TaxUsers") {
+        paging = false;
+        scrollY = "47vh";
+        scrollColapse = true
+    }
     table = $("#" + idTable).DataTable({
         retrieve: true,
         "language": {
@@ -41,10 +50,10 @@ function loadDataTable(idTable) {
         },
         "pagingType": "full_numbers",
         "filter": true,
-        //scrollY: Y,
+        scrollY: scrollY,
         scrollX: true,
-        paging: true,
-        //scrollCollapse: true,
+        paging: paging,
+        scrollCollapse: scrollColapse,
         "iDisplayLength": 10,
         "lengthChange": false,
         //"columns": columns,

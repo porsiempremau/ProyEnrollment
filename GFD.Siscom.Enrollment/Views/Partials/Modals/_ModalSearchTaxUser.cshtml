@@ -1,0 +1,50 @@
+﻿
+<div class="modal fade" id="modalSearchTaxUser" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modalHeader" style="background-color:#036681;padding: 1rem;">
+                <div class="row">
+                    <div class="col-xs-6 col-sm-7 col-md-10 col-lg-10">
+                        <p id="TitleModal" class="subtitle bold white-color" style="margin-bottom: 0px;"></p>
+                    </div>
+                    <div class="col-xs-6 col-sm-5 col-md-2 col-lg-2" style="float:right;">
+                        <button type="button" style="color: white;" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id="TableTaxUsers" style="width: 100%;" class="table table-hover table-striped table-bordered">
+                            <thead class="style-theads">
+                                <tr>
+                                    <th></th>
+                                    <th>Nombre</th>
+                                    <th>RFC</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyTaxUsers"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @*<button type="submit" class="btn btn-GFD" form="FormData">Guardar</button>*@
+                <button type="button" class="btn btn-GFD" data-dismiss="modal" onclick="__GetTaxUsersSelected()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var __ListTaxUsers = [],
+        __TaxUserSelected = null;
+
+    function __SetItemSelectedTaxUser(id) {
+        __TaxUserSelected = __ListTaxUsers.find(x => x.id == id);
+    }
+
+    function __GetTaxUsersSelected() {
+        GetTaxUser(__TaxUserSelected);
+    }
+</script>

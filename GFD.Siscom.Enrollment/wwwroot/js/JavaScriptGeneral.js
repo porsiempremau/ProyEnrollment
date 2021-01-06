@@ -9,7 +9,7 @@ function UnBlock() {
     $.unblockUI();
 }
 
-function RenderSelect(idSelect, nameCatalog, selected = "", callback = null, params = {}) {
+function RenderSelect(idSelect, nameCatalog, selected = "", callback = null, params = {}) { //SE ACTUALIZÓ Y ES LA FUNCIÓN DE ABAJO LA QUE SE OCUPÓ
     var select = document.getElementById(idSelect),
         url = "/CatalogTypes/Get?type=" + nameCatalog + "&isToSelect=true";
 
@@ -60,9 +60,12 @@ function RenderSelectOption(idSelect, list, selected = "", callback = null, para
     if (list.length > 0) {
         list.forEach(x => {
             var option = document.createElement("option");
-            if (idSelect == "typeContact") {
+            if (idSelect == "typeContact" || idSelect == "typeClient" || idSelect == "typeAddress") {
                 option.text = x.description;
                 option.value = x.idType;
+            } else if (idSelect == "typeConsume") {
+                option.text = x.acronym;
+                option.value = x.id;
             } else {
                 option.text = x.name;
                 option.value = x.id;
@@ -102,6 +105,73 @@ function GetValue(id, isInt) {
     }
 }
 
+function GetCountries(idSelect) {
+    Block();
+    var select = document.getElementById(idSelect);
+    axios.get("/States/Get/0?isToSelect=true").then(response => {
+        var data = response.data;
+        if (data.length > 0) {
+            data.forEach(x => {
+                var option = document.createElement("option");
+                option.text = x.name;
+                option.value = x.id;
+                if (x.id == 21) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        }
+        UnBlock();
+    }).catch(error => {
+        UnBlock();
+    })
+}
+
+function SearchTownByIdState(id, idSelect) {
+    Block();
+    __idState = id;
+    $("#" + idSelect).html("");
+    var select = document.getElementById(idSelect);
+    axios.get("/Towns/SearchTownByIdState/" + __idState + "/0").then(response => {
+        var data = response.data;
+        if (data.length > 0) {
+            data.forEach(x => {
+                var option = document.createElement("option");
+                option.text = x.name;
+                option.value = x.id;
+                if (x.id == 2) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        }
+        UnBlock();
+    }).catch(error => {
+        UnBlock();
+    })
+}
+
+function SearchSuburbByIdTown(id, idSelect) {
+    Block();
+    __idTown = id;
+    $("#" + idSelect).html("");
+    var select = document.getElementById(idSelect);
+    axios.get("/Suburbs/SearchSuburbByIdTown/" + __idTown + "/0").then(response => {
+        var data = response.data;
+        if (data.length > 0) {
+            data.forEach(x => {
+                var option = document.createElement("option");
+                option.text = x.name;
+                option.value = x.id;
+                select.appendChild(option);
+            });
+        }
+        UnBlock();
+    }).catch(error => {
+        UnBlock();
+    })
+}
+
 function validarCurp(input, result) {
     var curp = input.value.toUpperCase(),
         resultado = document.getElementById(result),
@@ -114,8 +184,8 @@ function validarCurp(input, result) {
         resultado.classList.remove("ok");
     }
 
-    //resultado.innerText = "CURP: " + curp + "\nFormato: " + valido;
     resultado.innerText = "Formato: " + valido;
+    //resultado.innerText = "CURP: " + curp + "\nFormato: " + valido;
 }
 
 function curpValida(curp) {
@@ -176,10 +246,11 @@ function validarCampo(input, preResult, tipo) {
     } else {
         result.classList.remove("ok");
     }
+
     result.innerText = "Formato: " + isValid;
 }
 
-function getDescriptionTypeContact(id, lista) {
+function getDescriptionType(id, lista) {
     var descripcion = "";
     if (id == 0 || id == "") {
         descripcion = "No registrado";
@@ -194,7 +265,7 @@ function getDescriptionTypeContact(id, lista) {
 
 function onlyNumbers(e) {
     var key = window.event ? e.which : e.keyCode;
-    if (key < 48 || key > 57) {
+    if (key < 46 || key > 57) {
         e.preventDefault();
     }
 }

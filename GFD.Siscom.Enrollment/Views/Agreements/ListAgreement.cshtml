@@ -141,31 +141,31 @@
                 if (data.length > 0) {
                     data.forEach(x => {
                         $("#tbody").append(`
-                                    <tr>
-                                        <td>${x.account}</td>
-                                        <td>${x.nombre}</td>
-                                        <td>${x.address}</td>
-                                        <td>${x.status}</td>
-                                        <td>${x.type}</td>
-                                        <td>${x.token}</td>
-                                        <td>${x.isActiveDiscount ? "Activo" : "Inactivo"}</td>
-                                        <td>${x.nameDiscount != "" ? x.nameDiscount : "N/A"}</td>
-                                        <td>
-                                            <a class="nav-link btn-flush" onclick="EditAgreement(${x.agreementId})" data-caret="false" style="margin: 0 auto;">
-                                                <i class="far fa-edit" title="Editar"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                `);
+                            <tr>
+                                <td>${x.account}</td>
+                                <td>${x.nombre}</td>
+                                <td>${x.address}</td>
+                                <td>${x.status}</td>
+                                <td>${x.type}</td>
+                                <td>${x.token}</td>
+                                <td>${x.isActiveDiscount ? "Activo" : "Inactivo"}</td>
+                                <td>${x.nameDiscount != "" ? x.nameDiscount : "N/A"}</td>
+                                <td>
+                                    <a class="nav-link btn-flush" href="/Agreement/EditCreateView?idAgreement=${x.agreementId}" data-caret="false" style="margin: 0 auto;">
+                                        <i class="far fa-edit" title="Editar"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        `);
                     });
 
                     loadDataTable("TableAgreement");
                 } else {
                     $("#tbody").append(`
-                                <tr>
-                                    <td colspan="9" style="text-align: center; font-size: 23px;">Sin Datos</td>
-                                </tr>
-                            `);
+                        <tr>
+                            <td colspan="9" style="text-align: center; font-size: 23px;">Sin Datos</td>
+                        </tr>
+                    `);
                     Swal.fire({
                         title: "Disculpa",
                         text: 'No se encontraron datos',

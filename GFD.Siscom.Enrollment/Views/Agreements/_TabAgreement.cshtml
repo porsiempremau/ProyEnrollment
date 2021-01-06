@@ -7,7 +7,7 @@
                 <p>Características del Contrato</p>
             </div>
             <div class="card-body">
-                <div class="row">
+                @*<div class="row">
                     <div class="col-md-6">
                         <label>Contrato Principal:</label>
                         <input class="form-control form-control-sm" id="agreementPrincipal" name="agreementPrincipal" />
@@ -17,9 +17,30 @@
                     </div>
                 </div>
                 <br />
-                <br />
+                <br />*@
+                @if (Plataform.IsAyuntamiento)
+                {
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label>Tipo de Predio:</label>
+                            <select class="form-control form-control-sm" id="typeConsume" name="typeConsume"></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Numero de Cuenta:</label>
+                            <input type="text" class="form-control form-control-sm" id="account" name="account" />
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-GFD margin-top-btns" onclick="CompareAccount(document.getElementById('account').value, document.getElementById('typeConsume').value)">
+                                Comprobar Cuenta
+                            </button>
+                        </div>
+                    </div>
+                    <br />
+                    <br />
+                }
+                
                 <div class="row">
-                    <input type="hidden" id="ID" name="ID" value="@(Model != null ? Model?.Id : 0)" />
+                    <input type="hidden" id="ID" name="ID" />
                     <div class="col-md-6">
                         @if (Plataform.IsAyuntamiento)
                         {<label>Tipo Predio</label> }
@@ -120,10 +141,118 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-12">
-                        <input type="number" class="form-control form-control-sm" id="route" name="route" min="0" />
+                        <input type="number" class="form-control form-control-sm" id="route" name="route" min="0" value="1"/>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@if (Plataform.IsAyuntamiento && Model != null)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="main-card mb-3 card">
+                <div class="title-head">
+                    <p>Deltalles del Predio</p>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Folio de Inscripción:</label>
+                            <input type="text" id="folio" name="folio" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-6">
+                            <label>Registro:</label>
+                            <input type="text" id="register" name="register" class="form-control form-control-sm" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Base Grabable:</label>
+                            <input type="text" id="taxableBase" name="taxableBase" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-6">
+                            <label>Terreno (m2):</label>
+                            <input type="text" id="ground" name="ground" class="form-control form-control-sm" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>Construcción:</label>
+                            <input type="text" id="build" name="build" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Fecha Avaluo:</label>
+                            <input type="date" id="lastUpdate" name="lastUpdate" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Fecha Alta Predio:</label>
+                            <input type="date" id="agreementDetailDate" name="agreementDetailDate" class="form-control form-control-sm" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Manifiesto:</label>
+                            <select id="manifest" name="manifest" class="form-control form-control-sm">
+                                <option value="true">Si</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Clave Catastral:</label>
+                            <input type="text" id="catastralKey" name="catastralKey" class="form-control form-control-sm" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+    function CompareAccount(account, idTypeConsume) {
+        Block();
+        axios.get('/Agreement/ComparateAccount/' + account + '/' + idTypeConsume).then(response => {
+            UnBlock();
+            Swal.fire({
+                title: "Cuenta Validada",
+                text: response.data,
+                type: 'success',
+                showConfirmButton: true,
+            }).then(response => {
+                document.getElementById("TabClient").classList.remove("disabled");
+                document.getElementById("TabAddress").classList.remove("disabled");
+                document.getElementById("typeIntake").disabled = false;
+                document.getElementById("typeRegime").disabled = false;
+                document.getElementById("typeUse").disabled = false;
+                document.getElementById("typeCommertialBusiness").disabled = false;
+                document.getElementById("typeClassification").disabled = false;
+                document.getElementById("typeService").disabled = false;
+                document.getElementById("observations").disabled = false;
+                document.getElementById("services").disabled = false;
+                document.getElementById("typePeriod").disabled = false;
+                document.getElementById("route").disabled = false;
+            });
+        }).catch(error => {
+            UnBlock();
+            Swal.fire({
+                title: "Disculpa",
+                text: error.response.data,
+                type: 'info',
+                showConfirmButton: true,
+            }).then(response => {
+                document.getElementById("TabClient").classList.add("disabled");
+                document.getElementById("TabAddress").classList.add("disabled");
+                document.getElementById("typeIntake").disabled = true;
+                document.getElementById("typeRegime").disabled = true;
+                document.getElementById("typeUse").disabled = true;
+                document.getElementById("typeCommertialBusiness").disabled = true;
+                document.getElementById("typeClassification").disabled = true;
+                document.getElementById("typeService").disabled = true;
+                document.getElementById("observations").disabled = true;
+                document.getElementById("services").disabled = true;
+                document.getElementById("typePeriod").disabled = true;
+                document.getElementById("route").disabled = true;
+            });
+        });
+    }
+</script>

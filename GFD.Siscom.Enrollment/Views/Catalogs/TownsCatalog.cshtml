@@ -92,28 +92,6 @@
             SearchTownByIdState(21);
         }
 
-        function GetCountries(idSelect) {
-            Block();
-            var select = document.getElementById(idSelect);
-            axios.get("/States/Get/0?isToSelect=true").then(response => {
-                var data = response.data;
-                if (data.length > 0) {
-                    data.forEach(x => {
-                        var option = document.createElement("option");
-                        option.text = x.name;
-                        option.value = x.id;
-                        if (x.id == 21) {
-                            option.selected = true;
-                        }
-                        select.appendChild(option);
-                    });
-                }
-                UnBlock();
-            }).catch(error => {
-                UnBlock();
-            })
-        }
-
         function SearchTownByIdState(id) {
             Block();
             __idState = id;

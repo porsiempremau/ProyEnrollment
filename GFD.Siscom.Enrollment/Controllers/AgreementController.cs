@@ -77,9 +77,9 @@ namespace GFD.Siscom.Enrollment.Controllers
         }
 
         [HttpGet("Agreement/EditCreateView")]
-        public IActionResult EditCreateView()
+        public IActionResult EditCreateView([FromQuery] int idAgreement = 0)
         {
-            return View("~/Views/Agreements/AgreementCreateEdit.cshtml");
+            return View("~/Views/Agreements/AgreementCreateEdit.cshtml", new { id = idAgreement });
         }
 
         [HttpGet("Agreement/GetData")]
@@ -112,6 +112,63 @@ namespace GFD.Siscom.Enrollment.Controllers
                     return Conflict(result);
                 }
                 return Ok(result);
+
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
+        [HttpGet("Agreement/SearchTaxUserByName/{name}")]
+        public async Task<IActionResult> SearchTaxUserByName([FromRoute] string name)
+        {
+            try
+            {
+                var result = await RequestsApi.SendURIAsync("/api/TaxUsers/Search/" + name, HttpMethod.Get, Auth.Login.Token);
+                if (result.Contains("error"))
+                {
+                    return Conflict(result);
+                }
+                return Ok(JsonConvert.DeserializeObject<List<TaxUserVM>>(result));
+
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+        
+        [HttpGet("Agreement/ComparateAccount/{account}/{idTypeConsume}")]
+        public async Task<IActionResult> ComparateAccount([FromRoute] string account, [FromRoute] int idTypeConsume)
+        {
+            try
+            {
+                var result = await RequestsApi.SendURIAsync("/api/Agreements/comparateAccount/" + account + "/" + idTypeConsume, HttpMethod.Get, Auth.Login.Token);
+                if (result.Contains("Ya existe"))
+                {
+                    return Conflict(result);
+                }
+                return Ok(result);
+
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
+        [HttpGet("Agreement/GetSelected/{id}")]
+        public async Task<IActionResult> GetSelected([FromRoute] int id)
+        {
+            try
+            {
+                var result = await RequestsApi.SendURIAsync("/api/Agreements/" + id, HttpMethod.Get, Auth.Login.Token);
+                if (result.Contains("error"))
+                {
+                    return Conflict(result);
+                }
+                return Ok(JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(result)));
 
             }
             catch (Exception e)

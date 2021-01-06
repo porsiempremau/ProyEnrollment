@@ -101,52 +101,30 @@
             SearchTownByIdState(21, "towns");
             SearchSuburbByIdTown(2);
         }
-
-        function GetCountries(idSelect) {
-            Block();
-            var select = document.getElementById(idSelect);
-            axios.get("/States/Get/0?isToSelect=true").then(response => {
-                var data = response.data;
-                if (data.length > 0) {
-                    data.forEach(x => {
-                        var option = document.createElement("option");
-                        option.text = x.name;
-                        option.value = x.id;
-                        if (x.id == 21) {
-                            option.selected = true;
-                        }
-                        select.appendChild(option);
-                    });
-                }
-                UnBlock();
-            }).catch(error => {
-                UnBlock();
-            })
-        }
-
-        function SearchTownByIdState(id, idSelect) {
-            Block();
-            __idState = id;
-            $("#" + idSelect).html("");
-            var select = document.getElementById(idSelect);
-            axios.get("/Towns/SearchTownByIdState/" + __idState + "/0").then(response => {
-                var data = response.data;
-                if (data.length > 0) {
-                    data.forEach(x => {
-                        var option = document.createElement("option");
-                        option.text = x.name;
-                        option.value = x.id;
-                        if (x.id == 2) {
-                            option.selected = true;
-                        }
-                        select.appendChild(option);
-                    });
-                }
-                UnBlock();
-            }).catch(error => {
-                UnBlock();
-            })
-        }
+        
+        //function SearchTownByIdState(id, idSelect) {
+        //    Block();
+        //    __idState = id;
+        //    $("#" + idSelect).html("");
+        //    var select = document.getElementById(idSelect);
+        //    axios.get("/Towns/SearchTownByIdState/" + __idState + "/0").then(response => {
+        //        var data = response.data;
+        //        if (data.length > 0) {
+        //            data.forEach(x => {
+        //                var option = document.createElement("option");
+        //                option.text = x.name;
+        //                option.value = x.id;
+        //                if (x.id == 2) {
+        //                    option.selected = true;
+        //                }
+        //                select.appendChild(option);
+        //            });
+        //        }
+        //        UnBlock();
+        //    }).catch(error => {
+        //        UnBlock();
+        //    })
+        //}
 
         function SearchSuburbByIdTown(id) {
             Block();
