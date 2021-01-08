@@ -1,4 +1,10 @@
-﻿
+﻿@using GFD.Siscom.Enrollment.Utilities;
+@using Newtonsoft.Json;
+@{
+    dynamic m = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(Model));
+    var IDAgreement = m["id"];
+}
+
 <div class="row">
     <div class="col-md-8">
         <div class="main-card mb-3 card">
@@ -21,11 +27,13 @@
                                 <input type="text" class="form-control form-control-sm" id="nameClient" name="nameClient" />
                             </div>
                             <div class="col-md-2">
-                                <button type="button" class="btn btn-GFD margin-top-btns" onclick="SearchTaxUser(document.getElementById('nameClient').value)" 
-                                        data-toggle="modal" data-target="#modalSearchTaxUser">Buscar</button>
+                                <button type="button" class="btn btn-GFD margin-top-btns" onclick="SearchTaxUser(document.getElementById('nameClient').value)"
+                                        data-toggle="modal" data-target="#modalSearchTaxUser">
+                                    Buscar
+                                </button>
                             </div>
                         </div>
-                        
+
                     </div>
 
                     <div id="divLastName" class="col-md-6">
@@ -146,12 +154,24 @@
         </div>
     </div>
 </div>
+@if (IDAgreement != 0)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <button type="button" id="btnUpdateClient" class="btn btn-success float-right" style="margin-bottom: 17px;"
+                    onclick="UpdateClient()">
+                Modificar Cliente
+            </button>
+        </div>
+    </div>
+}
+
 
 
 <script>
     function startSectionClient() {
-        RenderSelectOption("typeContact", __typeContacts);
-        RenderSelectOption("typeClient", __typeClients);
+        RenderSelectOption("", "typeContact", __typeContacts);
+        RenderSelectOption("", "typeClient", __typeClients);
     }
 
     function addClientsToTable() {
@@ -162,7 +182,7 @@
             ine = GetValue("ine", false),
             curp = GetValue("curp", false),
             eMail = GetValue("email", false),
-            isMoral = document.getElementById("isMoral").checked,
+            taxRegime = document.getElementById("isMoral").checked,
             isMale = document.getElementById("isMale").value == "true" ? true : false,
             typeUser = document.getElementById("typeClient").value;
 
@@ -175,7 +195,7 @@
             ine,
             curp,
             eMail,
-            isMoral,
+            taxRegime,
             isMale,
             typeUser
         });
@@ -187,7 +207,7 @@
     function addNumberPhoneToTable() {
         var number = GetValue("phone", false),
             type = document.getElementById("typeContact").value;
-        __listaNumbers.push({ id: idContacts++, number, type });
+        __listaNumbers.push({ id: idContacts++, phoneNumber: number, typeNumber: type });
         fillTableContact("tbodyContacts");
     }
 
@@ -235,10 +255,10 @@
         $("#" + idTBody).html("");
         cleanInputContact();
         __listaNumbers.forEach(x => {
-            var descriptionType = getDescriptionType(x.type, __typeContacts);
+            var descriptionType = getDescriptionType(x.typeNumber, __typeContacts);
             $("#" + idTBody).append(`
                 <tr>
-                    <td>${x.number}</td>
+                    <td>${x.phoneNumber}</td>
                     <td>${descriptionType}</td>
                     <td>
                         <a class="nav-link btn-flush" onclick="deleteItemContact(${x.id}, 'tbodyContacts')" type="button"
@@ -275,7 +295,7 @@
         document.getElementById("btnAddClient").style.display = "none";
         document.getElementById("btnEditClient").style.display = "block";
         document.getElementById("idClient").value = itemFound.id;
-        document.getElementById("isMoral").checked = itemFound.isMoral;
+        document.getElementById("isMoral").checked = itemFound.taxRegime;
         document.getElementById("nameClient").value = itemFound.name;
         document.getElementById("lastName").value = itemFound.lastName;
         document.getElementById("secondLastName").value = itemFound.secondLastName;
@@ -288,6 +308,7 @@
         $("#isMale").val(itemFound.isMale ? "true" : "false");
 
         checkedIsMoral();
+        document.getElementById("btnUpdateClient").disabled = true;
     }
 
     function EditClient(id) {
@@ -302,7 +323,7 @@
             ine = GetValue("ine", false),
             curp = GetValue("curp", false),
             eMail = GetValue("email", false),
-            isMoral = document.getElementById("isMoral").checked,
+            taxRegime = document.getElementById("isMoral").checked,
             isMale = document.getElementById("isMale").value == "true" ? true : false,
             typeUser = document.getElementById("typeClient").value;
 
@@ -315,14 +336,54 @@
             ine,
             curp,
             eMail,
-            isMoral,
+            taxRegime,
             isMale,
             typeUser
         });
 
         fillTableClients("tbodyClients");
+        document.getElementById("btnUpdateClient").disabled = false;
         document.getElementById("btnAddClient").style.display = "block";
         document.getElementById("btnEditClient").style.display = "none";
+    }
+
+    function UpdateClient() {
+        Block();
+        var client = [],
+            listPhoneNumers = [];
+
+        __listaNumbers.forEach(x => {
+            var contact = new ContactVM(x);
+            listPhoneNumers.push(contact);
+        });
+
+        __listClients.forEach(x => {
+            var c = new ClientVM(x);
+            c.agreementId = @IDAgreement;
+            c.contacts = listPhoneNumers;
+            client.push(c);
+        });
+
+        axios.put(`/Agreement/CreateEditClient/${@IDAgreement}`, { client }).then(response => {
+            //console.log("Update client: ", response.data);
+            UnBlock();
+            Swal.fire({
+                title: "Bien",
+                text: response.data,
+                type: 'success',
+                showConfirmButton: true,
+            }).then(response => {
+                window.location.href = "/Agreement/EditCreateView?idAgreement=" + @IDAgreement;
+            });
+        }).catch(error => {
+            UnBlock();
+            Swal.fire({
+                title: "Disculpa",
+                text: error.response.data,
+                type: 'info',
+                showConfirmButton: true,
+            });
+        });
     }
 
     function checkedIsMoral() {

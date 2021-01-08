@@ -49,7 +49,7 @@ function RenderSelect(idSelect, nameCatalog, selected = "", callback = null, par
     });
 }
 
-function RenderSelectOption(idSelect, list, selected = "", callback = null, params = {}) {
+function RenderSelectOption(acronym, idSelect, list, selected = "", callback = null, params = {}) {
     var select = document.getElementById(idSelect);
     select.innerHTML = "";
 
@@ -59,22 +59,31 @@ function RenderSelectOption(idSelect, list, selected = "", callback = null, para
 
     if (list.length > 0) {
         list.forEach(x => {
-            var option = document.createElement("option");
-            if (idSelect == "typeContact" || idSelect == "typeClient" || idSelect == "typeAddress") {
-                option.text = x.description;
-                option.value = x.idType;
-            } else if (idSelect == "typeConsume") {
+            if (idSelect == "typeConsume" || idSelect == "typeIntake") {
+                var option = document.createElement("option");
                 option.text = x.acronym;
                 option.value = x.id;
-            } else {
+                select.appendChild(option);
+            } else if (idSelect == "typeService" || idSelect == "services" || idSelect == "typePeriod") {
+                var option = document.createElement("option");
                 option.text = x.name;
                 option.value = x.id;
+                select.appendChild(option);
+            } else if (idSelect == "typeContact" || idSelect == "typeClient" || idSelect == "typeAddress") {
+                var option = document.createElement("option");
+                option.text = x.description;
+                option.value = x.idType;
+                select.appendChild(option);
+            } else if (x.intakeAcronym == acronym || x.acronym == acronym) {
+                var option = document.createElement("option");
+                option.text = x.name;
+                option.value = x.id;
+                //if (x.id == selected) {
+                //    option.selected = true
+                //}
+                select.appendChild(option);
             }
-            
-            if (x.id == selected) {
-                option.selected = true
-            }
-            select.appendChild(option);
+                        
         });
     } else {
         var option = document.createElement("option");
@@ -268,4 +277,19 @@ function onlyNumbers(e) {
     if (key < 46 || key > 57) {
         e.preventDefault();
     }
+}
+
+function getFormateDate(d) {
+    var date = new Date(d);
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var year = date.getFullYear();
+    if (day < 10) {
+        day = `0${day}`;
+    }
+    if (month < 10) {
+        month = `0${month}`;
+    }
+    var result = year + "-" + month + "-" + day;
+    return result;
 }

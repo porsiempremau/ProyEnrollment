@@ -7,6 +7,7 @@ namespace GFD.Siscom.Enrollment.Models
 {
     public class AgreementDetailVM
     {
+        public int Id { get; set; }
         public string Folio { get; set; }
         public string Register { get; set; }
         public decimal TaxableBase { get; set; }

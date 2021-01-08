@@ -54,7 +54,10 @@
             <div class="d-block text-center card-footer">
                 <div class="row">
                     <div class="col-md-12">
-                        <button type="submit" id="btnSaveData" class="btn btn-GFD float-right" disabled>Guardar Datos</button>
+                        @if (idAgreement == 0)
+                        {
+                            <button type="submit" id="btnSaveData" class="btn btn-success float-right" disabled>Guardar Datos</button>
+                        }
                     </div>
                 </div>
             </div>
@@ -67,7 +70,8 @@
 @section Scripts{
     <partial name="~/Views/Partials/Modals/_ModalSearchTaxUser.cshtml" />
     <script>
-        var form,
+        var __DataGeneral,
+            form,
             __TypeAgreement = "",
             __userId = '@Auth.Login.User',
             __diameters = [],
@@ -105,14 +109,18 @@
 
         window.onload = function () {
             Block();
-            getData();
+
+            if (@idAgreement == 0) {
+                getData("UR");
+            }
 
             form = document.getElementById("FormData");
+            form.route.addEventListener("keypress", onlyNumbers, false);
             form.phone.addEventListener("keypress", onlyNumbers, false);
             form.ine.addEventListener("keypress", onlyNumbers, false);
             form.zip.addEventListener("keypress", onlyNumbers, false);
 
-            if ('@Plataform.IsAyuntamiento' == 'True' && document.getElementById("ID").value != 0)
+            if ('@Plataform.IsAyuntamiento' == 'True' && @idAgreement != 0)
             {
                 form.folio.addEventListener("keypress", onlyNumbers, false);
                 form.register.addEventListener("keypress", onlyNumbers, false);
@@ -123,78 +131,138 @@
 
             $("#ID").val('@idAgreement');
 
-            if ('@idAgreement' != '0') {
-                setDataAgreement('@idAgreement');
+            if (@idAgreement != 0) {
+                setDataAgreement(@idAgreement);
             }
-
-
         }
 
         function setDataAgreement(id) {
+            var servicesSelect = [];
+
+            if ('@Plataform.IsAyuntamiento' == 'True') {
+                document.getElementById("typeConsume").disabled = true;
+            }
+            document.getElementById("account").disabled = true;
+
             axios.get("/Agreement/GetSelected/" + id).then(response => {
                 var data = response.data;
-
                 console.log("Agreement: ", data);
-                $("#typeConsume").val(data.typeConsumeId);
-                $("#account").val(data.account);
-                $("#typeIntake").val(data.typeIntakeId);
-                $("#typeRegime").val(data.typeRegimeId);
-                $("#typeUse").val(data.typeUseId);
-                $("#typeCommertialBusiness").val(data.typeCommertialBusinessId);
-                $("#typeClassification").val(data.typeClassificationId);
-                $("#typeService").val(data.typeServiceId);
-                $("#diameter").val(data.diameterId);
+                var AgreementDetails = data.agreementDetails,
+                    AgreementServices = data.agreementServices,
+                    Clients = data.clients,
+                    Addresses = data.addresses;
 
-                data.clients.forEach(x => {
-                    var client = new ClientVM(x);
-                    __listClients.push(client);
+                getData(data.typeIntake.acronym).then(response => {
+                    $("#typeConsume").val(data.typeConsumeId);
+                    $("#account").val(data.account);
+                    $("#typeIntake").val(data.typeIntakeId);
+                    $("#typeRegime").val(data.typeRegimeId);
+                    $("#typeUse").val(data.typeUseId);
+                    $("#typeCommertialBusiness").val(data.typeCommertialBusinessId);
+                    $("#typeClassification").val(data.typeClassificationId);
+                    $("#typeService").val(data.typeServiceId);
+                    $("#typePeriod").val(data.typePeriodId);
+                    $("#diameter").val(data.diameterId);
+                    $("#route").val(data.route);
+                    //Agreement Details
+                    if (AgreementDetails.length > 0) {
+                        AgreementDetails.forEach(x => {
+                            var agreementDetailDate = getFormateDate(x.agreementDetailDate);
+                            var lastUpdate = getFormateDate(x.lastUpdate);
+                            $("#idAgreementDetail").val(x.id);
+                            $("#folio").val(x.folio);
+                            $("#register").val(x.register);
+                            $("#taxableBase").val(x.taxableBase);
+                            $("#ground").val(x.ground);
+                            $("#build").val(x.built);
+                            $("#agreementDetailDate").val(agreementDetailDate);
+                            $("#lastUpdate").val(lastUpdate);
+                            $("#manifest").val(x.manifest ? "true" : "false");
+                            $("#catastralKey").val(x.catastralKey);
+                        });
+                    } else {
+                        var dateCurrently = new Date();
+                        $("#agreementDetailDate").val(getFormateDate(dateCurrently));
+                    }
+
+                    AgreementServices.forEach(x => {
+                        servicesSelect.push(x.idService);
+                    });
+                    $("#services").val(servicesSelect);
+
+                    Clients.forEach(x => {
+                        var client = new ClientVM(x);
+                        __listClients.push(client);
+                        client.contacts.forEach(y => {
+                            var contact = new ContactVM(y);
+                            __listaNumbers.push(contact);
+                        });
+                    });
+                    fillTableClients("tbodyClients");
+                    fillTableContact("tbodyContacts");
+
+                    console.log("__listClients: ", __listClients);
+
+                    Addresses.forEach(x => {
+                        var address = new AddressVM(x);
+                        address.suburbName = x.suburbs.name;
+                        address.townId = x.suburbs.towns.id;
+                        address.townName = x.suburbs.towns.name;
+                        address.stateId = x.suburbs.towns.states.id;
+                        address.stateName = x.suburbs.towns.states.name;
+                        __listaAddress.push(address);
+                    });
+                    fillTableAddress("tbodyAddresses");
+                }).catch(error => {
+                    console.log(error);
                 });
-
-                fillTableClients("tbodyClients");
-
-
             }).catch(error => { });
         }
 
-        function getData() {
-            axios.get('/Agreement/GetData').then(response => {
-                var data = response.data;
-                console.log("data: ", data);
-                __diameters = data.diameter;
-                __services = data.services;
-                __typeAddresses = data.typeAddresses;
-                __typeAgreemnets = data.typeAgreemnets;
-                __typeClassifications = data.typeClassifications;
-                __typeClients = data.typeClients;
-                __typeCommertialBusiness = data.typeCommertialBusiness;
-                __typeConsume = data.typeConsume;
-                __typeContacts = data.typeContacts;
-                __typeDebts = data.typeDebts;
-                __typeDescounts = data.typeDescounts;
-                __typeFile = data.typeFile;
-                __typeIntake = data.typeIntake;
-                __typePeriod = data.typePeriod;
-                __typeRegime = data.typeRegime;
-                __typeService = data.typeService;
-                __typeStateService = data.typeStateService;
-                __typeUse = data.typeUse;
+        const getData = (acronym) => {
+            return new Promise((resolve, reject) => {
+                axios.get('/Agreement/GetData').then(response => {
+                    var data = response.data;
+                    console.log("data: ", data);
+                    __diameters = data.diameter;
+                    __services = data.services;
+                    __typeAddresses = data.typeAddresses;
+                    __typeAgreemnets = data.typeAgreemnets;
+                    __typeClassifications = data.typeClassifications;
+                    __typeClients = data.typeClients;
+                    __typeCommertialBusiness = data.typeCommertialBusiness;
+                    __typeConsume = data.typeConsume;
+                    __typeContacts = data.typeContacts;
+                    __typeDebts = data.typeDebts;
+                    __typeDescounts = data.typeDescounts;
+                    __typeFile = data.typeFile;
+                    __typeIntake = data.typeIntake;
+                    __typePeriod = data.typePeriod;
+                    __typeRegime = data.typeRegime;
+                    __typeService = data.typeService;
+                    __typeStateService = data.typeStateService;
+                    __typeUse = data.typeUse;
 
-                RenderSelectOption("typeConsume", __typeConsume);
-                RenderSelectOption("typeIntake", __typeIntake);
-                RenderSelectOption("typeRegime", __typeRegime);
-                RenderSelectOption("typeUse", __typeUse);
-                RenderSelectOption("typeCommertialBusiness", __typeCommertialBusiness);
-                RenderSelectOption("typeClassification", __typeClassifications);
-                RenderSelectOption("typeService", __typeService);
-                if ('@Plataform.IsAyuntamiento' == 'False')
-                {
-                    RenderSelectOption("diameter", __diameters);
-                }
-                RenderSelectOption("services", __services);
-                RenderSelectOption("typePeriod", __typePeriod, "", UnBlock);
+                    RenderSelectOption(acronym, "typeConsume", __typeConsume);
+                    RenderSelectOption(acronym, "typeIntake", __typeIntake);
+                    RenderSelectOption(acronym, "typeRegime", __typeRegime);
+                    RenderSelectOption(acronym, "typeUse", __typeUse);
+                    RenderSelectOption(acronym, "typeCommertialBusiness", __typeCommertialBusiness);
+                    RenderSelectOption(acronym, "typeClassification", __typeClassifications);
+                    RenderSelectOption(acronym, "typeService", __typeService);
+                    if ('@Plataform.IsAyuntamiento' == 'False')
+                    {
+                        RenderSelectOption(acronym, "diameter", __diameters);
+                    }
+                    RenderSelectOption(acronym, "services", __services);
+                    RenderSelectOption(acronym, "typePeriod", __typePeriod, "", UnBlock);
 
-            }).catch(error => { });
+                    resolve(true);
+
+                }).catch(error => { });
+            });
         }
+
 
         function SaveData(event) {
             Block();
@@ -207,68 +275,33 @@
                 servicesSelect = document.getElementById("services"),
                 checkIsMoral = document.getElementById("isMoral").checked;
 
+            if (checkIsMoral) {
+                $("#lastName").val("");
+                $("#secondLastName").val("");
+            }
 
-            if ('@Plataform.IsAyuntamiento' == 'True') {
-                servicesList = [1, 2];
-            } else {
-                var x = servicesSelect.selectedOptions;
-                for (var i = 0; i < x.length; i++) {
-                    servicesList.push(parseInt(x[i].value));
-                }
+            var x = servicesSelect.selectedOptions;
+            for (var i = 0; i < x.length; i++) {
+                servicesList.push(parseInt(x[i].value));
             }
 
             __listaNumbers.forEach(x => {
-                var contact = new ContactVM();
-                contact.id = 0;
-                contact.phoneNumber = x.number;
-                contact.typeNumber = x.type;
-                contact.isActive = 1;
-                contact.clientId = 0;
+                var contact = new ContactVM(x);
                 contactsList.push(contact);
             });
 
             __listClients.forEach(x => {
-                var client = new ClientVM();
-                client.id = 0;
-                client.name = x.name;
-                if (checkIsMoral) {
-                    client.lastName = "-";
-                    client.secondLastName = "-";
-                } else {
-                    client.lastName = x.lastName;
-                    client.secondLastName = x.secondLastName;
-                }
-                client.rfc = x.rfc;
-                client.ine = x.ine;
-                client.curp = x.curp;
-                client.eMail = x.eMail;
-                client.typeUser = x.typeClient;
-                client.taxRegime = x.isMoral;
-                client.isMale = x.IsMale;
+                var client = new ClientVM(x);
                 client.contacts = contactsList;
-                client.isActive = true;
-                client.agreementId = 0;
                 clientsList.push(client);
             });
 
             __listaAddress.forEach(x => {
-                var address = new AddressVM();
-                address.Id = 0;
-                address.Street = x.street;
-                address.Outdoor = x.numExt;
-                address.Indoor = x.numInt;
-                address.Zip = x.zip;
-                address.Reference = x.references;
-                address.Lat = "0";
-                address.Lon = "0";
-                address.TypeAddress = x.typeAddress;
-                address.SuburbsId = x.suburbId;
-                address.IsActive = true;
-
+                var address = new AddressVM(x);
                 addressesList.push(address);
             });
 
-            var agreement = new AgreementVM();
+            var agreement = new AgreementVM({ });
             agreement.id = GetValue("ID", true);
             agreement.account = GetValue("account", false);
             agreement.route = GetValue("route", false);
@@ -290,32 +323,24 @@
             agreement.servicesId = servicesList;
             agreement.adresses = addressesList;
             agreement.clients = clientsList;
+            agreement.agreementDetails = [];
 
-            if ('@Plataform.IsAyuntamiento' == 'True' && document.getElementById("ID").value != 0) {
-                var ADetail = new AgreementDetailVM();
-                ADetail.folio = GetValue("folio", false);
-                ADetail.register = GetValue("register", false);
-                ADetail.taxableBase = parseFloat(document.getElementById("taxableBase").value);
-                ADetail.ground = parseFloat(document.getElementById("taxableBase").value);
-                ADetail.built = parseFloat(document.getElementById("build").value);
-                ADetail.agreementDetailDate = new Date(document.getElementById("agreementDetailDate").value);
-                ADetail.lastUpdate = new Date(document.getElementById("lastUpdate").value);
-                ADetail.sector = 0;
-                ADetail.observation = "";
-                ADetail.manifest = document.getElementById("manifest").value == "true" ? true : false;
-                ADetail.catastralKey = document.getElementById("catastralKey").value;
-            } else {
-                agreement.agreementDetails = [];
+            if ('@Plataform.IsAyuntamiento' == 'True' && agreement.typeIntakeId == 2 && @idAgreement == 0) { //Si es Rustico, a la cuenta se le agrega una R al final
+                agreement.account = agreement.account + "R";
             }
 
-            axios.post('/Agreement/CreateEdit', agreement).then(response => {
+            axios.post('/Agreement/CreateEdit/' + agreement.id, agreement).then(response => {
                 UnBlock();
                 console.log("Response: ", response.data);
                 Swal.fire({
-                    title: "Correcto",
+                    title: "Bien",
                     text: response.data,
                     type: 'success',
                     showConfirmButton: true,
+                }).then(response => {
+                    if (@idAgreement != 0) {
+                        AddEditAgreementDetail();
+                    }
                 });
             }).catch(error => {
                 UnBlock();
@@ -331,29 +356,58 @@
 
         function ValidateSectionAgreement() {
             var ListServices = document.getElementById("services").selectedOptions,
-                route = document.getElementById("route");
-            if (ListServices.length == 0 || route.value == "") {
-                var tabAgreement = document.getElementById("TabAgreement"),
-                    tabContentAgreement = document.getElementById("agreementTab");
+                account = document.getElementById("account");
 
-                var tabClient = document.getElementById("TabClient"),
-                    tabContentClient = document.getElementById("clientTab");
+            var tabAgreement = document.getElementById("TabAgreement"),
+                tabContentAgreement = document.getElementById("agreementTab");
 
-                Swal.fire({
-                    title: "Disculpa",
-                    text: 'Debes seleccionar algun servicio y no olvides agregar la ruta',
-                    type: 'info',
-                    showConfirmButton: true,
-                }).then(response => {
-                    tabClient.classList.remove("active");
-                    tabContentClient.classList.remove("active");
+            var tabClient = document.getElementById("TabClient"),
+                tabContentClient = document.getElementById("clientTab");
 
-                    tabAgreement.classList.add("active");
-                    tabContentAgreement.classList.add("active");
-                });
-            } else {
-                startSectionClient();
+            var mesagge = "Debes seleccionar algún servicio";
+            if ('@Plataform.IsAyuntamiento' == 'True') {
+                mesagge = "Debes seleccionar algún impuesto";
             }
+
+            let promise = new Promise((resolve, reject) => {
+                if ('@Plataform.IsAyuntamiento' == 'True' && '@idAgreement' == '0') {
+                    if (account.value == "") {
+                        Swal.fire({
+                            title: "Disculpa",
+                            text: 'Debes agregar el número de cuenta',
+                            type: 'info',
+                            showConfirmButton: true,
+                        }).then(response => {
+                            tabClient.classList.remove("active");
+                            tabContentClient.classList.remove("active");
+                            tabAgreement.classList.add("active");
+                            tabContentAgreement.classList.add("active");
+
+                            resolve(true);
+                        });
+                    } else {
+                        resolve(true);
+                    }
+                }
+            });
+
+            promise.then(response => {
+                if (ListServices.length == 0) {
+                    Swal.fire({
+                        title: "Disculpa",
+                        text: mesagge,
+                        type: 'info',
+                        showConfirmButton: true,
+                    }).then(response => {
+                        tabClient.classList.remove("active");
+                        tabContentClient.classList.remove("active");
+                        tabAgreement.classList.add("active");
+                        tabContentAgreement.classList.add("active");
+                    });
+                }
+            });
+
+            startSectionClient();
         }
 
         function ValidateSectionClients() {
