@@ -20,14 +20,14 @@ namespace GFD.Siscom.Enrollment.Services
         public async Task<int> get() 
         {
             //var login = await RequestsApi.SendURIAsync("/api/Auth/login", HttpMethod.Post, new StringContent("{\"UserName\": \"" + UserEmail + "\", \"Password\": \"" + UserPass + "\"}", Encoding.UTF8, "application/json"));
-            if (login.Contains("error"))
-            {
-                return Conflict(login);
-            }
-            else
-            {
+            //if (login.Contains("error"))
+            //{
+            //    return Conflict(login);
+            //}
+            //else
+            //{
                               
-            }
+            //}
         }
     }
 }
