@@ -17,17 +17,17 @@ namespace GFD.Siscom.Enrollment.Services
             RequestsApi = new RequestApi(appSettings.Value.WebApiBaseUrl);
         }
 
-        public async Task<int> get() 
-        {
-            //var login = await RequestsApi.SendURIAsync("/api/Auth/login", HttpMethod.Post, new StringContent("{\"UserName\": \"" + UserEmail + "\", \"Password\": \"" + UserPass + "\"}", Encoding.UTF8, "application/json"));
-            //if (login.Contains("error"))
-            //{
-            //    return Conflict(login);
-            //}
-            //else
-            //{
+        //public async Task<int> get() 
+        //{
+        //    //var login = await RequestsApi.SendURIAsync("/api/Auth/login", HttpMethod.Post, new StringContent("{\"UserName\": \"" + UserEmail + "\", \"Password\": \"" + UserPass + "\"}", Encoding.UTF8, "application/json"));
+        //    if (login.Contains("error"))
+        //    {
+        //        return Conflict(login);
+        //    }
+        //    else
+        //    {
                               
-            //}
-        }
+        //    }
+        //}
     }
 }

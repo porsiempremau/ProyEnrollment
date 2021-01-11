@@ -1,0 +1,336 @@
+﻿@using GFD.Siscom.Enrollment.Utilities;
+@using Newtonsoft.Json;
+@{
+    dynamic model = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(Model));
+    var agreementId = model["id"];
+}
+<div class="row">
+    <div class="col-md-8">
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Características del Contrato</p>
+            </div>
+            <div class="card-body">
+                @*<div class="row">
+                        <div class="col-md-6">
+                            <label>Contrato Principal:</label>
+                            <input class="form-control form-control-sm" id="agreementPrincipal" name="agreementPrincipal" />
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-GFD margin-top-btns">Buscar</button>
+                        </div>
+                    </div>
+                    <br />
+                    <br />*@
+                @if (Plataform.IsAyuntamiento)
+                {
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label>Numero de Cuenta:</label>
+                            <input type="text" class="form-control form-control-sm" id="account" name="account" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Tipo de Predio:</label>
+                            <select class="form-control form-control-sm" id="typeConsume" name="typeConsume"></select>
+                        </div>
+                        <div class="col-md-4">
+                            @if (agreementId == 0)
+                            {
+                                <button type="button" class="btn btn-GFD margin-top-btns" onclick="CompareAccount(document.getElementById('account').value, document.getElementById('typeConsume').value)">
+                                    Comprobar Cuenta
+                                </button>
+                            }
+
+                        </div>
+                    </div>
+                    <br />
+                    <br />
+                }
+
+                <div class="row">
+                    <input type="hidden" id="ID" name="ID" />
+                    <div class="col-md-6">
+                        @if (Plataform.IsAyuntamiento)
+                        {<label>Tipo Predio</label> }
+                        else
+                        { <label>Tipo de Toma:</label>}
+                        <select class="form-control form-control-sm" id="typeIntake" name="typeIntake" onchange="ChangeTypeIntake(this)"></select>
+                    </div>
+                    <div class="col-md-6">
+                        @if (Plataform.IsAyuntamiento)
+                        {<label>Estado de Conservación:</label> }
+                        else
+                        { <label>Tipo de Régimen:</label>}
+                        <select class="form-control form-control-sm" id="typeRegime" name="typeRegime"></select>
+                    </div>
+
+                    <div class="col-md-6">
+                        @if (Plataform.IsAyuntamiento)
+                        {<label>Uso Predio:</label> }
+                        else
+                        { <label>Tipo de Uso:</label>}
+                        <select class="form-control form-control-sm" id="typeUse" name="typeUse"></select>
+                    </div>
+                    <div class="col-md-6">
+                        @if (Plataform.IsAyuntamiento)
+                        {<label>Clasificación Zona:</label> }
+                        else
+                        { <label>Tipo de Comercio:</label>}
+                        <select class="form-control form-control-sm" id="typeCommertialBusiness" name="typeCommertialBusiness"></select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Tipo de Clasificación:</label>
+                        <select class="form-control form-control-sm" id="typeClassification" name="typeClassification"></select>
+                    </div>
+                    <div class="col-md-6">
+                        @if (Plataform.IsAyuntamiento)
+                        {<label>Tipo Inpuesto:</label> }
+                        else
+                        { <label>Tipo de Servicio:</label>}
+                        <select class="form-control form-control-sm" id="typeService" name="typeService"></select>
+                    </div>
+
+                    @if (!Plataform.IsAyuntamiento)
+                    {
+                        <div class="col-md-6">
+                            <label>Diametro:</label>
+                            <select class="form-control form-control-sm" id="diameter" name="diameter"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Tipo de Consumo:</label>
+                            <select class="form-control form-control-sm" id="typeConsume" name="typeConsume"></select>
+                        </div>
+                    }
+
+                    <div class="col-md-6">
+                        <label>Observaciones:</label>
+                        <textarea class="form-control form-control-sm" id="observations" name="observations" value="N/A"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                @if (Plataform.IsAyuntamiento)
+                {<p>Impuestos</p> }
+                else
+                { <p>Servicios</p>}
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <select class="form-control form-control-sm" id="services" name="services" multiple></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Periocidad</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Tipo de Periodo:</label>
+                        <select class="form-control form-control-sm" id="typePeriod" name="typePeriod"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Ruta</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <input type="text" class="form-control form-control-sm" id="route" name="route" maxlength="3" value="1" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Plataform.IsAyuntamiento && agreementId != 0)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="main-card mb-3 card">
+                <div class="title-head">
+                    <p>Deltalles del Predio</p>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Folio de Inscripción:</label>
+                            <input type="hidden" id="idAgreementDetail" name="idAgreementDetail" value="0" />
+                            <input type="text" id="folio" name="folio" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-6">
+                            <label>Registro:</label>
+                            <input type="text" id="register" name="register" class="form-control form-control-sm" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Base Grabable:</label>
+                            <input type="text" id="taxableBase" name="taxableBase" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-6">
+                            <label>Terreno (m2):</label>
+                            <input type="text" id="ground" name="ground" class="form-control form-control-sm" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>Construcción:</label>
+                            <input type="text" id="build" name="build" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Fecha Avaluo:</label>
+                            <input type="date" id="lastUpdate" name="lastUpdate" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Fecha Alta Predio:</label>
+                            <input type="date" id="agreementDetailDate" name="agreementDetailDate" class="form-control form-control-sm" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Manifiesto:</label>
+                            <select id="manifest" name="manifest" class="form-control form-control-sm">
+                                <option value="true">Si</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Clave Catastral:</label>
+                            <input type="text" id="catastralKey" name="catastralKey" class="form-control form-control-sm" value="N/A" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (agreementId != 0)
+{
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <button type="submit" id="btnSaveEditAgreement" class="btn btn-success float-right" style="margin-bottom: 17px;">Modificar Contrato</button>
+        </div>
+    </div>
+}
+
+
+<script>
+    function ChangeTypeIntake(element) {
+        var acronym = element.selectedOptions[0].innerText;
+
+        RenderSelectOption(acronym, "typeRegime", __typeRegime);
+        RenderSelectOption(acronym, "typeUse", __typeUse);
+        RenderSelectOption(acronym, "typeCommertialBusiness", __typeCommertialBusiness);
+        RenderSelectOption(acronym, "typeClassification", __typeClassifications);
+        RenderSelectOption(acronym, "typeService", __typeService);
+        if ('@Plataform.IsAyuntamiento' == 'False')
+        {
+            RenderSelectOption(acronym, "diameter", __diameters);
+        }
+        RenderSelectOption(acronym, "typePeriod", __typePeriod, "", UnBlock);
+    }
+
+    function CompareAccount(account, idTypeConsume) {
+        Block();
+        axios.get('/Agreement/ComparateAccount/' + account + '/' + idTypeConsume).then(response => {
+            UnBlock();
+            Swal.fire({
+                title: "Cuenta Validada",
+                text: response.data,
+                type: 'success',
+                showConfirmButton: true,
+            }).then(response => {
+                document.getElementById("TabClient").classList.remove("disabled");
+                document.getElementById("TabAddress").classList.remove("disabled");
+                document.getElementById("typeIntake").disabled = false;
+                document.getElementById("typeRegime").disabled = false;
+                document.getElementById("typeUse").disabled = false;
+                document.getElementById("typeCommertialBusiness").disabled = false;
+                document.getElementById("typeClassification").disabled = false;
+                document.getElementById("typeService").disabled = false;
+                document.getElementById("observations").disabled = false;
+                document.getElementById("services").disabled = false;
+                document.getElementById("typePeriod").disabled = false;
+                document.getElementById("route").disabled = false;
+            });
+        }).catch(error => {
+            UnBlock();
+            Swal.fire({
+                title: "Disculpa",
+                text: error.response.data,
+                type: 'info',
+                showConfirmButton: true,
+            }).then(response => {
+                document.getElementById("TabClient").classList.add("disabled");
+                document.getElementById("TabAddress").classList.add("disabled");
+                document.getElementById("typeIntake").disabled = true;
+                document.getElementById("typeRegime").disabled = true;
+                document.getElementById("typeUse").disabled = true;
+                document.getElementById("typeCommertialBusiness").disabled = true;
+                document.getElementById("typeClassification").disabled = true;
+                document.getElementById("typeService").disabled = true;
+                document.getElementById("observations").disabled = true;
+                document.getElementById("services").disabled = true;
+                document.getElementById("typePeriod").disabled = true;
+                document.getElementById("route").disabled = true;
+            });
+        });
+    }
+
+    function AddEditAgreementDetail() {
+        Block();
+        var AgreementId = @agreementId,
+            idAgreeDetail = document.getElementById("idAgreementDetail").value;
+
+        var agreementDetail = new AgreementDetailVM({});
+        agreementDetail.id = GetValue("idAgreementDetail", true);
+        agreementDetail.folio = GetValue("folio", false);
+        agreementDetail.register = GetValue("register", false);
+        agreementDetail.taxableBase = parseFloat(document.getElementById("taxableBase").value);
+        agreementDetail.ground = parseFloat(document.getElementById("ground").value);
+        agreementDetail.built = parseFloat(document.getElementById("build").value);
+        agreementDetail.agreementDetailDate = new Date(document.getElementById("agreementDetailDate").value);
+        agreementDetail.lastUpdate = new Date(document.getElementById("lastUpdate").value);
+        agreementDetail.sector = 0;
+        agreementDetail.observation = "";
+        agreementDetail.manifest = document.getElementById("manifest").value == "true" ? true : false;
+        agreementDetail.catastralKey = document.getElementById("catastralKey").value;
+        agreementDetail.agreementId = parseInt(AgreementId);
+
+        axios.post(`/Agreement/CreateEditAgreementDetail/${AgreementId}/${idAgreeDetail}`, agreementDetail).then(response => {
+            console.log(response.data);
+            UnBlock();
+            Swal.fire({
+                title: "Bien",
+                text: response.data,
+                type: 'success',
+                showConfirmButton: true,
+            }).then(response => {
+                window.location.href = "/Agreement/EditCreateView?idAgreement=" + @agreementId;
+            });
+        }).catch(error => {
+            UnBlock();
+            console.log(error.response.data);
+            Swal.fire({
+                title: "Disculpa",
+                text: response.data,
+                type: 'info',
+                showConfirmButton: true,
+            });
+        });
+    }
+</script>

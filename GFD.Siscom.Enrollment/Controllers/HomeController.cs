@@ -7,21 +7,30 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using GFD.Siscom.Enrollment.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
+using GFD.Siscom.Enrollment.Utilities.Parameters;
+using GFD.Siscom.Enrollment.Utilities.Services;
 
 namespace GFD.Siscom.Enrollment.Controllers
-{    
+{   
+
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IOptions<BaseModel> appSettings;
+        private RequestApi RequestsApi { get; set; }
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IOptions<BaseModel> app)
         {
             _logger = logger;
+            appSettings = app;
+            RequestsApi = new RequestApi(appSettings.Value.WebApiBaseUrl);
         }
 
+        [HttpGet("Home")]
         public IActionResult Index()
         {
-            return View();
+            return View("~/Views/Home/Index.cshtml");
         }
 
         public IActionResult Privacy()

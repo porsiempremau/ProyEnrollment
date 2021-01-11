@@ -1,0 +1,241 @@
+﻿@model List<DiscountsVM>
+
+<div class="app-page-title">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div class="page-title-icon">
+                <i class="pe-7s-medal icon-gradient bg-tempting-azure">
+                </i>
+            </div>
+            <div>
+                Catálogo @ViewData["Title"]
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <button type="button" class="btn btn-GFD float-right" data-toggle="modal" data-target="#modalCreateEdit" onclick="openModalToCreate()">
+            Agregar Nuevo
+            <i class="fas fa-plus" title="Agregar Nuevo"></i>
+        </button>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12">
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <table style="width: 100%;" id="TableDiscounts" class="table table-hover table-striped table-bordered">
+                    <thead class="style-theads">
+                        <tr>
+                            <th>Descripción</th>
+                            <th>Prcentaje</th>
+                            <th>Meses</th>
+                            <th>Status</th>
+                            <th>Fecha Inicio</th>
+                            <th>Fecha Fin</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+                        @{
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Name</td>
+                                    <td>@item.Percentage</td>
+                                    <td>@item.Mouths</td>
+                                    <td>@(item.IsActive.ToString() == "True" ? "Activo" : "Inactivo")</td>
+                                    <td>@item.StartDate</td>
+                                    <td>@item.EndDate</td>
+                                    <td>
+                                        <a class="nav-link btn-flush" onclick="openModalToEdit(@item.Id)" data-toggle="modal" data-target="#modalCreateEdit"
+                                           data-caret="false" style="margin: 0 auto;">
+                                            <i class="far fa-edit" title="Editar"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+
+    <div class="modal fade" id="modalCreateEdit" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modalHeader" style="background-color:#036681;padding: 1rem;">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-7 col-md-10 col-lg-10">
+                            <p id="TitleModal" class="subtitle bold white-color" style="margin-bottom: 0px;"></p>
+                        </div>
+                        <div class="col-xs-6 col-sm-5 col-md-2 col-lg-2" style="float:right;">
+                            <button type="button" style="color: white;" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <form id="FormData" onsubmit="CreateEdit(event)">
+                        <div class="row" id="ContentModal">
+                            <div id="divId" class="col-md-6"></div>
+                            <div class="col-md-6"></div>
+
+                            <div class="col-md-12">
+                                <label>Nombre:</label>
+                                <input id="name" name="name" class="form-control" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Porcentaje:</label>
+                                <input type="number" id="percentage" name="percentage" class="form-control" min="0" max="100"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Meses:</label>
+                                <select id="months" name="months" class="form-control">
+                                    <option value="0">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label>Status:</label>
+                                <select id="isActive" name="isActive" class="form-control">
+                                    <option value="true">Activo</option>
+                                    <option value="false">Inactivo</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Fecha Inicio:</label>
+                                <input type="date" id="startDate" name="startDate" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label>Fecha Fin:</label>
+                                <input type="date" id="endDate" name="endDate" class="form-control" />
+                            </div>
+
+                            <div class="col-md-12">
+                                <label>Variable:</label>
+                                <select id="inAgreement" name="inAgreement" class="form-control">
+                                    <option value="true">Si</option>
+                                    <option value="false">No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-GFD" form="FormData">Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        window.onload = function () {
+            Block();
+            setTimeout(() => {
+                loadDataTable("TableDiscounts");
+                UnBlock();
+            }, 1700)
+        }
+
+        function openModalToEdit(id) {
+            Block();
+            axios.get('/Discounts/Get/' + id).then(response => {
+                var data = response.data;
+                var date1 = new Date(data.startDate),
+                    date2 = new Date(data.endDate);
+                var startDate = date1.getFullYear() + "-" + ((date1.getMonth() + 1) < 10 ? "0" + (date1.getMonth() + 1) : (date1.getMonth() + 1)) + "-" + (date1.getDay() < 10 ? "0" + date1.getDay() : date1.getDay()),
+                    endDate = date2.getFullYear() + "-" + ((date2.getMonth() + 1) < 10 ? "0" + (date2.getMonth() + 1) : (date2.getMonth() + 1)) + "-" + (date2.getDay() < 10 ? "0" + date2.getDay() : date2.getDay());
+
+                $("#TitleModal").html("Modificar");
+                $("#divId").html(`
+                    <label>Id:</label>
+                    <input id="id" name="id" class="form-control" readonly />
+                `);
+                $("#id").val(data.id);
+                $("#name").val(data.name);
+                $("#percentage").val(data.percentage);
+                $("#months").val(data.mouths.toString());
+                $("#isActive").val(data.inAgreement ? "true" : "false");
+                $("#startDate").val(startDate);
+                $("#endDate").val(endDate);
+                $("#inAgereement").val(data.inAgreement ? "true" : "false");
+                UnBlock();
+            }).catch(error => {
+                UnBlock();
+            })
+        }
+
+        function openModalToCreate() {
+            $("#TitleModal").html("Agregar");
+            $("#divId").html("");
+            $("#id").val("");
+            $("#name").val("");
+            $("#percentage").val("");
+            $("#months").val("");
+            $("#isActive").val("true");
+            $("#startDate").val("");
+            $("#endDate").val("");
+            $("#inAgereement").val("true");
+        }
+
+        function CreateEdit(event) {
+            event.preventDefault();
+            Block();
+            var form = document.querySelector("#FormData"),
+                data = serialize(form),
+                startDate = document.getElementById("startDate").value,
+                endDate = document.getElementById("endDate").value,
+                date1 = new Date(startDate),
+                date2 = new Date(endDate);
+
+            if (date1 > date2) {
+                UnBlock();
+                Swal.fire({
+                    title: "Disculpa",
+                    text: 'La fecha de inicio es mayor a la fecha final',
+                    type: 'info',
+                    showConfirmButton: true,
+                });
+                return false;
+            }
+
+            data = data + "&endDate=" + endDate + "&startDate=" + startDate;
+            axios.post("/Discounts/Post", data).then(response => {
+                UnBlock();
+                Swal.fire({
+                    title: "Bien",
+                    text: response.data,
+                    type: 'success',
+                    showConfirmButton: true,
+                }).then(response => {
+                    $("#modalCreateEdit").hide();
+                    $(".modal-backdrop").hide();
+                    window.location.href = "/Discounts/Get/0";
+                });
+            }).catch(error => {
+                UnBlock();
+            })
+        }
+
+    </script>
+}

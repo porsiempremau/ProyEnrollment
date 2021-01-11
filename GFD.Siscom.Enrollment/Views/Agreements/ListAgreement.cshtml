@@ -1,0 +1,183 @@
+﻿@using GFD.Siscom.Enrollment.Utilities;
+@{
+    if (Plataform.IsAyuntamiento)
+    {
+        ViewData["Title"] = "Predios";
+    }
+    else
+    {
+        ViewData["Title"] = "Contratos";
+    }
+}
+<div class="app-page-title">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div class="page-title-icon">
+                <i class="pe-7s-medal icon-gradient bg-tempting-azure">
+                </i>
+            </div>
+            <div>@ViewData["Title"]</div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3">
+        <label>Nombre:</label>
+        <input type="text" id="name" name="name" class="form-control" onblur="LimpiarCampos('name')"/>
+    </div>
+    <div class="col-md-2">
+        <label>Cuenta:</label>
+        <input type="text" id="account" name="account" class="form-control" onblur="LimpiarCampos('account')"/>
+    </div>
+    <div class="col-md-2">
+        <label>RFC:</label>
+        <input type="text" id="rfc" name="rfc" class="form-control" onblur="LimpiarCampos('rfc')"/>
+    </div>
+    <div class="col-md-3">
+        <label>Dirección:</label>
+        <input type="text" id="address" name="address" class="form-control" onblur="LimpiarCampos('address')"/>
+    </div>
+    <div class="col-md-2">
+        <button type="button" class="btn btn-GFD margin-top-btns" data-toggle="modal" onclick="getAgreement()">
+            Buscar
+        </button>
+    </div>
+</div>
+<br />
+<br />
+<div class="row">
+    <div class="col-md-12">
+        <a type="button" class="btn btn-GFD float-right" href="/Agreement/EditCreateView">
+            Agregar Nuevo
+            <i class="fas fa-plus" title="Agregar Nuevo"></i>
+        </a>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12">
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <table style="width: 100%;" id="TableAgreement" class="table table-hover table-striped table-bordered">
+                    <thead class="style-theads">
+                        <tr>
+                            <th>Cuenta</th>
+                            <th>Nombre</th>
+                            <th>Dirección</th>
+                            <th>Status</th>
+                            <th>Tipo Contrato</th>
+                            <th>Folio</th>
+                            <th>Decuento</th>
+                            <th>Tipo Descuento</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.onload = function () {
+
+        }
+
+        function LimpiarCampos(element) {
+            var name = document.getElementById("name"),
+                account = document.getElementById("account"),
+                rfc = document.getElementById("rfc"),
+                address = document.getElementById("address");
+            if (element == "name") {
+                account.value = "";
+                rfc.value = "";
+                address.value = "";
+            }
+            if (element == "account") {
+                name.value = "";
+                rfc.value = "";
+                address.value = "";
+            }
+            if (element == "rfc") {
+                name.value = "";
+                account.value = "";
+                address.value = "";
+            }
+            if (element == "address") {
+                name.value = "";
+                account.value = "";
+                rfc.value = "";
+            }
+        }
+
+        function getAgreement() {
+            Block();
+            ClearDataTable("TableAgreement");
+            var name = document.getElementById("name").value,
+                account = document.getElementById("account").value,
+                rfc = document.getElementById("rfc").value,
+                address = document.getElementById("address").value,
+                query = "";
+
+            if (name != "") {
+                query = "?name=" + name;
+            }
+            if (account != "") {
+                query = "?account=" + account;
+            }
+            if (rfc != "") {
+                query = "?rfc=" + rfc;
+            }
+            if (address != "") {
+                query = "?address=" + address;
+            }
+            $("#tbody").html("");
+            axios.get("/Agreement/Get/List" + query).then(response => {
+                var data = response.data;
+                console.log("Data: ", data);
+                if (data.length > 0) {
+                    data.forEach(x => {
+                        $("#tbody").append(`
+                            <tr>
+                                <td>${x.account}</td>
+                                <td>${x.nombre}</td>
+                                <td>${x.address}</td>
+                                <td>${x.status}</td>
+                                <td>${x.type}</td>
+                                <td>${x.token}</td>
+                                <td>${x.isActiveDiscount ? "Activo" : "Inactivo"}</td>
+                                <td>${x.nameDiscount != "" ? x.nameDiscount : "N/A"}</td>
+                                <td>
+                                    <a class="nav-link btn-flush" href="/Agreement/EditCreateView?idAgreement=${x.agreementId}" data-caret="false" style="margin: 0 auto;">
+                                        <i class="far fa-edit" title="Editar"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        `);
+                    });
+
+                    loadDataTable("TableAgreement");
+                } else {
+                    $("#tbody").append(`
+                        <tr>
+                            <td colspan="9" style="text-align: center; font-size: 23px;">Sin Datos</td>
+                        </tr>
+                    `);
+                    Swal.fire({
+                        title: "Disculpa",
+                        text: 'No se encontraron datos',
+                        type: 'info',
+                        showConfirmButton: true,
+                    });
+                }
+                UnBlock();
+            }).catch(error => {
+                console.log(error.response);
+                UnBlock();
+            })
+        }
+    </script>
+}

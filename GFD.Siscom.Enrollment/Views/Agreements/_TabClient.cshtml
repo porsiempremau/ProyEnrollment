@@ -1,0 +1,462 @@
+﻿@using GFD.Siscom.Enrollment.Utilities;
+@using Newtonsoft.Json;
+@{
+    dynamic m = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(Model));
+    var IDAgreement = m["id"];
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Información</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-md-12" style="margin-bottom: 10px;">
+                        <label>Persona Moral:</label>
+                        <input type="checkbox" class="form-check" id="isMoral" name="isMoral" onchange="checkedIsMoral()" />
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-10">
+                                <label>Nombre:</label>
+                                <input type="hidden" id="idClient" name="idClient" />
+                                <input type="text" class="form-control form-control-sm" id="nameClient" name="nameClient" />
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-GFD margin-top-btns" onclick="SearchTaxUser(document.getElementById('nameClient').value)"
+                                        data-toggle="modal" data-target="#modalSearchTaxUser">
+                                    Buscar
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div id="divLastName" class="col-md-6">
+                        <label>Paterno:</label>
+                        <input type="text" class="form-control form-control-sm" id="lastName" name="lastName" />
+                    </div>
+                    <div id="divsecondLastName" class="col-md-6">
+                        <label>Materno:</label>
+                        <input type="text" class="form-control form-control-sm" id="secondLastName" name="secondLastName" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>RFC:</label>
+                        <input type="text" class="form-control form-control-sm" id="rfc" name="rfc" maxlength="13"
+                               onkeyup="this.value = this.value.toUpperCase();" oninput="validarCampo(this, 'resultadoRFC', 'RFC')" />
+                        <pre id="resultadoRFC" style="padding-left: 7px;"></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <label>INE:</label>
+                        <input type="text" class="form-control form-control-sm" id="ine" name="ine" maxlength="13"
+                               onkeyup="this.value = this.value.toUpperCase();" oninput="validarCampo(this, 'resultadoINE', 'INE')" />
+                        <pre id="resultadoINE" style="padding-left: 7px;"></pre>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>CURP:</label>
+                        <input type="text" class="form-control form-control-sm" id="curp" name="curp" maxlength="18"
+                               onkeyup="this.value = this.value.toUpperCase();" oninput="validarCurp(this, 'resultadoCURP')" />
+                        <pre id="resultadoCURP" style="padding-left: 7px;"></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Correo:</label>
+                        <input type="email" class="form-control form-control-sm" id="email" name="email" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Tipo de Cliente:</label>
+                        <select class="form-control form-control-sm" id="typeClient" name="typeClient"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Género:</label>
+                        <select class="form-control form-control-sm" id="isMale" name="isMale">
+                            <option value="true">Masculino</option>
+                            <option value="false">Femenino</option>
+                        </select>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" id="btnAddClient" class="btn btn-GFD float-right" onclick="addClientsToTable()">Agregar Cliente</button>
+                        <button type="button" id="btnEditClient" class="btn btn-GFD float-right" onclick="EditClient(document.getElementById('idClient').value)" style="display: none">Editar Cliente</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Clientes Registrados</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table style="width: 100%;" id="TableClients" class="table table-hover table-striped table-bordered">
+                            <thead class="style-theads">
+                                <tr>
+                                    <th width="80%">Nombre</th>
+                                    <th width="9%">Editar</th>
+                                    <th width="9%">Eliminar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyClients"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Télefonos de Contacto</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Télefono:</label>
+                        <input type="text" class="form-control form-control-sm" id="phone" name="phone" pattern="[0-9]{10}" maxlength="10" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Tipo de Contacto:</label>
+                        <select class="form-control form-control-sm" id="typeContact" name="typeContact"></select>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" class="btn btn-GFD float-right" onclick="addNumberPhoneToTable()">Agregar Número</button>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <table style="width: 100%;" id="TableContacts" class="table table-hover table-striped table-bordered">
+                            <thead class="style-theads">
+                                <tr>
+                                    <th width="45%">Teléfono</th>
+                                    <th width="45%">Tipo</th>
+                                    <th width="10%">Editar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyContacts"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@if (IDAgreement != 0)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <button type="button" id="btnUpdateClient" class="btn btn-success float-right" style="margin-bottom: 17px;"
+                    onclick="UpdateClient()">
+                Modificar Cliente
+            </button>
+        </div>
+    </div>
+}
+
+
+
+<script>
+    function startSectionClient() {
+        RenderSelectOption("", "typeContact", __typeContacts);
+        RenderSelectOption("", "typeClient", __typeClients);
+    }
+
+    function addClientsToTable() {
+        var name = GetValue("nameClient", false),
+            lastName = GetValue("lastName", false),
+            secondLastName = GetValue("secondLastName", false),
+            rfc = GetValue("rfc", false),
+            ine = GetValue("ine", false),
+            curp = GetValue("curp", false),
+            eMail = GetValue("email", false),
+            taxRegime = document.getElementById("isMoral").checked,
+            isMale = document.getElementById("isMale").value == "true" ? true : false,
+            typeUser = document.getElementById("typeClient").value;
+
+        __listClients.push({
+            id: idClients++,
+            name,
+            lastName,
+            secondLastName,
+            rfc,
+            ine,
+            curp,
+            eMail,
+            taxRegime,
+            isMale,
+            typeUser
+        });
+
+        fillTableClients("tbodyClients");
+        checkedIsMoral();
+    }
+
+    function addNumberPhoneToTable() {
+        var number = GetValue("phone", false),
+            type = document.getElementById("typeContact").value;
+        __listaNumbers.push({ id: idContacts++, phoneNumber: number, typeNumber: type });
+        fillTableContact("tbodyContacts");
+    }
+
+    function fillTableClients(idTBody) {
+        $("#" + idTBody).html("");
+        cleanInputsClient();
+        __listClients.forEach(x => {
+            $("#" + idTBody).append(`
+                <tr>
+                    <td>${x.name} ${x.lastName} ${x.secondLastName}</td>
+                    <td>
+                        <a class="nav-link btn-flush" onclick="setDataClient(${x.id}, 'tbodyClients')" type="button"
+                           data-caret="false" style="margin: 0 auto;">
+                            <i class="far fa-edit" title="Editar Cliente"></i>
+                        </a>
+                    </td>
+                    <td>
+                        <a class="nav-link btn-flush" onclick="deleteItemClient(${x.id}, 'tbodyClients')" type="button"
+                           data-caret="false" style="margin: 0 auto;">
+                            <i class="far fa-trash-alt" title="Eliminar Cliente"></i>
+                        </a>
+                    </td>
+                </tr>
+            `);
+        });
+    }
+
+    function cleanInputsClient() {
+        document.getElementById("idClient").value = "";
+        document.getElementById("isMoral").checked = false;
+        document.getElementById("nameClient").value = "";
+        document.getElementById("lastName").value = "";
+        document.getElementById("secondLastName").value = "";
+        document.getElementById("rfc").value = "";
+        document.getElementById("ine").value = "";
+        document.getElementById("curp").value = "";
+        document.getElementById("email").value = "";
+
+        document.getElementById("resultadoRFC").innerText = "";
+        document.getElementById("resultadoINE").innerText = "";
+        document.getElementById("resultadoCURP").innerText = "";
+    }
+
+    function fillTableContact(idTBody) {
+        $("#" + idTBody).html("");
+        cleanInputContact();
+        __listaNumbers.forEach(x => {
+            var descriptionType = getDescriptionType(x.typeNumber, __typeContacts);
+            $("#" + idTBody).append(`
+                <tr>
+                    <td>${x.phoneNumber}</td>
+                    <td>${descriptionType}</td>
+                    <td>
+                        <a class="nav-link btn-flush" onclick="deleteItemContact(${x.id}, 'tbodyContacts')" type="button"
+                           data-caret="false" style="margin: 0 auto;">
+                            <i class="far fa-trash-alt" title="Eliminar Número"></i>
+                        </a>
+                    </td>
+                </tr>
+            `);
+        });
+    }
+
+    function cleanInputContact() {
+        document.getElementById("phone").value = "";
+    }
+
+    function deleteItemContact(id, tbody) {
+        var itemFound = __listaNumbers.find(x => x.id == id);
+        var index = __listaNumbers.indexOf(itemFound);
+        __listaNumbers.splice(index, 1);
+        fillTableContact(tbody);
+    }
+
+    function deleteItemClient(id, tbody) {
+        var itemFound = __listClients.find(x => x.id == id);
+        var index = __listClients.indexOf(itemFound);
+        __listClients.splice(index, 1);
+        fillTableClients(tbody);
+    }
+
+    function setDataClient(id, tbody) {
+        var itemFound = __listClients.find(x => x.id == id);
+
+        document.getElementById("btnAddClient").style.display = "none";
+        document.getElementById("btnEditClient").style.display = "block";
+        document.getElementById("idClient").value = itemFound.id;
+        document.getElementById("isMoral").checked = itemFound.taxRegime;
+        document.getElementById("nameClient").value = itemFound.name;
+        document.getElementById("lastName").value = itemFound.lastName;
+        document.getElementById("secondLastName").value = itemFound.secondLastName;
+        document.getElementById("rfc").value = itemFound.rfc;
+        document.getElementById("ine").value = itemFound.ine;
+        document.getElementById("curp").value = itemFound.curp;
+        document.getElementById("email").value = itemFound.eMail;
+
+        $("#typeClient").val(itemFound.typeUser);
+        $("#isMale").val(itemFound.isMale ? "true" : "false");
+
+        checkedIsMoral();
+        document.getElementById("btnUpdateClient").disabled = true;
+    }
+
+    function EditClient(id) {
+        var itemFound = __listClients.find(x => x.id == id);
+        var index = __listClients.indexOf(itemFound);
+
+        var id = GetValue("idClient", true),
+            name = GetValue("nameClient", false),
+            lastName = GetValue("lastName", false),
+            secondLastName = GetValue("secondLastName", false),
+            rfc = GetValue("rfc", false),
+            ine = GetValue("ine", false),
+            curp = GetValue("curp", false),
+            eMail = GetValue("email", false),
+            taxRegime = document.getElementById("isMoral").checked,
+            isMale = document.getElementById("isMale").value == "true" ? true : false,
+            typeUser = document.getElementById("typeClient").value;
+
+        __listClients.splice(index, 1, {
+            id,
+            name,
+            lastName,
+            secondLastName,
+            rfc,
+            ine,
+            curp,
+            eMail,
+            taxRegime,
+            isMale,
+            typeUser
+        });
+
+        fillTableClients("tbodyClients");
+        document.getElementById("btnUpdateClient").disabled = false;
+        document.getElementById("btnAddClient").style.display = "block";
+        document.getElementById("btnEditClient").style.display = "none";
+    }
+
+    function UpdateClient() {
+        Block();
+        var client = [],
+            listPhoneNumers = [];
+
+        __listaNumbers.forEach(x => {
+            var contact = new ContactVM(x);
+            listPhoneNumers.push(contact);
+        });
+
+        __listClients.forEach(x => {
+            var c = new ClientVM(x);
+            c.agreementId = @IDAgreement;
+            c.contacts = listPhoneNumers;
+            client.push(c);
+        });
+
+        axios.put(`/Agreement/CreateEditClient/${@IDAgreement}`, { client }).then(response => {
+            //console.log("Update client: ", response.data);
+            UnBlock();
+            Swal.fire({
+                title: "Bien",
+                text: response.data,
+                type: 'success',
+                showConfirmButton: true,
+            }).then(response => {
+                window.location.href = "/Agreement/EditCreateView?idAgreement=" + @IDAgreement;
+            });
+        }).catch(error => {
+            UnBlock();
+            Swal.fire({
+                title: "Disculpa",
+                text: error.response.data,
+                type: 'info',
+                showConfirmButton: true,
+            });
+        });
+    }
+
+    function checkedIsMoral() {
+        var divLastName = document.getElementById("divLastName"),
+            divsecondLastName = document.getElementById("divsecondLastName"),
+            check = document.getElementById("isMoral");
+
+        if (check.checked) {
+            divLastName.style.display = "none";
+            divsecondLastName.style.display = "none";
+        } else {
+            divLastName.style.display = "block";
+            divsecondLastName.style.display = "block";
+        }
+    }
+
+    function SearchTaxUser(name) {
+        Block();
+        $("#tbodyTaxUsers").html("");
+        ClearDataTable("TableTaxUsers");
+        if (name == "") {
+            UnBlock();
+            Swal.fire({
+                type: 'info',
+                title: 'Disculpa',
+                text: 'Debes agregar un nombre para realizar la busqueda',
+                showConfirmButton: true
+            }).then(response => {
+                $("#modalSearchTaxUser").hide();
+                $(".modal-backdrop").hide();
+            });
+            return false;
+        }
+        axios.get('/Agreement/SearchTaxUserByName/' + name).then(response => {
+            var data = response.data;
+            __ListTaxUsers = response.data;
+            if (data.length > 0) {
+                data.forEach(x => {
+                    $("#tbodyTaxUsers").append(`
+                        <tr>
+                            <td><input type="radio" name="nuevoIngreso" id="nuevoIngreso" onchange= "__SetItemSelectedTaxUser(${x.id})" /></td>
+                            <td>${x.name}</td>
+                            <td>${x.rfc}</td>
+                        </tr>
+                    `);
+                });
+                loadDataTable("TableTaxUsers", "TaxUsers");
+                UnBlock();
+            } else {
+                $("#tbodyTaxUsers").append(`
+                    <tr>
+                        <td colspan="4" style="text-align: center">Cliente no registrado</td>
+                    </tr>
+                `);
+                UnBlock();
+            }
+        }).catch(error => {
+            $("#tbodyTaxUsers").append(`
+                <tr>
+                    <td colspan="4" style="text-align: center">No se encontraron clientes</td>
+                </tr>
+            `);
+            UnBlock();
+        });
+    }
+
+    function GetTaxUser(element) {
+        console.log("Element: ", element);
+        $("#isMoral").val(element.isProvider == true ? "true" : "false");
+        $("#nameClient").val(element.name);
+        $("#rfc").val(element.rfc);
+        $("#curp").val(element.curp);
+        $("#email").val(element.eMail);
+        $("#phone").val(element.phoneNumber);
+    }
+</script>

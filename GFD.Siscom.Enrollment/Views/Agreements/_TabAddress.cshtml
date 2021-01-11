@@ -1,0 +1,314 @@
+﻿@using GFD.Siscom.Enrollment.Utilities;
+@using Newtonsoft.Json;
+@{
+    dynamic mo = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(Model));
+    var IDAgree = mo["id"];
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Localización</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-md-12">
+                        <label>Estado:</label>
+                        <input type="hidden" id="idAddress" name="idAddress" />
+                        <select class="form-control form-control-sm" id="stateId" name="stateId" onchange="SearchTownByIdState(this.value, 'townId')"></select>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label>Municipio:</label>
+                        <select class="form-control form-control-sm" id="townId" name="townId" onchange="SearchSuburbByIdTown(this.value, 'suburbId');"></select>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label>Colonia:</label>
+                        <select class="form-control form-control-sm" id="suburbId" name="suburbId"></select>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label>Calle:</label>
+                        <input type="text" class="form-control form-control-sm" id="street" name="street" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Número Ext:</label>
+                        <input type="text" class="form-control form-control-sm" id="numExt" name="numExt" maxlength="7" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Número Int:</label>
+                        <input type="text" class="form-control form-control-sm" id="numInt" name="numInt" maxlength="7" />
+                    </div>
+
+                    <div class="col-md-12">
+                        <label>Código Postal:</label>
+                        <input type="text" class="form-control form-control-sm" id="zip" name="zip" maxlength="5" />
+                    </div>
+
+                    <div class="col-md-12">
+                        <label>Referencias:</label>
+                        <input type="text" class="form-control form-control-sm" id="references" name="references" />
+                    </div>
+
+                    <div class="col-md-12">
+                        <label>Tipo de Dirección:</label>
+                        <select class="form-control form-control-sm" id="typeAddress" name="typeAddress"></select>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" id="btnAddAddress" class="btn btn-GFD float-right" onclick="AddAddressToTable()">Agregar Dirección</button>
+                        <button type="button" id="btnEditAddress" class="btn btn-GFD float-right" onclick="EditAddress(document.getElementById('idAddress').value)" style="display: none">Editar Dirección</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Dirección</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id="TableAddresses" style="width: 100%;" class="table table-hover table-striped table-bordered">
+                            <thead class="style-theads">
+                                <tr>
+                                    <th>Calle</th>
+                                    <th>Colonia</th>
+                                    <th>Municipio</th>
+                                    <th>Estado</th>
+                                    <th>Tipo</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyAddresses"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@if (IDAgree != 0)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <button type="button" id="btnUpdateAddress" class="btn btn-success float-right" style="margin-bottom: 17px;"
+                    onclick="UpdateAddresses()">
+                Modificar Dirección
+            </button>
+        </div>
+    </div>
+}
+
+<script>
+    function StartTabAddress() {
+        GetCountries("stateId");
+        SearchTownByIdState(21, "townId");
+        SearchSuburbByIdTown(2, "suburbId");
+        RenderSelectOption("", "typeAddress", __typeAddresses);
+    }
+
+    function AddAddressToTable() {
+        var stateId = GetValue("stateId", true),
+            townId = GetValue("townId", true),
+            suburbsId = GetValue("suburbId", true),
+            street = GetValue("street", false),
+            outdoor = GetValue("numExt", false),
+            indoor = GetValue("numInt", false),
+            zip = GetValue("zip", false),
+            reference = GetValue("references", false),
+            typeAddress = GetValue("typeAddress", false),
+            founded = null;
+
+        var stateName = document.getElementById("stateId").selectedOptions[0].innerText,
+            townName = document.getElementById("townId").selectedOptions[0].innerText,
+            suburbName = document.getElementById("suburbId").selectedOptions[0].innerText;
+
+        founded = __listaAddress.find(x => x.typeAddress == typeAddress);
+        if (founded != null || founded != undefined) {
+            Swal.fire({
+                title: "Disculpa",
+                text: 'Ya hay una dirección de tipo ' + getDescriptionType(typeAddress, __typeAddresses),
+                type: 'info',
+                showConfirmButton: true,
+            });
+        } else {
+            __listaAddress.push({
+                id: idAddresses++,
+                stateId,
+                stateName,
+                townId,
+                townName,
+                suburbsId,
+                suburbName,
+                street,
+                outdoor,
+                indoor,
+                zip,
+                reference,
+                typeAddress
+            });
+            fillTableAddress("tbodyAddresses");
+        }
+    }
+
+    function fillTableAddress(idTBody) {
+        var btnSaveData = document.getElementById("btnSaveData");
+        $("#" + idTBody).html("");
+        CleanFieldAddress();
+        if (__listaAddress.length > 0) {
+            __listaAddress.forEach(x => {
+                var nameTypeAddress = getDescriptionType(x.typeAddress, __typeAddresses);
+                $("#" + idTBody).append(`
+                    <tr>
+                        <td>${x.street}</td>
+                        <td>${x.suburbName}</td>
+                        <td>${x.townName}</td>
+                        <td>${x.stateName}</td>
+                        <td>${nameTypeAddress}</td>
+                        <td>
+                            <a class="nav-link btn-flush" onclick="setDataAddress(${x.id})" type="button"
+                               data-caret="false" style="margin: 0 auto;">
+                                <i class="far fa-edit" title="Editar Cliente"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a class="nav-link btn-flush" onclick="deleteItemAddress(${x.id})" type="button"
+                               data-caret="false" style="margin: 0 auto;">
+                                <i class="far fa-trash-alt" title="Eliminar Cliente"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `);
+            });
+            if (btnSaveData != null) {
+                btnSaveData.disabled = false
+            }
+        } else {
+            if (btnSaveData != null) {
+                btnSaveData.disabled = true
+            }
+        }
+
+    }
+
+    function CleanFieldAddress() {
+        $("#street").val("");
+        $("#numExt").val("");
+        $("#numInt").val("");
+        $("#zip").val("");
+        $("#references").val("");
+        document.getElementById("btnAddAddress").style.display = "block";
+        document.getElementById("btnEditAddress").style.display = "none";
+    }
+
+    function deleteItemAddress(id) {
+        var itemFound = __listaAddress.find(x => x.id == id);
+        var index = __listaAddress.indexOf(itemFound);
+        __listaAddress.splice(index, 1);
+        fillTableAddress("tbodyAddresses");
+    }
+
+    function setDataAddress(id) {
+        var item = __listaAddress.find(x => x.id == id);
+
+        document.getElementById("btnAddAddress").style.display = "none";
+        document.getElementById("btnEditAddress").style.display = "block";
+        document.getElementById("btnUpdateAddress").disabled = true;
+
+        SearchSuburbByIdTown(item.townId, "suburbId");
+
+        $("#idAddress").val(item.id);
+        $("#stateId").val(item.stateId);
+        $("#townId").val(item.townId);
+        $("#suburbId").val(item.suburbsId);
+        $("#street").val(item.street);
+        $("#numExt").val(item.outdoor);
+        $("#numInt").val(item.indoor);
+        $("#zip").val(item.zip);
+        $("#references").val(item.reference);
+        $("#typeAddress").val(item.typeAddress);
+    }
+
+    function EditAddress(id) {
+        var itemFound = __listaAddress.find(x => x.id == id);
+        var index = __listaAddress.indexOf(itemFound);
+
+        var id = GetValue("idAddress", true),
+            stateId = GetValue("stateId", true),
+            stateName = document.getElementById("stateId").innerText;
+            townId = GetValue("townId", true),
+            suburbsId = GetValue("suburbId", true),
+            street = GetValue("street", false),
+            outdoor = GetValue("numExt", false),
+            indoor = GetValue("numInt", false),
+            zip = GetValue("zip", false),
+            reference = GetValue("references", false),
+            typeAddress = GetValue("typeAddress", false);
+
+        var stateName = document.getElementById("stateId").selectedOptions[0].innerText,
+            townName = document.getElementById("townId").selectedOptions[0].innerText,
+            suburbName = document.getElementById("suburbId").selectedOptions[0].innerText;
+
+        __listaAddress.splice(index, 1, {
+            id,
+            stateId,
+            stateName,
+            townId,
+            townName,
+            suburbsId,
+            suburbName,
+            street,
+            outdoor,
+            indoor,
+            zip,
+            reference,
+            typeAddress
+        });
+
+        fillTableAddress("tbodyAddresses");
+        document.getElementById("btnAddAddress").style.display = "block";
+        document.getElementById("btnEditAddress").style.display = "none";
+        document.getElementById("btnUpdateAddress").disabled = false;
+    }
+
+    function UpdateAddresses() {
+        Block();
+        var addresses = [];
+
+        __listaAddress.forEach(x => {
+            var address = new AddressVM(x);
+            addresses.push(address);
+        });
+
+        axios.put(`/Agreement/CreateEditAddress/${@IDAgree}`, { addresses }).then(response => {
+            console.log("Update Address: ", response.data);
+            UnBlock();
+            Swal.fire({
+                title: "Bien",
+                text: response.data,
+                type: 'success',
+                showConfirmButton: true,
+            }).then(response => {
+                window.location.href = "/Agreement/EditCreateView?idAgreement=" + @IDAgree;
+            });
+        }).catch(error => {
+            UnBlock();
+            Swal.fire({
+                title: "Disculpa",
+                text: error.response.data,
+                type: 'info',
+                showConfirmButton: true,
+            });
+        });
+    }
+</script>
