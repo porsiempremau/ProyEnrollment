@@ -121,8 +121,8 @@ class ContactVM {
         this.id = contact.id || 0;
         this.phoneNumber = contact.phoneNumber || "";
         this.typeNumber = contact.typeNumber || "";
-        this.isActive = contact.isActive || 1;
-        this.clientId = contact.clientId || 0;
+        this.isActive = contact.isActive;
+        this.clientId = contact.clientId;
     }
 }
 
@@ -142,7 +142,8 @@ class AddressVM {
     stateName;
     townId
     townName;
-    suburbName
+    suburbName;
+    agreementId;
     constructor(address) {
         this.id = address.id || 0;
         this.street = address.street || "";
@@ -154,11 +155,12 @@ class AddressVM {
         this.lon = address.lon || "0";
         this.typeAddress = address.typeAddress || "";
         this.suburbsId = address.suburbsId || 0;
-        this.isActive = address.isActive || true;
+        this.isActive = address.isActive;
         this.stateId = address.stateId || 0;
         this.stateName = address.stateName || "";
         this.townId = address.townId || 0;
         this.townName = address.townName || "";
         this.suburbName = address.suburbName || "";
+        this.agreementId = address.agreementId || 0;
     }
 }

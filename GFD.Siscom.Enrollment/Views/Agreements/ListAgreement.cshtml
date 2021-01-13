@@ -1,13 +1,8 @@
-﻿@using GFD.Siscom.Enrollment.Utilities;
-@{
-    if (Plataform.IsAyuntamiento)
-    {
-        ViewData["Title"] = "Predios";
-    }
-    else
-    {
-        ViewData["Title"] = "Contratos";
-    }
+﻿@model object
+@using Newtonsoft.Json;
+@{ 
+    dynamic data = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(Model));
+    var typePage = data["page"];
 }
 <div class="app-page-title">
     <div class="page-title-wrapper">
@@ -47,10 +42,21 @@
 <br />
 <div class="row">
     <div class="col-md-12">
-        <a type="button" class="btn btn-GFD float-right" href="/Agreement/EditCreateView">
-            Agregar Nuevo
-            <i class="fas fa-plus" title="Agregar Nuevo"></i>
-        </a>
+        @if (typePage == "agreements")
+        {
+            <a type="button" class="btn btn-GFD float-right" href="/Agreement/EditCreateView">
+                Agregar Nuevo
+                <i class="fas fa-plus" title="Agregar Nuevo"></i>
+            </a>
+        }
+        else
+        {
+            <a type="button" class="btn btn-GFD float-right" href="/Discounts/ViewDiscountVulnerable">
+                Agregar Descuento
+                <i class="fas fa-plus" title="Agregar Nuevo"></i>
+            </a>
+        }
+
     </div>
 </div>
 <br />
@@ -63,16 +69,30 @@
                         <tr>
                             <th>Cuenta</th>
                             <th>Nombre</th>
-                            <th>Dirección</th>
+                            @if (typePage == "agreements")
+                            {
+                                <th>Dirección</th>
+                            }
                             <th>Status</th>
                             <th>Tipo Contrato</th>
-                            <th>Folio</th>
+                            @if (typePage == "agreements")
+                            {
+                                <th>Folio</th>
+                            }
                             <th>Decuento</th>
                             <th>Tipo Descuento</th>
+                            @if (typePage == "discounts")
+                            {
+                                <th>Vigencia</th>
+                                <th>Con Descuento</th>
+                            }
                             <th></th>
                         </tr>
                     </thead>
                     <tbody id="tbody">
+                        <tr>
+                            <td colspan="9" style="font-size: 20px; text-align: center">Sin Datos</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -140,23 +160,45 @@
                 console.log("Data: ", data);
                 if (data.length > 0) {
                     data.forEach(x => {
-                        $("#tbody").append(`
-                            <tr>
-                                <td>${x.account}</td>
-                                <td>${x.nombre}</td>
-                                <td>${x.address}</td>
-                                <td>${x.status}</td>
-                                <td>${x.type}</td>
-                                <td>${x.token}</td>
-                                <td>${x.isActiveDiscount ? "Activo" : "Inactivo"}</td>
-                                <td>${x.nameDiscount != "" ? x.nameDiscount : "N/A"}</td>
-                                <td>
-                                    <a class="nav-link btn-flush" href="/Agreement/EditCreateView?idAgreement=${x.agreementId}" data-caret="false" style="margin: 0 auto;">
-                                        <i class="far fa-edit" title="Editar"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        `);
+                        if ('@typePage' == "agreements") {
+                            $("#tbody").append(`
+                                <tr>
+                                    <td>${x.account}</td>
+                                    <td>${x.nombre}</td>
+                                    <td>${x.address}</td>
+                                    <td>${x.status}</td>
+                                    <td>${x.type}</td>
+                                    <td>${x.token}</td>
+                                    <td>${x.isActiveDiscount ? "Activo" : "Inactivo"}</td>
+                                    <td>${x.nameDiscount != "" ? x.nameDiscount : "N/A"}</td>
+                                    <td>
+                                        <a class="nav-link btn-flush" href="/Agreement/EditCreateView?idAgreement=${x.agreementId}" data-caret="false" style="margin: 0 auto;">
+                                            <i class="far fa-edit" title="Editar"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            `);
+                        } else {
+                            if (x.isActiveDiscount) {
+                                $("#tbody").append(`
+                                    <tr>
+                                        <td>${x.account}</td>
+                                        <td>${x.nombre}</td>
+                                        <td>${x.status}</td>
+                                        <td>${x.type}</td>
+                                        <td>${x.isActiveDiscount ? "Activo" : "Inactivo"}</td>
+                                        <td>${x.nameDiscount != "" ? x.nameDiscount : "N/A"}</td>
+                                        <td>${x.endDate.slice(0, 10)}</td>
+                                        <td>${x.withDiscount == true ? "CON DESCUENTO ACTIVO" : "SIN DESCUENTO ACTIVO"}</td>
+                                        <td>
+                                            <a class="nav-link btn-flush" href="/Agreement/EditCreateView?idAgreement=${x.agreementId}" data-caret="false" style="margin: 0 auto;">
+                                                <i class="fas fa-trash" title="Eliminar"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                `);
+                            }
+                        }
                     });
 
                     loadDataTable("TableAgreement");

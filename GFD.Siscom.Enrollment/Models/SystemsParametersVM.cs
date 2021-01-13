@@ -8,13 +8,13 @@ namespace GFD.Siscom.Enrollment.Models
     public class SystemsParametersVM
     {
         public int Id { get; set; }
-        public string Nombre { get; set; }
-        public DateTime FechaInicio { get; set; }
-        public DateTime FechaFin { get; set; }
-        public bool Activo { get; set; }
-        public Int16 TipoColumna { get; set; }
-        public decimal ColumnaNumero { get; set; }
-        public string ColumnaTexto { get; set; }
-        public DateTime ColumnaFecha { get; set; }
+        public string Name { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public bool IsActive { get; set; }
+        public Int16 TypeColumn { get; set; }
+        public decimal NumberColumn { get; set; }
+        public string TextColumn { get; set; }
+        public DateTime DateColumn { get; set; }
     }
 }

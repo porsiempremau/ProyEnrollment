@@ -84,7 +84,6 @@ namespace GFD.Siscom.Enrollment.Utilities.Services
 
             using (var client = new HttpClient())
             {
-                client.Timeout = TimeSpan.FromMinutes(10);
                 HttpResponseMessage httpResponse = null;
                 try
                 {

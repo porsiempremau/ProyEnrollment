@@ -57,7 +57,10 @@
                         @if (idAgreement == 0)
                         {
                             <button type="submit" id="btnSaveData" class="btn btn-success float-right" disabled>Guardar Datos</button>
+                            <button type="button" id="btnAddDebt" style="display: none;" data-toggle="modal" data-target="#modalAddDebtAgreement"></button>
                         }
+
+                        @*<button type="button" class="btn btn-success float-right" onclick="AddDebtAgua()">Probar Adeudo</button>*@
                     </div>
                 </div>
             </div>
@@ -69,8 +72,13 @@
 
 @section Scripts{
     <partial name="~/Views/Partials/Modals/_ModalSearchTaxUser.cshtml" />
+    <partial name="~/Views/Agreements/_ModalAddDebtAgreement.cshtml" />
     <script>
-        var __DataGeneral,
+        var isAyuntamiento = '@Plataform.IsAyuntamiento' == 'True' ? true : false,
+            __date = new Date(),
+            __AccountAyuntamiento = "",
+            __YearBefore = false,
+            __DataGeneral,
             form,
             __TypeAgreement = "",
             __userId = '@Auth.Login.User',
@@ -98,7 +106,9 @@
             __listaAddress = [],
             idContacts = 1,
             idClients = 1,
-            idAddresses = 1;
+            idAddresses = 1,
+            __AgreementAccountFound = "",
+            __AgreementIdFound = 0;
 
         if ('@Plataform.IsAyuntamiento' == 'False')
         {
@@ -111,7 +121,11 @@
             Block();
 
             if (@idAgreement == 0) {
-                getData("UR");
+                if ('@Plataform.IsAyuntamiento' == 'True') {
+                    getData("UR");
+                } else {
+                    getData("HA");
+                }
             }
 
             form = document.getElementById("FormData");
@@ -120,13 +134,15 @@
             form.ine.addEventListener("keypress", onlyNumbers, false);
             form.zip.addEventListener("keypress", onlyNumbers, false);
 
-            if ('@Plataform.IsAyuntamiento' == 'True' && @idAgreement != 0)
+            if ('@Plataform.IsAyuntamiento' == 'True')
             {
                 form.folio.addEventListener("keypress", onlyNumbers, false);
                 form.register.addEventListener("keypress", onlyNumbers, false);
                 form.taxableBase.addEventListener("keypress", onlyNumbers, false);
                 form.ground.addEventListener("keypress", onlyNumbers, false);
                 form.build.addEventListener("keypress", onlyNumbers, false);
+                var dateCurrently = new Date();
+                $("#agreementDetailDate").val(getFormateDate(dateCurrently));
             }
 
             $("#ID").val('@idAgreement');
@@ -180,9 +196,6 @@
                             $("#manifest").val(x.manifest ? "true" : "false");
                             $("#catastralKey").val(x.catastralKey);
                         });
-                    } else {
-                        var dateCurrently = new Date();
-                        $("#agreementDetailDate").val(getFormateDate(dateCurrently));
                     }
 
                     AgreementServices.forEach(x => {
@@ -195,6 +208,7 @@
                         __listClients.push(client);
                         client.contacts.forEach(y => {
                             var contact = new ContactVM(y);
+                            contact.clientId = y.clienteId;
                             __listaNumbers.push(contact);
                         });
                     });
@@ -210,6 +224,7 @@
                         address.townName = x.suburbs.towns.name;
                         address.stateId = x.suburbs.towns.states.id;
                         address.stateName = x.suburbs.towns.states.name;
+                        address.agreementId = x.agreementsId;
                         __listaAddress.push(address);
                     });
                     fillTableAddress("tbodyAddresses");
@@ -243,23 +258,25 @@
                     __typeStateService = data.typeStateService;
                     __typeUse = data.typeUse;
 
-                    RenderSelectOption(acronym, "typeConsume", __typeConsume);
-                    RenderSelectOption(acronym, "typeIntake", __typeIntake);
-                    RenderSelectOption(acronym, "typeRegime", __typeRegime);
-                    RenderSelectOption(acronym, "typeUse", __typeUse);
-                    RenderSelectOption(acronym, "typeCommertialBusiness", __typeCommertialBusiness);
-                    RenderSelectOption(acronym, "typeClassification", __typeClassifications);
-                    RenderSelectOption(acronym, "typeService", __typeService);
-                    if ('@Plataform.IsAyuntamiento' == 'False')
+                    RenderSelectOption(acronym, "typeConsume", __typeConsume, isAyuntamiento);
+                    RenderSelectOption(acronym, "typeIntake", __typeIntake, isAyuntamiento);
+                    RenderSelectOption(acronym, "typeRegime", __typeRegime, isAyuntamiento);
+                    RenderSelectOption(acronym, "typeUse", __typeUse, isAyuntamiento);
+                    RenderSelectOption(acronym, "typeCommertialBusiness", __typeCommertialBusiness, isAyuntamiento);
+                    RenderSelectOption(acronym, "typeClassification", __typeClassifications, isAyuntamiento);
+                    RenderSelectOption(acronym, "typeService", __typeService, isAyuntamiento);
+                    if (!isAyuntamiento)
                     {
-                        RenderSelectOption(acronym, "diameter", __diameters);
+                        RenderSelectOption(acronym, "diameter", __diameters, isAyuntamiento);
                     }
-                    RenderSelectOption(acronym, "services", __services);
-                    RenderSelectOption(acronym, "typePeriod", __typePeriod, "", UnBlock);
+                    RenderSelectOption(acronym, "services", __services, isAyuntamiento);
+                    RenderSelectOption(acronym, "typePeriod", __typePeriod, isAyuntamiento, UnBlock);
 
                     resolve(true);
 
-                }).catch(error => { });
+                }).catch(error => {
+                    reject(false);
+                });
             });
         }
 
@@ -329,19 +346,43 @@
                 agreement.account = agreement.account + "R";
             }
 
+            __AccountAyuntamiento = agreement.account;
+
             axios.post('/Agreement/CreateEdit/' + agreement.id, agreement).then(response => {
                 UnBlock();
-                console.log("Response: ", response.data);
-                Swal.fire({
-                    title: "Bien",
-                    text: response.data,
-                    type: 'success',
-                    showConfirmButton: true,
-                }).then(response => {
-                    if (@idAgreement != 0) {
-                        AddEditAgreementDetail();
-                    }
-                });
+                //console.log("Termina de agregar Agreement: ", response.data);
+                if (@idAgreement != 0) {
+                    Swal.fire({
+                        title: "Bien",
+                        text: response.data,
+                        type: 'success',
+                        showConfirmButton: true,
+                    }).then(response => {
+                        AddEditAgreementDetail(@idAgreement).then(response => {
+                            window.location.href = "/Agreement/EditCreateView?idAgreement=" + @idAgreement;
+                        });
+                    });
+                } else {
+                    axios.get('/FoundAgreement/' + response.data.id).then(response => {
+                        //console.log("Busca Agreement: ", response.data);
+                        __AgreementIdFound = response.data.id;
+                        __AgreementAccountFound = response.data.account;
+                        Swal.fire({
+                            title: "Bien",
+                            text: response.data.success,
+                            type: 'success',
+                            showConfirmButton: true,
+                        }).then(response => {
+                            if (isAyuntamiento) {
+                                AddEditAgreementDetail(__AgreementIdFound).then(response => {
+                                    AddDebtAyuntamiento(__AgreementIdFound);
+                                });
+                            } else {
+                                $("#btnAddDebt").click();
+                            }
+                        });
+                    }).catch(error => { });
+                }
             }).catch(error => {
                 UnBlock();
                 console.error("Error: ", error.response.data.error)
@@ -370,7 +411,7 @@
             }
 
             let promise = new Promise((resolve, reject) => {
-                if ('@Plataform.IsAyuntamiento' == 'True' && '@idAgreement' == '0') {
+                if ('@Plataform.IsAyuntamiento' == 'True' && @idAgreement == 0) {
                     if (account.value == "") {
                         Swal.fire({
                             title: "Disculpa",
@@ -382,13 +423,10 @@
                             tabContentClient.classList.remove("active");
                             tabAgreement.classList.add("active");
                             tabContentAgreement.classList.add("active");
-
-                            resolve(true);
                         });
-                    } else {
-                        resolve(true);
                     }
                 }
+                resolve(true);
             });
 
             promise.then(response => {
@@ -436,5 +474,116 @@
             }
         }
 
+        //GENERAR LA DEUDA AL CREAR EL CONTRATO
+        function AddDebtAgua() {
+            Block();
+            let positionYearCurrently = 0;
+            const url = "/Debt/AddDebtToAgreement?AgreementId=";
+            var AgreementId = __AgreementIdFound
+                accountNumber =__AgreementAccountFound
+                year = GetValue("year", true); //7
+                month = GetValue("month", true); //0
+
+            YEAR.forEach(y => {
+                if (__date.getFullYear() == y.year) {
+                    positionYearCurrently = y.index;
+                }
+            })
+
+            for (let i = year; i <= positionYearCurrently; i++) {
+                if (i > year && i != positionYearCurrently) {
+                    for (let j = 0; j < YEAR[i].months.length; j++) {
+                        axios.post(url + AgreementId + "&month=" + YEAR[i].months[j].number + "&year=" + YEAR[i].year).then(response => { });
+                        __YearBefore = true;
+                    }
+                } else if (i == positionYearCurrently) {
+                    if (__YearBefore) {
+                        for (let monthB = 0; monthB <= __date.getMonth(); monthB++) {
+                            axios.post(url + AgreementId + "&month=" + YEAR[i].months[monthB].number + "&year=" + YEAR[i].year).then(response => { });
+                            if (i == positionYearCurrently && monthB == __date.getMonth()) {
+                                UnBlock();
+                                Swal.fire({
+                                    type: 'success',
+                                    title: 'Adeudo agregado',
+                                    text: 'Para la cuenta: ' + accountNumber,
+                                    showConfirmButton: true,
+                                }).then(response => {
+                                    window.location.href = "/Agreement/List";
+                                });
+                            }
+                        }
+                    } else if (month < __date.getMonth()) {
+                        for (let monthB = month; monthB <= __date.getMonth(); monthB++) {
+                            axios.post(url + AgreementId + "&month=" + YEAR[i].months[monthB].number + "&year=" + YEAR[i].year).then(response => { });
+                            if (i == positionYearCurrently && monthB == __date.getMonth()) {
+                                UnBlock();
+                                Swal.fire({
+                                    type: 'success',
+                                    title: 'Adeudo agregado',
+                                    text: 'Para la cuenta: ' + accountNumber,
+                                    showConfirmButton: true,
+                                }).then(response => {
+                                    window.location.href = "/Agreement/List";
+                                });
+                            }
+                        }
+                    } else {
+                        for (var monthBC = 0; monthBC <= __date.getMonth(); monthBC++) {
+                            axios.post(url + AgreementId + "&month=" + YEAR[i].months[monthBC].number + "&year=" + YEAR[i].year).then(response => { });
+                            if (i == positionYearCurrently && monthBC == __date.getMonth()) {
+                                UnBlock();
+                                Swal.fire({
+                                    type: 'success',
+                                    title: 'Adeudo agregado',
+                                    text: 'Para la cuenta: ' + accountNumber,
+                                    showConfirmButton: true,
+                                }).then(response => {
+                                    window.location.href = "/Agreement/List";
+                                });
+                            }
+                        }
+                    }
+                } else {
+                    for (let k = month; k < YEAR[i].months.length; k++) {
+                        axios.post(url + AgreementId + "&month=" + YEAR[i].months[k].number + "&year=" + YEAR[i].year).then(response => { });
+                    }
+                }
+            }
+        }
+
+        function AddDebtAyuntamiento(AgreementId) {
+            Swal.fire({
+                title: 'Se agregará un Adeudo',
+                text: "¿Está deacuerdo con esto?",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                Block();
+                if (result.value) {
+                    axios.post("/Debt/AddDebtToAgreement?AgreementId=" + AgreementId).then(response => {
+                        UnBlock();
+                        Swal.fire({
+                            type: 'success',
+                            title: '¡Correcto!',
+                            text: response.data + ' para la cuenta: ' + __AccountAyuntamiento,
+                            showConfirmButton: true,
+                        }).then(response => {
+                            window.location.href = "/Agreement/List";
+                        });
+                    }).catch(error => {
+                        console.log("Error", error.response);
+                        Swal.fire({
+                            type: 'info',
+                            title: '¡Discupe!',
+                            text: error.response,
+                            showConfirmButton: true,
+                        });
+                    });
+                }
+            })
+        }
     </script>
 }

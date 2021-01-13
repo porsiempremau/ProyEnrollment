@@ -20,6 +20,7 @@ namespace GFD.Siscom.Enrollment.Models
         public string type { get; set; }
         public int numDerivades { get; set; }
         public decimal debit { get; set; }
+        public string EndDate { get; set; }
         public string token { get; set; }
         //public DateTime endDate { get; set; }
         public string nameDiscount { get; set; }

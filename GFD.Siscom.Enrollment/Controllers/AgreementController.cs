@@ -26,9 +26,18 @@ namespace GFD.Siscom.Enrollment.Controllers
             RequestsApi = new RequestApi(appSettings.Value.WebApiBaseUrl);
         }
         [HttpGet("Agreement/List")]
-        public IActionResult Index()
+        public IActionResult Index([FromQuery] string page = "agreements")
         {
-            return View("~/Views/Agreements/ListAgreement.cshtml");
+            if (Plataform.IsAyuntamiento)
+            {
+                ViewData["Title"] = "Predios";
+            }
+            else
+            {
+                ViewData["Title"] = "Contratos";
+            }
+            
+            return View("~/Views/Agreements/ListAgreement.cshtml", new { page = page });
         }
 
         [HttpGet("Agreement/Get/List")]
@@ -108,26 +117,47 @@ namespace GFD.Siscom.Enrollment.Controllers
             {
                 var method = HttpMethod.Post;
                 var idAgreement = "";
-                var messagge = Plataform.IsAyuntamiento ? "Predio agregado correctamente" : "Contrato agregado correctamente";
+                var url = "/api/Agreements/NewPost";
+                var messagge = "";
                 if (id != 0)
                 {
                     method = HttpMethod.Put;
+                    url = "/api/Agreements/" + idAgreement;
                     idAgreement = id.ToString();
                     messagge = Plataform.IsAyuntamiento ? "Predio actualizado correctamente" : "Contrato actualizado correctamente";
                 }
                 var body = new StringContent(JsonConvert.SerializeObject(agreement), Encoding.UTF8, "application/json");
-                var result = await RequestsApi.SendURIAsync("/api/Agreements/" + idAgreement, method, Auth.Login.Token, body);
+                var result = await RequestsApi.SendURIAsync(url, method, Auth.Login.Token, body);
                 if (result.Contains("error"))
                 {
                     return Conflict(result);
                 }
-                return Ok(messagge);
+                if (id != 0)
+                {
+                    return Ok(messagge);
+                }
+                else
+                {
+                    return Ok(result);
+                }
+                
 
             }
             catch (Exception e)
             {
                 return null;
             }
+        }
+
+        [HttpGet("FoundAgreement/{agreementId}")]
+        public async Task<IActionResult> FoundAgreement([FromRoute] int agreementId)
+        {
+            var response = await RequestsApi.SendURIAsync("/api/Agreements/FoundAgreement/" + agreementId, HttpMethod.Get, Auth.Login.Token);
+            if (response.Contains("error"))
+            {
+                return Conflict(response);
+            }
+            return Ok(response);
         }
 
         [HttpGet("Agreement/SearchTaxUserByName/{name}")]
@@ -257,6 +287,27 @@ namespace GFD.Siscom.Enrollment.Controllers
             catch (Exception e)
             {
                 return Conflict(e.Message);
+            }
+        }
+
+        [HttpPost("Agreement/SearchByNameClient")]
+        public async Task<IActionResult> SearchByNameClient([FromBody] object nombre)
+        {
+            try
+            {
+                var body = new StringContent(nombre.ToString(), Encoding.UTF8, "application/json"); 
+                var result = await RequestsApi.SendURIAsync("/api/Agreements/SearchByNameClient", HttpMethod.Post, Auth.Login.Token, body);
+                if (result.Contains("error"))
+                {
+                    return Conflict(result);
+                }
+                var response = JsonConvert.DeserializeObject<List<ClientVM>>(JsonConvert.SerializeObject(result));
+                return Ok(response);
+
+            }
+            catch (Exception e)
+            {
+                return null;
             }
         }
     }

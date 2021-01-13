@@ -217,6 +217,18 @@
                         <a href="/Agreement/List">Contratos</a>
                     }
                 </li>
+
+                <li class="@(controller == "Discounts" ? "mm-active" : "")">
+                    <a href="#">Descuentos</a>
+                    <ul>
+                        <li class="@(url == "Discounts-Index" ? "mm-active" : "") @(url == "Discounts-ViewDiscountVulnerable" ? "mm-active" : "")">
+                            <a href="/Discounts/AgreementList">
+                                <i class="metismenu-icon">
+                                </i>Población Vulnerable
+                            </a>
+                        </li>
+                    </ul>
+                </li>
                 @*<li>
             <a href="#">
                 <i class="metismenu-icon pe-7s-browser"></i>

@@ -186,8 +186,13 @@
             isMale = document.getElementById("isMale").value == "true" ? true : false,
             typeUser = document.getElementById("typeClient").value;
 
+        if (@IDAgreement != 0) {
+            idClients = 0
+        } else {
+            idClients++;
+        }
         __listClients.push({
-            id: idClients++,
+            id: idClients,
             name,
             lastName,
             secondLastName,
@@ -206,8 +211,17 @@
 
     function addNumberPhoneToTable() {
         var number = GetValue("phone", false),
-            type = document.getElementById("typeContact").value;
-        __listaNumbers.push({ id: idContacts++, phoneNumber: number, typeNumber: type });
+            type = document.getElementById("typeContact").value,
+            clientId = 0;
+        if (@IDAgreement != 0) {
+            __listaNumbers.forEach(x => {
+                idContacts = x.id;
+                clientId = x.clientId;
+            });
+            idContacts = idContacts + 1;
+        }
+
+        __listaNumbers.push({ id: idContacts++, phoneNumber: number, typeNumber: type, isActive: 1, clientId });
         fillTableContact("tbodyContacts");
     }
 
@@ -255,19 +269,21 @@
         $("#" + idTBody).html("");
         cleanInputContact();
         __listaNumbers.forEach(x => {
-            var descriptionType = getDescriptionType(x.typeNumber, __typeContacts);
-            $("#" + idTBody).append(`
-                <tr>
-                    <td>${x.phoneNumber}</td>
-                    <td>${descriptionType}</td>
-                    <td>
-                        <a class="nav-link btn-flush" onclick="deleteItemContact(${x.id}, 'tbodyContacts')" type="button"
-                           data-caret="false" style="margin: 0 auto;">
-                            <i class="far fa-trash-alt" title="Eliminar Número"></i>
-                        </a>
-                    </td>
-                </tr>
-            `);
+            if (x.isActive == 1) {
+                var descriptionType = getDescriptionType(x.typeNumber, __typeContacts);
+                $("#" + idTBody).append(`
+                    <tr>
+                        <td>${x.phoneNumber}</td>
+                        <td>${descriptionType}</td>
+                        <td>
+                            <a class="nav-link btn-flush" onclick="deleteItemContact(${x.id}, 'tbodyContacts')" type="button"
+                               data-caret="false" style="margin: 0 auto;">
+                                <i class="far fa-trash-alt" title="Eliminar Número"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `);
+            }
         });
     }
 
@@ -276,9 +292,17 @@
     }
 
     function deleteItemContact(id, tbody) {
-        var itemFound = __listaNumbers.find(x => x.id == id);
-        var index = __listaNumbers.indexOf(itemFound);
-        __listaNumbers.splice(index, 1);
+        var item = __listaNumbers.find(x => x.id == id);
+        var index = __listaNumbers.indexOf(item);
+
+        __listaNumbers.splice(index, 1, {
+            clientId: item.clientId,
+            id: item.id,
+            isActive: 0,
+            phoneNumber: item.phoneNumber,
+            typeNumber: item.typeNumber,
+        });
+
         fillTableContact(tbody);
     }
 
@@ -308,7 +332,9 @@
         $("#isMale").val(itemFound.isMale ? "true" : "false");
 
         checkedIsMoral();
-        document.getElementById("btnUpdateClient").disabled = true;
+        if (@IDAgreement != 0) {
+            document.getElementById("btnUpdateClient").disabled = true;
+        }
     }
 
     function EditClient(id) {
@@ -342,7 +368,9 @@
         });
 
         fillTableClients("tbodyClients");
-        document.getElementById("btnUpdateClient").disabled = false;
+        if (@IDAgreement != 0) {
+            document.getElementById("btnUpdateClient").disabled = false;
+        }
         document.getElementById("btnAddClient").style.display = "block";
         document.getElementById("btnEditClient").style.display = "none";
     }
@@ -365,7 +393,6 @@
         });
 
         axios.put(`/Agreement/CreateEditClient/${@IDAgreement}`, { client }).then(response => {
-            //console.log("Update client: ", response.data);
             UnBlock();
             Swal.fire({
                 title: "Bien",

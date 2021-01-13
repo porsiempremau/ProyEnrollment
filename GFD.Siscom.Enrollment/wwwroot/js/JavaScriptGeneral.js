@@ -9,9 +9,10 @@ function UnBlock() {
     $.unblockUI();
 }
 
-function RenderSelect(idSelect, nameCatalog, selected = "", callback = null, params = {}) { //SE ACTUALIZÓ Y ES LA FUNCIÓN DE ABAJO LA QUE SE OCUPÓ
+function RenderSelect(idSelect, nameCatalog, selected = "", callback = null, params = {}) { //SE ACTUALIZÓ Y ES LA FUNCIÓN DE ABAJO LA QUE SE OCUPÓ PARA CREATE Y EDIT DE AGREEMENTS
     var select = document.getElementById(idSelect),
-        url = "/CatalogTypes/Get?type=" + nameCatalog + "&isToSelect=true";
+        //url = "/CatalogTypes/Get?type=" + nameCatalog + "&isToSelect=true";
+        url = "/" + nameCatalog + "/Get/0?isToSelect=true";
 
     select.innerHTML = "";
 
@@ -23,13 +24,15 @@ function RenderSelect(idSelect, nameCatalog, selected = "", callback = null, par
         var data = response.data;
         if (data.length > 0) {
             data.forEach(x => {
-                var option = document.createElement("option");
-                option.text = x.name;
-                option.value = x.id;
-                if (x.id == selected) {
-                    option.selected = true
+                if (x.isActive) {
+                    var option = document.createElement("option");
+                    option.text = x.name;
+                    option.value = x.id;
+                    if (x.id == selected) {
+                        option.selected = true
+                    }
+                    select.appendChild(option);
                 }
-                select.appendChild(option);
             });
         } else {
             var option = document.createElement("option");
@@ -49,7 +52,7 @@ function RenderSelect(idSelect, nameCatalog, selected = "", callback = null, par
     });
 }
 
-function RenderSelectOption(acronym, idSelect, list, selected = "", callback = null, params = {}) {
+function RenderSelectOption(acronym, idSelect, list, isAyuntamiento, callback = null, params = {}) {
     var select = document.getElementById(idSelect);
     select.innerHTML = "";
 
@@ -59,12 +62,23 @@ function RenderSelectOption(acronym, idSelect, list, selected = "", callback = n
 
     if (list.length > 0) {
         list.forEach(x => {
-            if (idSelect == "typeConsume" || idSelect == "typeIntake") {
+            if (idSelect == "typeConsume") {
+                var option = document.createElement("option");
+                if (isAyuntamiento) {
+                    option.text = x.acronym;
+                    option.value = x.id;
+                } else {
+                    option.text = x.name;
+                    option.value = x.id;
+                }
+                select.appendChild(option);
+            } else if (idSelect == "typeIntake") {
                 var option = document.createElement("option");
                 option.text = x.acronym;
                 option.value = x.id;
                 select.appendChild(option);
-            } else if (idSelect == "typeService" || idSelect == "services" || idSelect == "typePeriod") {
+            } else if (idSelect == "typeService" || idSelect == "services"
+                || idSelect == "typePeriod" || idSelect == "diameter") {
                 var option = document.createElement("option");
                 option.text = x.name;
                 option.value = x.id;
@@ -78,12 +92,8 @@ function RenderSelectOption(acronym, idSelect, list, selected = "", callback = n
                 var option = document.createElement("option");
                 option.text = x.name;
                 option.value = x.id;
-                //if (x.id == selected) {
-                //    option.selected = true
-                //}
                 select.appendChild(option);
             }
-                        
         });
     } else {
         var option = document.createElement("option");
@@ -160,25 +170,30 @@ function SearchTownByIdState(id, idSelect) {
     })
 }
 
-function SearchSuburbByIdTown(id, idSelect) {
-    Block();
-    __idTown = id;
-    $("#" + idSelect).html("");
-    var select = document.getElementById(idSelect);
-    axios.get("/Suburbs/SearchSuburbByIdTown/" + __idTown + "/0").then(response => {
-        var data = response.data;
-        if (data.length > 0) {
-            data.forEach(x => {
-                var option = document.createElement("option");
-                option.text = x.name;
-                option.value = x.id;
-                select.appendChild(option);
-            });
-        }
-        UnBlock();
-    }).catch(error => {
-        UnBlock();
-    })
+const SearchSuburbByIdTown = (id, idSelect) => {
+    return new Promise((resolve, reject) => {
+        Block();
+        __idTown = id;
+        $("#" + idSelect).html("");
+        var select = document.getElementById(idSelect);
+        axios.get("/Suburbs/SearchSuburbByIdTown/" + __idTown + "/0").then(response => {
+            var data = response.data;
+            if (data.length > 0) {
+                data.forEach(x => {
+                    var option = document.createElement("option");
+                    option.text = x.name;
+                    option.value = x.id;
+                    select.appendChild(option);
+                });
+            }
+            UnBlock();
+            resolve(true);
+        }).catch(error => {
+            UnBlock();
+            reject(false);
+        });
+    });
+    
 }
 
 function validarCurp(input, result) {
@@ -293,3 +308,975 @@ function getFormateDate(d) {
     var result = year + "-" + month + "-" + day;
     return result;
 }
+
+const GetSystemsParameters = () => {
+    return new Promise((resolve, reject) => {
+        axios.get('/SystemsParameters/GetAll').then(response => {
+            var sp = [] = response.data;
+            resolve(sp);
+        }).catch(error => { });
+    });
+}
+
+function GetOneSystemParameter(id, list) {
+    var value = 0;
+    if (list.length > 0) {
+        var x = list.find(x => x.id == id);
+        if (x != undefined) {
+            value = x.numberColumn;
+            return value;
+        }
+    }
+    return value
+}
+
+const YEAR = [
+    {
+        "index": 0,
+        "number": 1,
+        "year": 2014,
+        "months": [
+            {
+                "name": "Enero",
+                "number": 1,
+                "index": 0,
+                "value": 1
+            },
+            {
+                "name": "Febrero",
+                "number": 2,
+                "index": 1,
+                "value": 1
+            },
+            {
+                "name": "Marzo",
+                "number": 3,
+                "index": 2,
+                "value": 1
+            },
+            {
+                "name": "Abril",
+                "number": 4,
+                "index": 3,
+                "value": 1
+            },
+            {
+                "name": "Mayo",
+                "number": 5,
+                "index": 4,
+                "value": 1
+            },
+            {
+                "name": "Junio",
+                "number": 6,
+                "index": 5,
+                "value": 1
+            },
+            {
+                "name": "Julio",
+                "number": 7,
+                "index": 6,
+                "value": 1
+            },
+            {
+                "name": "Agosto",
+                "number": 8,
+                "index": 7,
+                "value": 1
+            },
+            {
+                "name": "Septiembre",
+                "number": 9,
+                "index": 8,
+                "value": 1
+            },
+            {
+                "name": "Octubre",
+                "number": 10,
+                "index": 9,
+                "value": 1
+            },
+            {
+                "name": "Noviembre",
+                "number": 11,
+                "index": 10,
+                "value": 1
+            },
+            {
+                "name": "Diciembre",
+                "number": 12,
+                "index": 11,
+                "value": 1
+            }
+        ]
+    },
+    {
+        "index": 1,
+        "number": 2,
+        "year": 2015,
+        "months": [
+            {
+                "name": "Enero",
+                "number": 1,
+                "index": 0,
+                "value": 1
+            },
+            {
+                "name": "Febrero",
+                "number": 2,
+                "index": 1,
+                "value": 1
+            },
+            {
+                "name": "Marzo",
+                "number": 3,
+                "index": 2,
+                "value": 1
+            },
+            {
+                "name": "Abril",
+                "number": 4,
+                "index": 3,
+                "value": 1
+            },
+            {
+                "name": "Mayo",
+                "number": 5,
+                "index": 4,
+                "value": 1
+            },
+            {
+                "name": "Junio",
+                "number": 6,
+                "index": 5,
+                "value": 1
+            },
+            {
+                "name": "Julio",
+                "number": 7,
+                "index": 6,
+                "value": 1
+            },
+            {
+                "name": "Agosto",
+                "number": 8,
+                "index": 7,
+                "value": 1
+            },
+            {
+                "name": "Septiembre",
+                "number": 9,
+                "index": 8,
+                "value": 1
+            },
+            {
+                "name": "Octubre",
+                "number": 10,
+                "index": 9,
+                "value": 1
+            },
+            {
+                "name": "Noviembre",
+                "number": 11,
+                "index": 10,
+                "value": 1
+            },
+            {
+                "name": "Diciembre",
+                "number": 12,
+                "index": 11,
+                "value": 1
+            }
+        ]
+    },
+    {
+        "index": 2,
+        "number": 3,
+        "year": 2016,
+        "months": [
+            {
+                "name": "Enero",
+                "number": 1,
+                "index": 0,
+                "value": 1
+            },
+            {
+                "name": "Febrero",
+                "number": 2,
+                "index": 1,
+                "value": 1
+            },
+            {
+                "name": "Marzo",
+                "number": 3,
+                "index": 2,
+                "value": 1
+            },
+            {
+                "name": "Abril",
+                "number": 4,
+                "index": 3,
+                "value": 1
+            },
+            {
+                "name": "Mayo",
+                "number": 5,
+                "index": 4,
+                "value": 1
+            },
+            {
+                "name": "Junio",
+                "number": 6,
+                "index": 5,
+                "value": 1
+            },
+            {
+                "name": "Julio",
+                "number": 7,
+                "index": 6,
+                "value": 1
+            },
+            {
+                "name": "Agosto",
+                "number": 8,
+                "index": 7,
+                "value": 1
+            },
+            {
+                "name": "Septiembre",
+                "number": 9,
+                "index": 8,
+                "value": 1
+            },
+            {
+                "name": "Octubre",
+                "number": 10,
+                "index": 9,
+                "value": 1
+            },
+            {
+                "name": "Noviembre",
+                "number": 11,
+                "index": 10,
+                "value": 1
+            },
+            {
+                "name": "Diciembre",
+                "number": 12,
+                "index": 11,
+                "value": 1
+            }
+        ]
+    },
+    {
+        "index": 3,
+        "number": 4,
+        "year": 2017,
+        "months": [
+            {
+                "name": "Enero",
+                "number": 1,
+                "index": 0,
+                "value": 1
+            },
+            {
+                "name": "Febrero",
+                "number": 2,
+                "index": 1,
+                "value": 1
+            },
+            {
+                "name": "Marzo",
+                "number": 3,
+                "index": 2,
+                "value": 1
+            },
+            {
+                "name": "Abril",
+                "number": 4,
+                "index": 3,
+                "value": 1
+            },
+            {
+                "name": "Mayo",
+                "number": 5,
+                "index": 4,
+                "value": 1
+            },
+            {
+                "name": "Junio",
+                "number": 6,
+                "index": 5,
+                "value": 1
+            },
+            {
+                "name": "Julio",
+                "number": 7,
+                "index": 6,
+                "value": 1
+            },
+            {
+                "name": "Agosto",
+                "number": 8,
+                "index": 7,
+                "value": 1
+            },
+            {
+                "name": "Septiembre",
+                "number": 9,
+                "index": 8,
+                "value": 1
+            },
+            {
+                "name": "Octubre",
+                "number": 10,
+                "index": 9,
+                "value": 1
+            },
+            {
+                "name": "Noviembre",
+                "number": 11,
+                "index": 10,
+                "value": 1
+            },
+            {
+                "name": "Diciembre",
+                "number": 12,
+                "index": 11,
+                "value": 1
+            }
+        ]
+    },
+    {
+        "index": 4,
+        "number": 5,
+        "year": 2018,
+        "months": [
+            {
+                "name": "Enero",
+                "number": 1,
+                "index": 0,
+                "value": 1
+            },
+            {
+                "name": "Febrero",
+                "number": 2,
+                "index": 1,
+                "value": 1
+            },
+            {
+                "name": "Marzo",
+                "number": 3,
+                "index": 2,
+                "value": 1
+            },
+            {
+                "name": "Abril",
+                "number": 4,
+                "index": 3,
+                "value": 1
+            },
+            {
+                "name": "Mayo",
+                "number": 5,
+                "index": 4,
+                "value": 1
+            },
+            {
+                "name": "Junio",
+                "number": 6,
+                "index": 5,
+                "value": 1
+            },
+            {
+                "name": "Julio",
+                "number": 7,
+                "index": 6,
+                "value": 1
+            },
+            {
+                "name": "Agosto",
+                "number": 8,
+                "index": 7,
+                "value": 1
+            },
+            {
+                "name": "Septiembre",
+                "number": 9,
+                "index": 8,
+                "value": 1
+            },
+            {
+                "name": "Octubre",
+                "number": 10,
+                "index": 9,
+                "value": 1
+            },
+            {
+                "name": "Noviembre",
+                "number": 11,
+                "index": 10,
+                "value": 1
+            },
+            {
+                "name": "Diciembre",
+                "number": 12,
+                "index": 11,
+                "value": 1
+            }
+        ]
+    },
+    {
+        "index": 5,
+        "number": 6,
+        "year": 2019,
+        "months": [
+            {
+                "name": "Enero",
+                "number": 1,
+                "index": 0,
+                "value": 1
+            },
+            {
+                "name": "Febrero",
+                "number": 2,
+                "index": 1,
+                "value": 1
+            },
+            {
+                "name": "Marzo",
+                "number": 3,
+                "index": 2,
+                "value": 1
+            },
+            {
+                "name": "Abril",
+                "number": 4,
+                "index": 3,
+                "value": 1
+            },
+            {
+                "name": "Mayo",
+                "number": 5,
+                "index": 4,
+                "value": 1
+            },
+            {
+                "name": "Junio",
+                "number": 6,
+                "index": 5,
+                "value": 1
+            },
+            {
+                "name": "Julio",
+                "number": 7,
+                "index": 6,
+                "value": 1
+            },
+            {
+                "name": "Agosto",
+                "number": 8,
+                "index": 7,
+                "value": 1
+            },
+            {
+                "name": "Septiembre",
+                "number": 9,
+                "index": 8,
+                "value": 1
+            },
+            {
+                "name": "Octubre",
+                "number": 10,
+                "index": 9,
+                "value": 1
+            },
+            {
+                "name": "Noviembre",
+                "number": 11,
+                "index": 10,
+                "value": 1
+            },
+            {
+                "name": "Diciembre",
+                "number": 12,
+                "index": 11,
+                "value": 1
+            }
+        ]
+    },
+    {
+        "index": 6,
+        "number": 7,
+        "year": 2020,
+        "months": [
+            {
+                "name": "Enero",
+                "number": 1,
+                "index": 0,
+                "value": 1
+            },
+            {
+                "name": "Febrero",
+                "number": 2,
+                "index": 1,
+                "value": 1
+            },
+            {
+                "name": "Marzo",
+                "number": 3,
+                "index": 2,
+                "value": 1
+            },
+            {
+                "name": "Abril",
+                "number": 4,
+                "index": 3,
+                "value": 1
+            },
+            {
+                "name": "Mayo",
+                "number": 5,
+                "index": 4,
+                "value": 1
+            },
+            {
+                "name": "Junio",
+                "number": 6,
+                "index": 5,
+                "value": 1
+            },
+            {
+                "name": "Julio",
+                "number": 7,
+                "index": 6,
+                "value": 1
+            },
+            {
+                "name": "Agosto",
+                "number": 8,
+                "index": 7,
+                "value": 1
+            },
+            {
+                "name": "Septiembre",
+                "number": 9,
+                "index": 8,
+                "value": 1
+            },
+            {
+                "name": "Octubre",
+                "number": 10,
+                "index": 9,
+                "value": 1
+            },
+            {
+                "name": "Noviembre",
+                "number": 11,
+                "index": 10,
+                "value": 1
+            },
+            {
+                "name": "Diciembre",
+                "number": 12,
+                "index": 11,
+                "value": 1
+            }
+        ]
+    },
+    {
+        "index": 7,
+        "number": 8,
+        "year": 2021,
+        "months": [
+            {
+                "name": "Enero",
+                "number": 1,
+                "index": 0,
+                "value": 1
+            },
+            {
+                "name": "Febrero",
+                "number": 2,
+                "index": 1,
+                "value": 1
+            },
+            {
+                "name": "Marzo",
+                "number": 3,
+                "index": 2,
+                "value": 1
+            },
+            {
+                "name": "Abril",
+                "number": 4,
+                "index": 3,
+                "value": 1
+            },
+            {
+                "name": "Mayo",
+                "number": 5,
+                "index": 4,
+                "value": 1
+            },
+            {
+                "name": "Junio",
+                "number": 6,
+                "index": 5,
+                "value": 1
+            },
+            {
+                "name": "Julio",
+                "number": 7,
+                "index": 6,
+                "value": 1
+            },
+            {
+                "name": "Agosto",
+                "number": 8,
+                "index": 7,
+                "value": 1
+            },
+            {
+                "name": "Septiembre",
+                "number": 9,
+                "index": 8,
+                "value": 1
+            },
+            {
+                "name": "Octubre",
+                "number": 10,
+                "index": 9,
+                "value": 1
+            },
+            {
+                "name": "Noviembre",
+                "number": 11,
+                "index": 10,
+                "value": 1
+            },
+            {
+                "name": "Diciembre",
+                "number": 12,
+                "index": 11,
+                "value": 1
+            }
+        ]
+    },
+    {
+        "index": 8,
+        "number": 9,
+        "year": 2022,
+        "months": [
+            {
+                "name": "Enero",
+                "number": 1,
+                "index": 0,
+                "value": 1
+            },
+            {
+                "name": "Febrero",
+                "number": 2,
+                "index": 1,
+                "value": 1
+            },
+            {
+                "name": "Marzo",
+                "number": 3,
+                "index": 2,
+                "value": 1
+            },
+            {
+                "name": "Abril",
+                "number": 4,
+                "index": 3,
+                "value": 1
+            },
+            {
+                "name": "Mayo",
+                "number": 5,
+                "index": 4,
+                "value": 1
+            },
+            {
+                "name": "Junio",
+                "number": 6,
+                "index": 5,
+                "value": 1
+            },
+            {
+                "name": "Julio",
+                "number": 7,
+                "index": 6,
+                "value": 1
+            },
+            {
+                "name": "Agosto",
+                "number": 8,
+                "index": 7,
+                "value": 1
+            },
+            {
+                "name": "Septiembre",
+                "number": 9,
+                "index": 8,
+                "value": 1
+            },
+            {
+                "name": "Octubre",
+                "number": 10,
+                "index": 9,
+                "value": 1
+            },
+            {
+                "name": "Noviembre",
+                "number": 11,
+                "index": 10,
+                "value": 1
+            },
+            {
+                "name": "Diciembre",
+                "number": 12,
+                "index": 11,
+                "value": 1
+            }
+        ]
+    },
+    {
+        "index": 9,
+        "number": 10,
+        "year": 2023,
+        "months": [
+            {
+                "name": "Enero",
+                "number": 1,
+                "index": 0,
+                "value": 1
+            },
+            {
+                "name": "Febrero",
+                "number": 2,
+                "index": 1,
+                "value": 1
+            },
+            {
+                "name": "Marzo",
+                "number": 3,
+                "index": 2,
+                "value": 1
+            },
+            {
+                "name": "Abril",
+                "number": 4,
+                "index": 3,
+                "value": 1
+            },
+            {
+                "name": "Mayo",
+                "number": 5,
+                "index": 4,
+                "value": 1
+            },
+            {
+                "name": "Junio",
+                "number": 6,
+                "index": 5,
+                "value": 1
+            },
+            {
+                "name": "Julio",
+                "number": 7,
+                "index": 6,
+                "value": 1
+            },
+            {
+                "name": "Agosto",
+                "number": 8,
+                "index": 7,
+                "value": 1
+            },
+            {
+                "name": "Septiembre",
+                "number": 9,
+                "index": 8,
+                "value": 1
+            },
+            {
+                "name": "Octubre",
+                "number": 10,
+                "index": 9,
+                "value": 1
+            },
+            {
+                "name": "Noviembre",
+                "number": 11,
+                "index": 10,
+                "value": 1
+            },
+            {
+                "name": "Diciembre",
+                "number": 12,
+                "index": 11,
+                "value": 1
+            }
+        ]
+    },
+    {
+        "index": 10,
+        "number": 11,
+        "year": 2024,
+        "months": [
+            {
+                "name": "Enero",
+                "number": 1,
+                "index": 0,
+                "value": 1
+            },
+            {
+                "name": "Febrero",
+                "number": 2,
+                "index": 1,
+                "value": 1
+            },
+            {
+                "name": "Marzo",
+                "number": 3,
+                "index": 2,
+                "value": 1
+            },
+            {
+                "name": "Abril",
+                "number": 4,
+                "index": 3,
+                "value": 1
+            },
+            {
+                "name": "Mayo",
+                "number": 5,
+                "index": 4,
+                "value": 1
+            },
+            {
+                "name": "Junio",
+                "number": 6,
+                "index": 5,
+                "value": 1
+            },
+            {
+                "name": "Julio",
+                "number": 7,
+                "index": 6,
+                "value": 1
+            },
+            {
+                "name": "Agosto",
+                "number": 8,
+                "index": 7,
+                "value": 1
+            },
+            {
+                "name": "Septiembre",
+                "number": 9,
+                "index": 8,
+                "value": 1
+            },
+            {
+                "name": "Octubre",
+                "number": 10,
+                "index": 9,
+                "value": 1
+            },
+            {
+                "name": "Noviembre",
+                "number": 11,
+                "index": 10,
+                "value": 1
+            },
+            {
+                "name": "Diciembre",
+                "number": 12,
+                "index": 11,
+                "value": 1
+            }
+        ]
+    },
+    {
+        "index": 11,
+        "number": 12,
+        "year": 2025,
+        "months": [
+            {
+                "name": "Enero",
+                "number": 1,
+                "index": 0,
+                "value": 1
+            },
+            {
+                "name": "Febrero",
+                "number": 2,
+                "index": 1,
+                "value": 1
+            },
+            {
+                "name": "Marzo",
+                "number": 3,
+                "index": 2,
+                "value": 1
+            },
+            {
+                "name": "Abril",
+                "number": 4,
+                "index": 3,
+                "value": 1
+            },
+            {
+                "name": "Mayo",
+                "number": 5,
+                "index": 4,
+                "value": 1
+            },
+            {
+                "name": "Junio",
+                "number": 6,
+                "index": 5,
+                "value": 1
+            },
+            {
+                "name": "Julio",
+                "number": 7,
+                "index": 6,
+                "value": 1
+            },
+            {
+                "name": "Agosto",
+                "number": 8,
+                "index": 7,
+                "value": 1
+            },
+            {
+                "name": "Septiembre",
+                "number": 9,
+                "index": 8,
+                "value": 1
+            },
+            {
+                "name": "Octubre",
+                "number": 10,
+                "index": 9,
+                "value": 1
+            },
+            {
+                "name": "Noviembre",
+                "number": 11,
+                "index": 10,
+                "value": 1
+            },
+            {
+                "name": "Diciembre",
+                "number": 12,
+                "index": 11,
+                "value": 1
+            }
+        ]
+    }
+]

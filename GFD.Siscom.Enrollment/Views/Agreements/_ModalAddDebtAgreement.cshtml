@@ -1,0 +1,61 @@
+﻿
+<div class="modal fade" id="modalAddDebtAgreement" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modalHeader" style="background-color:#036681;padding: 1rem;">
+                <div class="row">
+                    <div class="col-xs-6 col-sm-7 col-md-10 col-lg-10">
+                        <p id="TitleModal" class="subtitle bold white-color" style="margin-bottom: 0px;">Agregar Adeudo</p>
+                    </div>
+                    <div class="col-xs-6 col-sm-5 col-md-2 col-lg-2" style="float:right;">
+                        <button type="button" style="color: white;" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <input type="hidden" id="idAgreementToDebt" name="idAgreementToDebt" />
+                        <input type="hidden" id="accountAgreementToDebt" name="accountAgreementToDebt" />
+                        <label>Mes:</label>
+                        <select id="month" name="month" class="form-control form-control-sm" required>
+                            <option value="0">Enero</option>
+                            <option value="1">Febrero</option>
+                            <option value="2">Marzo</option>
+                            <option value="3">Abril</option>
+                            <option value="4">Mayo</option>
+                            <option value="5">Junio</option>
+                            <option value="6">Julio</option>
+                            <option value="7">Agosto</option>
+                            <option value="8">Septiembre</option>
+                            <option value="9">Octubre</option>
+                            <option value="10">Noviembre</option>
+                            <option value="11">Diciembre</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12">
+                        <label>Año:</label>
+                        <select id="year" name="year" class="form-control form-control-sm" required>
+                            <option value="0">2014</option>
+                            <option value="1">2015</option>
+                            <option value="2">2016</option>
+                            <option value="3">2017</option>
+                            <option value="4">2018</option>
+                            <option value="5">2019</option>
+                            <option value="6">2020</option>
+                            <option value="7">2021</option>
+                            <option value="8">2022</option>
+                            <option value="9">2023</option>
+                            <option value="10">2024</option>
+                            <option value="11">2025</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-GFD" onclick="AddDebtAgua()">Aceptar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -19,6 +19,7 @@ namespace GFD.Siscom.Enrollment.Models
         public bool TaxRegime { get; set; }
         public bool IsMale { get; set; }
         public bool IsActive { get; set; }
+        public Object agreement { get; set; }
         public List<ContactVM> Contacts { get; set; }
     }
 }

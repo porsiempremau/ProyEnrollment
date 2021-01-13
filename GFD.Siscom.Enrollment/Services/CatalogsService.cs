@@ -184,7 +184,7 @@ namespace GFD.Siscom.Enrollment.Services
 
         #region Discounts
         [HttpGet("Discounts/Get/{id}")]
-        public async Task<IActionResult> GetDiscounts([FromRoute] int id)
+        public async Task<IActionResult> GetDiscounts([FromRoute] int id, [FromQuery] bool isToSelect = false)
         {
             try
             {
@@ -199,7 +199,11 @@ namespace GFD.Siscom.Enrollment.Services
                 {
                     return Conflict(result);
                 }
-
+                if (isToSelect)
+                {
+                    data = JsonConvert.DeserializeObject<List<DiscountsVM>>(result);
+                    return Ok(data);
+                }
                 if (id != 0)
                 {
                     data = JsonConvert.DeserializeObject<DiscountsVM>(result);

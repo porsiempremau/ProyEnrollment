@@ -10,7 +10,7 @@ namespace GFD.Siscom.Enrollment.Models
         public int Id { get; set; }
         public string Account { get; set; }
         public string Route { get; set; }
-        public int Derivatives { get; set; }
+        public int? Derivatives { get; set; }
         public int TypeServiceId { get; set; }
         public int TypeUseId { get; set; }
         public int TypeConsumeId { get; set; }

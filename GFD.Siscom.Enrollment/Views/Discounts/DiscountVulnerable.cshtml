@@ -1,0 +1,294 @@
+﻿
+<div class="app-page-title">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div class="page-title-icon">
+                <i class="pe-7s-medal icon-gradient bg-tempting-azure">
+                </i>
+            </div>
+            <div>
+                @ViewData["Title"]
+            </div>
+        </div>
+    </div>
+</div>
+
+<form id="FormData" onsubmit="GetDataFromAccount(event)">
+    <div class="row">
+        @*<div class="col-md-3">
+            <label>Nombre:</label>
+            <input type="text" id="name" name="name" class="form-control" onblur="LimpiarCampos('name')" />
+        </div>*@
+        <div class="col-md-2">
+            <label>Cuenta:</label>
+            <input type="text" id="account" name="account" class="form-control" required/>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-GFD margin-top-btns">
+                Buscar
+            </button>
+        </div>
+        <div class="col-md-8"></div>
+    </div>
+</form>
+<br />
+<div class="main-card mb-3 card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="main-card mb-3 card">
+                    <div class="title-head">
+                        <p>Datos del Descuento</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Nombre del Descuento:</label>
+                                <select id="nameDiscount" name="nameDiscount" class="form-control form-control-sm"></select>
+                            </div>
+                            <div class="col-md-12" style=" margin-top: 37px; margin-bottom: 17px;">
+                                <label>Evidencia:</label>
+                                <input type="file" id="file" name="file" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="main-card mb-3 card">
+                    <div class="title-head">
+                        <p>Registro de descuentos aplicados</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id="Table" style="width: 100%;" class="table table-hover table-striped table-bordered">
+                                    <thead class="style-theads">
+                                        <tr>
+                                            <th>Contribuyente</th>
+                                            <th>Dirección</th>
+                                            <th>RFC</th>
+                                            <th>Status Descuento</th>
+                                            <th>Tipo Descuento</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody">
+                                        <tr>
+                                            <td colspan="5" style="font-size: 20px; text-align: center">Sin Datos</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-block text-center card-footer">
+        <div class="row">
+            <div class="col-md-12">
+                <button type="button" class="btn btn-success float-right" onclick="">Agregar Descuento</button>
+            </div>
+        </div>
+    </div>
+</div>
+<button id="btnGetPredios" data-toggle="modal" data-target="#modalListaPredios"></button>
+
+@section Scripts{ 
+<partial name="~/Views/Discounts/_ModalListaPredios.cshtml"/>
+<script>
+    var __ListSystemsParameters = [],
+        __User = [],
+        __AgreementId = 0,
+        __accountSearched = false,
+        __desabledButton = true;
+
+    window.onload = function myfunction() {
+        Block();
+        GetSystemsParameters().then(response => {
+            __ListSystemsParameters = response;
+            console.log("__ListSystemsParameters: ", __ListSystemsParameters);
+            RenderSelect("nameDiscount", "Discounts", "", UnBlock);
+        });
+    }
+    function GetDataFromAccount(event) {
+        event.preventDefault()
+        Block();
+        $("#tbody").html("");
+
+        var account = document.getElementById("account").value,
+            valorCatastralSysP = GetOneSystemParameter(9, __ListSystemsParameters);
+        axios.get("/Agreement/Get/List?account=" + account).then(response => {
+            var data = response.data,
+                taxableBaseClient = data[0].taxableBase,
+                client = data[0],
+                status = data[0].status,
+                nameClient = data[0].nombre;
+            __User = response.data;
+            __AgreementId = data[0].agreementId;
+            
+            console.log("Data Client: ", data);
+            if (data.length > 0) {
+                data.forEach(x => {
+                    $("#tbody").append(`
+                        <tr>
+                            <td>${x.nombre}</td>
+                            <td>${x.address}</td>
+                            <td>${x.rfc}</td>
+                            <td style="text-align: center;">
+                                ${x.isActiveDiscount ? "<i class='fas fa-check-circle' style='color:green; font-size: 24px;' title='Activo'></i>" : "<i class='fas fa-times-circle' title='Inactivo' style='color:red; font-size: 24px;'></i>"}
+                            </td>
+                            <td>${x.nameDiscount == "" ? "NINGUNO" : x.nameDiscount}</td>
+                        </tr>
+                    `);
+                });
+            }
+
+            if (status == 'INACTIVO' || status == 'inactivo' || status == 'Inactivo') {
+                UnBlock();
+                Swal.fire({
+                    type: 'warning',
+                    title: 'Esta cuenta está inactiva',
+                    text: 'Si quiere agregar convenios, la cuenta necesita estar Activa',
+                    showConfirmButton: true,
+                }).then(response => {
+                    __accountSearched = false;
+                    __desabledButton = true;
+                });
+            }
+            else {
+                __accountSearched = true;
+                __desabledButton = false;
+            }
+
+            if (__accountSearched && valorCatastralSysP > 0) {
+                ComparaValorCatastral(taxableBaseClient, valorCatastralSysP, nameClient);
+            } else {
+                ComprobarSiTieneDescuento();
+            }
+            UnBlock();
+        }).catch(error => {
+            UnBlock();
+            Swal.fire({
+                type: 'info',
+                title: 'Cuenta no localizada',
+                //text: 'Si quiere agregar convenios, la cuenta necesita estar Activa',
+                showConfirmButton: true,
+            });
+        });
+    }
+
+    function ComparaValorCatastral(valorCuenta, valorSystemParameter, nombreContribuyente){
+        var ValorCatastralString = new Number(valorCuenta).toLocaleString("es-MX");
+        if (valorCuenta > valorSystemParameter) {
+            Swal.fire({
+                type: 'warning',
+                title: 'Advertencia',
+                text: "Esta cuenta tiene un Valor Catastral de: " + ValorCatastralString + ". De acuerdo a la ley, no puede aplicar este tipo de descuento",
+                showConfirmButton: true,
+            }).then(response => {
+                __desabledButton = true;
+                BuscarPredios(nombreContribuyente.trim());
+            });
+        } else {
+            BuscarPredios(nombreContribuyente.trim());
+        }
+    }
+
+    function BuscarPredios(nombre) {
+        axios.post('/Agreement/SearchByNameClient', {nombre}).then(response => {
+            var data = response.data;
+            UnBlock();
+            if (data.length > 1) {
+                Swal.fire({
+                    type: 'info',
+                    title: 'Advertencia',
+                    text: name + ' aparece en más de un predio. De acuerdo a la ley, no puede aplicar este tipo de descuento',
+                    showConfirmButton: true,
+                }).then(response => {
+                    __desabledButton = true;
+                    $("#btnGetPredios").click();
+                    data.forEach(x => {
+                        $("#tbodyListPredios").append(`
+                            <tr>
+                                <td>${x.account}</td>
+                                <td>${x.rfc}</td>
+                                <td>${x.token}</td>
+                            </tr>
+                        `);
+                    });
+                });
+            } else {
+                __desabledButton = false;
+                this.GetDebts(this.idAgreement);
+            }
+        }).catch(error => {
+            UnBlock();
+        });
+    }
+
+    function GetDebts(idAgrement) {
+        //Deuda: ED001, ED004, ED007, ED011
+        //var DebtsCurrentlyYear = [],
+        //    DebtsNextYear = [],
+        //    ArrayDebtsCuotaMinima = [];
+
+        //if (this.valueUrl) {
+        //    var AnioActual = this.GetOneSystemParameter(38),
+        //        AnioSiguiente = this.GetOneSystemParameter(39),
+        //        CoutaMinimaAnioActual = this.GetOneSystemParameter(40),
+        //        CuotaMinimaAnioSiguiente = this.GetOneSystemParameter(41);
+        //} else {
+        //    var AnioActual = this.GetOneSystemParameter(66),
+        //        AnioSiguiente = this.GetOneSystemParameter(64),
+        //        CoutaMinimaAnioActual = this.GetOneSystemParameter(7),
+        //        CuotaMinimaAnioSiguiente = this.GetOneSystemParameter(62);
+        //}
+
+        //this.DebtsService.getOnlyDebts(parseInt(idAgrement)).pipe(first()).subscribe(result => {
+        //    result.forEach(x => {
+        //        if (x.descriptionType == "Predial" || x.descriptionType == "PREDIAL" ||
+        //            x.descriptionType == "Limpia" || x.descriptionType == "LIMPIA") {
+        //            if (parseInt(x.year) == AnioActual) {
+        //                if (parseFloat(x.amount) <= CoutaMinimaAnioActual) {
+        //                    DebtsCurrentlyYear.push(x);
+        //                }
+        //            }
+
+        //            if (parseInt(x.year) == AnioSiguiente) {
+        //                if (parseFloat(x.amount) <= CuotaMinimaAnioSiguiente) {
+        //                    DebtsNextYear.push(x);
+        //                }
+        //            }
+        //        }
+        //    });
+
+        //    if (DebtsCurrentlyYear.length > 0 || DebtsNextYear.length > 0) {
+        //        ArrayDebtsCuotaMinima.push({ year: AnioActual, Debt: DebtsCurrentlyYear });
+        //        ArrayDebtsCuotaMinima.push({ year: AnioSiguiente, Debt: DebtsNextYear });
+        //    }
+
+        //    if (ArrayDebtsCuotaMinima.length > 0) {
+        //        swal({
+        //            type: 'warning',
+        //            title: 'Advertencia',
+        //            text: "Esta cuenta tiene adeudo de Predial con cuota minima. " +
+        //                "De acuerdo a la ley, no puede aplicar este tipo de descuento",
+        //            showConfirmButton: true,
+        //        }).then(result => {
+        //            this.__desabledButton = true;
+        //            this._matDialog.open(ModalListaAdeudoCuotaMinimnaComponent, {
+        //                panelClass: "modal-debts-couta-minima",
+        //                data: ArrayDebtsCuotaMinima
+        //            });
+        //        });
+        //    } else {
+        //        this.ComprobarSiTieneDescuento();
+        //    }
+        //}, error => {
+        //    ArrayDebtsCuotaMinima = null;
+        //});
+    }
+</script>
+}

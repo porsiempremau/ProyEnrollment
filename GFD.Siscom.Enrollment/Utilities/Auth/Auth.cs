@@ -1,6 +1,9 @@
-﻿using GFD.Siscom.Enrollment.Models;
+﻿using GFD.Siscom.Enrollment.Controllers;
+using GFD.Siscom.Enrollment.Models;
+using GFD.Siscom.Enrollment.Utilities.Parameters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -38,6 +41,8 @@ namespace GFD.Siscom.Enrollment.Utilities.Auth
                 var login = httpContext.Session.GetString("Login");
                 if (login == null)
                 {
+                    //LoginController loginObject = new LoginController(null);
+                    //loginObject.Logout();
                     return null;
                 }
 
