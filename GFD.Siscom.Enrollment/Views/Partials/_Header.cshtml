@@ -1,8 +1,9 @@
 ﻿@using GFD.Siscom.Enrollment.Utilities.Auth;
 
-<div class="app-header header-shadow">
+<div class="app-header header-shadow color-header">
     <div class="app-header__logo">
-        <div class="logo-src"></div>
+        @*<div class="logo-src"></div>*@
+        <div class="logo-src color-white">GFDSISCOM</div>
         <div class="header__pane ml-auto">
             <div>
                 <button type="button" class="hamburger close-sidebar-btn hamburger--elastic"
@@ -845,7 +846,7 @@
                                    class="p-0 btn">
                                     <img width="42" class="rounded-circle" src="assets/images/avatars/1.jpg"
                                          alt="">
-                                    <i class="fa fa-angle-down ml-2 opacity-8"></i>
+                                    <i class="fa fa-angle-down ml-2 opacity-8 color-white"></i>
                                 </a>
                                 <div tabindex="-1" role="menu" aria-hidden="true"
                                      class="rm-pointers dropdown-menu-lg dropdown-menu dropdown-menu-right">
@@ -862,10 +863,10 @@
                                                                  src="assets/images/avatars/1.jpg" alt="">
                                                         </div>*@
                                                         <div class="widget-content-left">
-                                                            <div class="widget-heading">
+                                                            <div class="widget-heading color-white">
                                                                 @Auth.Login.FullName
                                                             </div>
-                                                            <div class="widget-subheading opacity-8">
+                                                            <div class="widget-subheading opacity-8 color-white">
                                                                 @Auth.Login.RolName[0]
                                                             </div>
                                                         </div>
@@ -960,10 +961,10 @@
                             </div>
                         </div>
                         <div class="widget-content-left  ml-3 header-user-info">
-                            <div class="widget-heading">
+                            <div class="widget-heading color-white">
                                 @Auth.Login.FullName
                             </div>
-                            <div class="widget-subheading">
+                            <div class="widget-subheading color-white">
                                 @Auth.Login.Email
                             </div>
                         </div>

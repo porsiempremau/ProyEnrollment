@@ -301,7 +301,7 @@ namespace GFD.Siscom.Enrollment.Controllers
                 {
                     return Conflict(result);
                 }
-                var response = JsonConvert.DeserializeObject<List<ClientVM>>(JsonConvert.SerializeObject(result));
+                var response = JsonConvert.DeserializeObject<List<ClientVM>>(result);
                 return Ok(response);
 
             }

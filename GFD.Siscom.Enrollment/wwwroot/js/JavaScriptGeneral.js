@@ -190,7 +190,7 @@ const SearchSuburbByIdTown = (id, idSelect) => {
             resolve(true);
         }).catch(error => {
             UnBlock();
-            reject(false);
+            //reject(false);
         });
     });
     

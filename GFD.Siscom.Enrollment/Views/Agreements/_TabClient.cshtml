@@ -239,7 +239,7 @@
                         </a>
                     </td>
                     <td>
-                        <a class="nav-link btn-flush" onclick="deleteItemClient(${x.id}, 'tbodyClients')" type="button"
+                        <a id="btnDeleteClient" class="nav-link btn-flush" onclick="deleteItemClient(${x.id}, 'tbodyClients')" type="button"
                            data-caret="false" style="margin: 0 auto;">
                             <i class="far fa-trash-alt" title="Eliminar Cliente"></i>
                         </a>
@@ -318,6 +318,7 @@
 
         document.getElementById("btnAddClient").style.display = "none";
         document.getElementById("btnEditClient").style.display = "block";
+        document.getElementById("btnDeleteClient").classList.add("disabled");
         document.getElementById("idClient").value = itemFound.id;
         document.getElementById("isMoral").checked = itemFound.taxRegime;
         document.getElementById("nameClient").value = itemFound.name;
@@ -373,6 +374,7 @@
         }
         document.getElementById("btnAddClient").style.display = "block";
         document.getElementById("btnEditClient").style.display = "none";
+        document.getElementById("btnDeleteClient").classList.remove("disabled");
     }
 
     function UpdateClient() {

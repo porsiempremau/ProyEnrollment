@@ -1,5 +1,8 @@
-﻿
-.style-theads{
+﻿.subtitle {
+    font-size: 20px;
+}
+
+.style-theads {
     background-color: #074472;
     color: white;
 }
@@ -55,4 +58,34 @@ th{
 #resultadoINE.ok,
 #resultadoCURP.ok{
     background-color: #49bf7b;
+}
+
+.year-style {
+    font-size: 17px;
+    font-weight: 500;
+}
+
+.color-header {
+    background-color: #074472 !important;
+}
+
+.color-white{
+    color: white !important;
+}
+
+.background-white{
+    background-color: white !important;
+}
+
+.style-main-title{
+    font-weight: 100 !important;
+}
+
+.active-GFD {
+    background-color: #074472;
+    border-radius: 5px;
+}
+
+.active-GFD>a{
+    color: white !important;
 }
