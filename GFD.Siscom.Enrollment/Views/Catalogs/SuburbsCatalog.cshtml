@@ -4,12 +4,12 @@
     <div class="page-title-wrapper">
         <div class="page-title-heading">
             <div class="page-title-icon">
-                <i class="pe-7s-medal icon-gradient bg-tempting-azure">
+                <i class="fas fa-archive">
                 </i>
             </div>
-            <div>
+            <h1 class="style-main-title">
                 Catálogo @ViewData["Title"]
-            </div>
+            </h1>
         </div>
     </div>
 </div>
@@ -20,7 +20,7 @@
     </div>
     <div class="col-md-3">
         <label>Minicipio:</label>
-        <select id="towns" name="towns" class="form-control" onchange="SearchSuburbByIdTown(this.value)"></select>
+        <select id="towns" name="towns" class="form-control" onchange="SearchSuburbByIdTownTable(this.value)"></select>
     </div>
     <div class="col-md-6">
         <button type="button" class="btn btn-GFD float-right margin-top-btns" data-toggle="modal" data-target="#modalCreateEdit" onclick="openModalToCreate()">
@@ -99,7 +99,7 @@
         window.onload = function () {
             GetCountries("states");
             SearchTownByIdState(21, "towns");
-            SearchSuburbByIdTown(2);
+            SearchSuburbByIdTownTable(2);
         }
         
         //function SearchTownByIdState(id, idSelect) {
@@ -126,7 +126,7 @@
         //    })
         //}
 
-        function SearchSuburbByIdTown(id) {
+        function SearchSuburbByIdTownTable(id) {
             Block();
             __idTown = id;
             ClearDataTable("Table");

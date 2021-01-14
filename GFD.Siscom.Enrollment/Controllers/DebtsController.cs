@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using GFD.Siscom.Enrollment.Models;
 using GFD.Siscom.Enrollment.Utilities;
 using GFD.Siscom.Enrollment.Utilities.Auth;
 using GFD.Siscom.Enrollment.Utilities.Parameters;
@@ -28,6 +29,26 @@ namespace GFD.Siscom.Enrollment.Controllers
         public ActionResult Index()
         {
             return View();
+        }
+
+        [HttpGet("Debt/OneDebt/{idAgreement}")]
+        public async Task<IActionResult> SearchByNameClient([FromRoute] int idAgreement)
+        {
+            try
+            {
+                var result = await RequestsApi.SendURIAsync("/api/Debts/" + idAgreement, HttpMethod.Get, Auth.Login.Token);
+                if (result.Contains("error"))
+                {
+                    return Conflict(result);
+                }
+                var response = JsonConvert.DeserializeObject<List<DebtVM>>(result);
+                return Ok(response);
+
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
         }
 
         [HttpPost("Debt/AddDebtToAgreement")]

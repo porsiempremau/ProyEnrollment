@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
+using GFD.Siscom.Enrollment.Utilities.Auth;
 using GFD.Siscom.Enrollment.Utilities.Parameters;
 using GFD.Siscom.Enrollment.Utilities.Services;
 using Microsoft.AspNetCore.Http;
@@ -33,5 +36,26 @@ namespace GFD.Siscom.Enrollment.Controllers
             ViewData["Title"] = "Alta Descuento Población Vulnerable";
             return View("~/Views/Discounts/DiscountVulnerable.cshtml");
         }
+
+        [HttpPost("Discounts/AddDiscountToAgreement")]
+        public async Task<IActionResult> AddDiscount([FromBody] object data)
+        {
+            try
+            {
+                var body = new StringContent(data.ToString(), Encoding.UTF8, "application/json");
+                var result = await RequestsApi.SendURIAsync("/api/Agreements/AddDiscount", HttpMethod.Post, Auth.Login.Token, body);
+                if (result.Contains("error"))
+                {
+                    return Conflict(result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return Conflict(e.Message);
+            }
+        }
+
     }
 }

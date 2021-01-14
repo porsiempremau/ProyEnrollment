@@ -20,12 +20,12 @@
     <div class="page-title-wrapper">
         <div class="page-title-heading">
             <div class="page-title-icon">
-                <i class="pe-7s-medal icon-gradient bg-tempting-azure">
+                <i class="fas fa-paste">
                 </i>
             </div>
-            <div>
+            <h1 class="style-main-title">
                 @ViewData["Title"]
-            </div>
+            </h1>
         </div>
     </div>
 </div>
@@ -582,6 +582,9 @@
                             showConfirmButton: true,
                         });
                     });
+                } else {
+                    UnBlock();
+                    window.location.href = "/Agreement/List";
                 }
             })
         }

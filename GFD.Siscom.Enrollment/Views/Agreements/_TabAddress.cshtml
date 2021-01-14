@@ -245,7 +245,7 @@
         document.getElementById("btnAddAddress").style.display = "none";
         document.getElementById("btnEditAddress").style.display = "block";
         document.getElementById("btnUpdateAddress").disabled = true;
-        document.getElementById("IconDeleteAddress").disabled = true;
+        document.getElementById("IconDeleteAddress").classList.add("disabled");
 
         SearchSuburbByIdTown(item.townId, "suburbId").then(response => {
             $("#idAddress").val(item.id);
@@ -302,7 +302,7 @@
         document.getElementById("btnAddAddress").style.display = "block";
         document.getElementById("btnEditAddress").style.display = "none";
         document.getElementById("btnUpdateAddress").disabled = false;
-        document.getElementById("IconDeleteAddress").disabled = false;
+        document.getElementById("IconDeleteAddress").classList.remove("disabled");
     }
 
     function UpdateAddresses() {
