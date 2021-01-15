@@ -57,5 +57,44 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+        [HttpPost("Discounts/AddDiscountToDebt/{idAgreement}")]
+        public async Task<IActionResult> AddDiscountToDebt([FromRoute] int idAgreement)
+        {
+            try
+            {
+                var body = new StringContent("", Encoding.UTF8, "application/json");
+                var result = await RequestsApi.SendURIAsync("/api/Agreements/addDiscountDebt/" + idAgreement, HttpMethod.Post, Auth.Login.Token, body);
+                if (result.Contains("error"))
+                {
+                    return Conflict(result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return Conflict(e.Message);
+            }
+        }
+
+        [HttpPost("Discounts/ReverseVulnerable/{idAgreement}")]
+        public async Task<IActionResult> ReverseVulnerable([FromRoute] int idAgreement)
+        {
+            try
+            {
+                var result = await RequestsApi.SendURIAsync("/api/Agreements/reverseVulnerable/" + idAgreement, HttpMethod.Post, Auth.Login.Token);
+                if (result.Contains("error"))
+                {
+                    return Conflict(result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return Conflict(e.Message);
+            }
+        }
+
     }
 }

@@ -49,9 +49,9 @@
                                 <select id="nameDiscount" name="nameDiscount" class="form-control form-control-sm"></select>
                             </div>
                             @*<div class="col-md-12" style=" margin-top: 37px; margin-bottom: 17px;">
-                                <label>Evidencia:</label>
-                                <input type="file" id="file" name="file" />
-                            </div>*@
+                                    <label>Evidencia:</label>
+                                    <input type="file" id="file" name="file" />
+                                </div>*@
                         </div>
                     </div>
                 </div>
@@ -59,19 +59,24 @@
             <div class="col-md-8">
                 <div class="main-card mb-3 card">
                     <div class="title-head">
-                        <p>Registro de descuentos aplicados</p>
+                        <p>Registro de Adeudo</p>
                     </div>
                     <div class="card-body">
                         <div class="row">
+                            <div class="col-md-6">
+                                <label id="NameClient"></label><br />
+                                <label id="DiscountAppli"></label>
+                            </div>
+                        </div>
+                        <div class="row">
                             <div class="col-md-12">
-                                <table id="Table" style="width: 100%;" class="table table-hover table-striped table-bordered">
+                                <table id="TableDebtsMain" style="width: 100%;" class="table table-hover table-striped table-bordered">
                                     <thead class="style-theads">
                                         <tr>
-                                            <th>Contribuyente</th>
-                                            <th>Dirección</th>
-                                            <th>RFC</th>
-                                            <th>Status Descuento</th>
-                                            <th>Tipo Descuento</th>
+                                            <th>Tipo Servicio</th>
+                                            <th>Descripción</th>
+                                            <th>Periodo</th>
+                                            <th>Monto</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tbody">
@@ -102,143 +107,253 @@
     <partial name="~/Views/Discounts/_ModalListaPredios.cshtml" />
     <partial name="~/Views/Discounts/_ModalAdeudosCoutaMinima.cshtml" />
     <script>
-    var __ListSystemsParameters = [],
-        __User = [],
-        __AgreementId = 0,
-        __accountSearched = false,
-        //__desabledButton = true,
-        __btnAddDebt = document.getElementById("btnAddDebt");
+        const FormatoPeso = new Intl.NumberFormat('es-MX', {
+            style: 'currency',
+            currency: 'MXN'
+        });
 
-    window.onload = function myfunction() {
+        var __CurrentlyYear = new Date().getFullYear(),
+            __LastYear = new Date().getFullYear() - 1;
+
+        var __ListSystemsParameters = [],
+            __User = [],
+            __AgreementId = 0,
+            __accountSearched = false,
+            __btnAddDebt = document.getElementById("btnAddDebt"),
+            __ListDebts = [];
+
+        window.onload = function myfunction() {
         Block();
         GetSystemsParameters().then(response => {
             __ListSystemsParameters = response;
             //console.log("__ListSystemsParameters: ", __ListSystemsParameters);
             RenderSelect("nameDiscount", "Discounts", "", UnBlock);
         });
-    }
-    function GetDataFromAccount(event) {
-        event.preventDefault()
-        Block();
-        $("#tbody").html("");
+        }
 
-        var account = document.getElementById("account").value,
-            valorCatastralSysP = GetOneSystemParameter(9, __ListSystemsParameters);
-        axios.get("/Agreement/Get/List?account=" + account).then(response => {
-            var data = response.data,
-                taxableBaseClient = data[0].taxableBase,
-                client = data[0],
-                status = data[0].status,
-                nameClient = data[0].nombre;
-            __User = response.data;
-            __AgreementId = data[0].agreementId;
+        function GetDataFromAccount(event) {
+            event.preventDefault()
+            Block();
+            $("#tbody").html("");
+            ClearDataTable("TableDebtsMain");
+            $("#NameClient").html("");
+            $("#DiscountAppli").html("");
 
-            console.log("Data Client: ", data);
-            if (data.length > 0) {
-                data.forEach(x => {
-                    $("#tbody").append(`
-                        <tr>
-                            <td>${x.nombre}</td>
-                            <td>${x.address}</td>
-                            <td>${x.rfc}</td>
-                            <td style="text-align: center;">
-                                ${x.isActiveDiscount ? "<i class='fas fa-check-circle' style='color:green; font-size: 24px;' title='Activo'></i>" : "<i class='fas fa-times-circle' title='Inactivo' style='color:red; font-size: 24px;'></i>"}
-                            </td>
-                            <td>${x.nameDiscount == "" ? "NINGUNO" : x.nameDiscount}</td>
-                        </tr>
-                    `);
+            var account = document.getElementById("account").value,
+                valorCatastralSysP = GetOneSystemParameter(9, __ListSystemsParameters);
+
+            axios.get("/Agreement/Get/List?account=" + account).then(response => {
+                var data = response.data,
+                    taxableBaseClient = data[0].taxableBase,
+                    client = data[0],
+                    status = data[0].status,
+                    nameClient = data[0].nombre;
+
+                __User = response.data;
+                __AgreementId = data[0].agreementId;
+
+                //console.log("Data Client: ", data);
+                $("#NameClient").html(`<b>Contribuyente: </b> ${nameClient}`);
+
+                var discountAppli = data.find(x => x.isActiveDiscount == true);
+                
+                $("#DiscountAppli").html(discountAppli == undefined ? `<b>Descuento Aplicado: </b> NINGUNO` : `<b>Descuento Aplicado: </b> ${discountAppli.nameDiscount}`);
+
+                GetDebts(__AgreementId).then(response => {
+                    if (status == 'INACTIVO' || status == 'inactivo' || status == 'Inactivo') {
+                        UnBlock();
+                        Swal.fire({
+                            type: 'warning',
+                            title: 'Esta cuenta está inactiva',
+                            text: 'Si quiere agregar descuento, la cuenta necesita estar Activa',
+                            showConfirmButton: true,
+                        }).then(response => {
+                            __accountSearched = false;
+                            __btnAddDebt.disabled = true;
+                        });
+                    }
+                    else {
+                        __accountSearched = true;
+                        __btnAddDebt.disabled = false;
+                    }
+
+                    if (__accountSearched) {
+                        if (valorCatastralSysP > 0) {
+                            ComparaValorCatastral(taxableBaseClient, valorCatastralSysP, nameClient);
+                        } else {
+                            ComprobarSiTieneDescuento();
+                        }
+                        UnBlock();
+                    }
                 });
-            }
 
-            if (status == 'INACTIVO' || status == 'inactivo' || status == 'Inactivo') {
+            }).catch(error => {
                 UnBlock();
                 Swal.fire({
-                    type: 'warning',
-                    title: 'Esta cuenta está inactiva',
-                    text: 'Si quiere agregar convenios, la cuenta necesita estar Activa',
+                    type: 'info',
+                    title: 'Cuenta no localizada',
+                    //text: 'Si quiere agregar convenios, la cuenta necesita estar Activa',
                     showConfirmButton: true,
-                }).then(response => {
-                    __accountSearched = false;
-                    __btnAddDebt.disabled = true;
                 });
-            }
-            else {
-                __accountSearched = true;
-                __btnAddDebt.disabled = false;
-            }
-
-            if (__accountSearched) {
-                if (valorCatastralSysP > 0) {
-                    ComparaValorCatastral(taxableBaseClient, valorCatastralSysP, nameClient);
-                } else {
-                    ComprobarSiTieneDescuento();
-                }
-            }
-            
-            UnBlock();
-        }).catch(error => {
-            UnBlock();
-            Swal.fire({
-                type: 'info',
-                title: 'Cuenta no localizada',
-                //text: 'Si quiere agregar convenios, la cuenta necesita estar Activa',
-                showConfirmButton: true,
             });
-        });
-    }
-
-    function ComparaValorCatastral(valorCuenta, valorSystemParameter, nombreContribuyente){
-        var ValorCatastralString = new Number(valorCuenta).toLocaleString("es-MX");
-        if (valorCuenta > valorSystemParameter) {
-            Swal.fire({
-                type: 'warning',
-                title: 'Advertencia',
-                text: "Esta cuenta tiene un Valor Catastral de: " + ValorCatastralString + ". De acuerdo a la ley, no puede aplicar este tipo de descuento",
-                showConfirmButton: true,
-            }).then(response => {
-                __btnAddDebt.disabled = true;
-                BuscarPredios(nombreContribuyente.trim());
-            });
-        } else {
-            BuscarPredios(nombreContribuyente.trim());
         }
-    }
 
-    function BuscarPredios(nombre) {
-        Block();
-        axios.post('/Agreement/SearchByNameClient', {nombre}).then(response => {
-            var data = response.data;
-            UnBlock();
-            if (data.length > 1) {
+        function ComparaValorCatastral(valorCuenta, valorSystemParameter, nombreContribuyente){
+            var ValorCatastralString = new Number(valorCuenta).toLocaleString("es-MX");
+            if (valorCuenta > valorSystemParameter) {
                 Swal.fire({
                     type: 'warning',
                     title: 'Advertencia',
-                    text: name + ' aparece en más de un predio. De acuerdo a la ley, no puede aplicar este tipo de descuento',
+                    text: "Esta cuenta tiene un Valor Catastral de: " + ValorCatastralString + ". De acuerdo a la ley, no puede aplicar este tipo de descuento",
                     showConfirmButton: true,
                 }).then(response => {
                     __btnAddDebt.disabled = true;
-                    $("#btnGetPredios").click();
-                    $("#tbodyListPredios").html("");
-                    data.forEach(x => {
-                        $("#tbodyListPredios").append(`
-                            <tr>
-                                <td>${x.agreement.account}</td>
-                                <td>${x.rfc}</td>
-                                <td>${x.agreement.token}</td>
-                            </tr>
-                        `);
-                    });
+                    BuscarPredios(nombreContribuyente.trim());
                 });
             } else {
-                __btnAddDebt.disabled = false;
-                this.GetDebts(this.idAgreement);
+                BuscarPredios(nombreContribuyente.trim());
             }
-        }).catch(error => {
-            UnBlock();
-        });
-    }
+        }
 
-    function GetDebts(idAgrement) {
+        function BuscarPredios(nombre) {
+            Block();
+            axios.post('/Agreement/SearchByNameClient', {nombre}).then(response => {
+                var data = response.data;
+                UnBlock();
+                if (data.length > 1) {
+                    Swal.fire({
+                        type: 'warning',
+                        title: 'Advertencia',
+                        text: nombre + ' aparece en más de un predio. De acuerdo a la ley, no puede aplicar este tipo de descuento',
+                        showConfirmButton: true,
+                    }).then(response => {
+                        __btnAddDebt.disabled = true;
+                        $("#btnGetPredios").click();
+                        $("#tbodyListPredios").html("");
+                        data.forEach(x => {
+                            $("#tbodyListPredios").append(`
+                                <tr>
+                                    <td>${x.agreement.account}</td>
+                                    <td>${x.rfc}</td>
+                                    <td>${x.agreement.token}</td>
+                                </tr>
+                            `);
+                        });
+                    });
+                }
+                //else {
+                //    __btnAddDebt.disabled = false;
+                //    this.GetDebts(this.idAgreement);
+                //}
+            }).catch(error => {
+                UnBlock();
+            });
+        }
+
+        const GetDebts = (agreementId) => {
+            Block();
+            $("#tbody").html("");
+            let contCuotaMinimaP = 0, contCuotaMinimaL = 0;
+            var CuotaMinimaPredial = GetOneSystemParameter(7, __ListSystemsParameters),
+                CuotaMinimaLimpia = GetOneSystemParameter(62, __ListSystemsParameters);
+
+            return new Promise((resolve, reject) => {
+                axios.get('/Debt/DebtsAgreement/' + agreementId).then(response => {
+                    var data = response.data;
+                    __ListDebts = data;
+                    if (data.length > 0) {
+                        if ('@Plataform.IsAyuntamiento' == 'True') {
+                            data.forEach(x => {
+                                if (x.descriptionType == "Predial" || x.descriptionType == "PREDIAL" ||
+                                    x.descriptionType == "Limpia" || x.descriptionType == "LIMPIA") {
+
+                                    if (x.amount <= CuotaMinimaPredial && (x.descriptionType == "Predial" || x.descriptionType == "PREDIAL")
+                                        && x.year == __CurrentlyYear) {
+                                        contCuotaMinimaP = contCuotaMinimaP + 1;
+                                    }
+
+
+                                    if (x.amount <= CuotaMinimaLimpia && (x.descriptionType == "Limpia" || x.descriptionType == "LIMPIA")
+                                        && x.year == __CurrentlyYear) {
+                                        contCuotaMinimaL = contCuotaMinimaL + 1;
+                                    }
+
+                                    var FromDate = getFormateDate(x.fromDate);
+                                    var UntilDate = getFormateDate(x.untilDate);
+                                    $("#tbody").append(`
+                                    <tr>
+                                        <td>${x.typeService}</td>
+                                        <td>${x.descriptionType}</td>
+                                        <td>${FromDate} - ${UntilDate}</td>
+                                        <td>${FormatoPeso.format(x.amount)}</td >
+                                    </tr>
+                                `);
+                                }
+                            });
+
+                            let promisePredial = new Promise((resolve, reject) => {
+                                if (contCuotaMinimaP > 0) {
+                                    Swal.fire({
+                                        type: 'warning',
+                                        title: 'Advertencia',
+                                        text: "Esta cuenta tiene adeudo de Predial con cuota minima. " +
+                                            "De acuerdo a la ley, no es posible aplicar este tipo de descuento a esos montos",
+                                        showConfirmButton: true,
+                                    });
+                                }
+                                resolve(true);
+                            });
+
+                            promisePredial.then(response => {
+                                if (contCuotaMinimaL > 0) {
+                                    Swal.fire({
+                                        type: 'warning',
+                                        title: 'Advertencia',
+                                        text: "Esta cuenta tiene adeudo de Limpia con cuota minima. " +
+                                            "De acuerdo a la ley, no es posible aplicar este tipo de descuento a esos montos",
+                                        showConfirmButton: true,
+                                    });
+                                }
+                            }).then(response => {
+                                ComprobarSiTieneDescuento();
+                            });
+                        } else {
+                            data.forEach(x => {
+                                var FromDate = getFormateDate(x.fromDate);
+                                var UntilDate = getFormateDate(x.untilDate);
+                                $("#tbody").append(`
+                                    <tr>
+                                        <td>${x.typeService}</td>
+                                        <td>${x.descriptionType}</td>
+                                        <td>${FromDate} - ${UntilDate}</td>
+                                        <td>${FormatoPeso.format(x.amount)}</td >
+                                    </tr>`);
+                            });
+                        }                        
+                    } else {
+                        $("#tbody").append(`
+                        <tr>
+                            <td colspan="4" style="text-align:center; font-size:20px;">Sin Adeudos</td>
+                        </tr>
+                    `);
+                    }
+
+                    if (data.length > 10) {
+                        loadDataTable("TableDebtsMain");
+                    }
+
+                }).catch(error => {
+                    $("#tbody").html(`
+                        <tr>
+                            <td colspan="4" style="text-align:center; font-size:20px;">No se pudo obtener los datos</td>
+                        </tr>
+                    `);
+                });
+                resolve(true);
+            });
+        }
+
+    @*function GetDebts(idAgrement) {
         //Deuda: ED001, ED004, ED007, ED011
         var DebtsCurrentlyYear = [],
             DebtsNextYear = [],
@@ -256,7 +371,7 @@
                 CuotaMinimaAnioSiguiente = GetOneSystemParameter(62, __ListSystemsParameters);
         }
 
-        axios.get('/Debt/OneDebt/' + __AgreementId).then(result => {
+        axios.get('/Debt/DebtsAgreement/' + __AgreementId).then(result => {
             var data = result.data;
             data.forEach(x => {
                 if (x.descriptionType == "Predial" || x.descriptionType == "PREDIAL" ||
@@ -328,51 +443,85 @@
         }, error => {
             ArrayDebtsCuotaMinima = null;
         });
-    }
+    }*@
 
-    function ComprobarSiTieneDescuento() {
-        __User.forEach(x => {
-            if (x.isActiveDiscount) {
+        function ComprobarSiTieneDescuento() {
+            __User.forEach(x => {
+                if (x.isActiveDiscount) {
+                    Swal.fire({
+                        type: 'warning',
+                        title: 'Esta cuenta ya tiene descuento',
+                        text: 'Si quiere activar uno nuevo, el descuento de ' + x.nameDiscount + " será desactivado",
+                        showConfirmButton: true,
+                    });
+                }
+            });
+            UnBlock();
+        }
+
+        function AddDiscount() {
+            Block();
+            var discountId = document.getElementById("nameDiscount").value;
+            var data = {
+                agreementId: __AgreementId,
+                discountId: discountId,
+                userId: '@Auth.Login.User',
+                isActive: true,
+                observation: ""
+            }
+            axios.post('/Discounts/AddDiscountToAgreement', data).then(response => {
+                //console.log(response.data);
+                UnBlock();
                 Swal.fire({
-                    type: 'warning',
-                    title: 'Esta cuenta ya tiene descuento',
-                    text: 'Si quiere activar uno nuevo, el descuento de ' + x.nameDiscount + " será desactivado",
+                    type: 'success',
+                    title: 'Correcto',
+                    text: response.data,
+                    showConfirmButton: true,
+                }).then(response => {
+                    if (__ListDebts.length > 0) {
+                        AddDiscountToDebt();
+                    } else {
+                        GetDataFromAccount(event);
+                    }
+                });
+            }).catch(error => {
+                UnBlock();
+                //console.error("Error: ", error.response);
+                Swal.fire({
+                    type: 'info',
+                    title: 'Disculpa',
+                    text: error.response.data,
                     showConfirmButton: true,
                 });
-            }
-        });
-        UnBlock();
-    }
-
-    function AddDiscount() {
-        Block();
-        var discountId = document.getElementById("nameDiscount").value;
-        var data = {
-            agreementId: __AgreementId,
-            discountId: discountId,
-            userId: '@Auth.Login.User',
-            isActive: true,
-            observation: ""
+            });
         }
-        axios.post('/Discounts/AddDiscountToAgreement', data).then(response => {
-            console.log(response.data);
-            UnBlock();
-            Swal.fire({
-                type: 'success',
-                title: 'Correcto',
-                text: response.data,
-                showConfirmButton: true,
+
+        function AddDiscountToDebt() {
+            Block();
+            axios.post('/Discounts/AddDiscountToDebt/' + __AgreementId).then(response => {
+                UnBlock();
+                //console.log("Se aplicó descuento: ", response.data);
+                Swal.fire({
+                    type: 'success',
+                    title: 'Correcto',
+                    text: response.data,
+                    showConfirmButton: true,
+                }).then(response => {
+                    GetDataFromAccount(event);
+                });
+            }).catch(error => {
+                UnBlock();
+                Swal.fire({
+                    type: 'info',
+                    title: 'Disculpa',
+                    text: error.response.data.error,
+                    showConfirmButton: true,
+                }).then(response => {
+                    GetDataFromAccount(event);
+                });
+                
             });
-        }).catch(error => {
-            UnBlock();
-            console.error("Error: ", error.response);
-            Swal.fire({
-                type: 'info',
-                title: 'Disculpa',
-                text: error.response.data,
-                showConfirmButton: true,
-            });
-        });
-    }
+        }
+
     </script>
 }

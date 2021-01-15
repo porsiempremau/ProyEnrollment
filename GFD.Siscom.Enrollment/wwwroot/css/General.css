@@ -89,3 +89,17 @@ th{
 .active-GFD>a{
     color: white !important;
 }
+
+.active-GFD>a:hover{
+    color: #343a40 !important;
+}
+
+.iconX {
+    margin: 0 auto !important;
+    font-size: 17px;
+    color: #074472;
+}
+
+.disabled .iconX {
+    color: #b7b7b7;
+}

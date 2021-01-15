@@ -185,13 +185,13 @@
                             <td>
                                 <a class="nav-link btn-flush" onclick="setDataAddress(${x.id})" type="button"
                                    data-caret="false" style="margin: 0 auto;">
-                                    <i class="far fa-edit" title="Editar Cliente"></i>
+                                    <i class="fas fa-edit iconX" title="Editar Cliente"></i>
                                 </a>
                             </td>
                             <td>
                                 <a id="IconDeleteAddress" class="nav-link btn-flush" onclick="deleteItemAddress(${x.id})" type="button"
                                    data-caret="false" style="margin: 0 auto;">
-                                    <i class="far fa-trash-alt" title="Eliminar Cliente"></i>
+                                    <i class="fas fa-trash iconX" title="Eliminar Dirección"></i>
                                 </a>
                             </td>
                         </tr>
@@ -244,7 +244,12 @@
 
         document.getElementById("btnAddAddress").style.display = "none";
         document.getElementById("btnEditAddress").style.display = "block";
-        document.getElementById("btnUpdateAddress").disabled = true;
+        if (@IDAgree > 0) {
+            document.getElementById("btnUpdateAddress").disabled = true;
+        }
+        if (@IDAgree == 0) {
+            document.getElementById("btnSaveData").disabled = true;
+        }
         document.getElementById("IconDeleteAddress").classList.add("disabled");
 
         SearchSuburbByIdTown(item.townId, "suburbId").then(response => {
@@ -301,7 +306,12 @@
         fillTableAddress("tbodyAddresses");
         document.getElementById("btnAddAddress").style.display = "block";
         document.getElementById("btnEditAddress").style.display = "none";
-        document.getElementById("btnUpdateAddress").disabled = false;
+        if (@IDAgree > 0) {
+            document.getElementById("btnUpdateAddress").disabled = false;
+        }
+        if (@IDAgree == 0) {
+            document.getElementById("btnSaveData").disabled = false;
+        }
         document.getElementById("IconDeleteAddress").classList.remove("disabled");
     }
 

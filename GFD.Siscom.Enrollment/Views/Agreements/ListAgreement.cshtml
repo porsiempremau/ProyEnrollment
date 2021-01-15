@@ -1,6 +1,6 @@
 ﻿@model object
 @using Newtonsoft.Json;
-@{ 
+@{
     dynamic data = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(Model));
     var typePage = data["page"];
 }
@@ -18,19 +18,19 @@
 <div class="row">
     <div class="col-md-3">
         <label>Nombre:</label>
-        <input type="text" id="name" name="name" class="form-control" onblur="LimpiarCampos('name')"/>
+        <input type="text" id="name" name="name" class="form-control" onblur="LimpiarCampos('name')" />
     </div>
     <div class="col-md-2">
         <label>Cuenta:</label>
-        <input type="text" id="account" name="account" class="form-control" onblur="LimpiarCampos('account')"/>
+        <input type="text" id="account" name="account" class="form-control" onblur="LimpiarCampos('account')" />
     </div>
     <div class="col-md-2">
         <label>RFC:</label>
-        <input type="text" id="rfc" name="rfc" class="form-control" onblur="LimpiarCampos('rfc')"/>
+        <input type="text" id="rfc" name="rfc" class="form-control" onblur="LimpiarCampos('rfc')" />
     </div>
     <div class="col-md-3">
         <label>Dirección:</label>
-        <input type="text" id="address" name="address" class="form-control" onblur="LimpiarCampos('address')"/>
+        <input type="text" id="address" name="address" class="form-control" onblur="LimpiarCampos('address')" />
     </div>
     <div class="col-md-2">
         <button type="button" class="btn btn-GFD margin-top-btns" data-toggle="modal" onclick="getAgreement()">
@@ -173,7 +173,7 @@
                                     <td>${x.nameDiscount != "" ? x.nameDiscount : "N/A"}</td>
                                     <td>
                                         <a class="nav-link btn-flush" href="/Agreement/EditCreateView?idAgreement=${x.agreementId}" data-caret="false" style="margin: 0 auto;">
-                                            <i class="far fa-edit" title="Editar"></i>
+                                            <i class="far fa-edit iconX" title="Editar"></i>
                                         </a>
                                     </td>
                                 </tr>
@@ -191,8 +191,8 @@
                                         <td>${x.endDate.slice(0, 10)}</td>
                                         <td>${x.withDiscount == true ? "CON DESCUENTO ACTIVO" : "SIN DESCUENTO ACTIVO"}</td>
                                         <td>
-                                            <a class="nav-link btn-flush" href="/Agreement/EditCreateView?idAgreement=${x.agreementId}" data-caret="false" style="margin: 0 auto;">
-                                                <i class="fas fa-trash" title="Eliminar"></i>
+                                            <a class="nav-link btn-flush" onclick="ReverseVulnerable(${x.agreementId})" data-caret="false" style="margin: 0 auto;">
+                                                <i class="fas fa-trash iconX" title="Eliminar"></i>
                                             </a>
                                         </td>
                                     </tr>
@@ -220,6 +220,27 @@
                 console.log(error.response);
                 UnBlock();
             })
+        }
+
+        function ReverseVulnerable(agreementId) {
+            Block();
+            axios.post('/Discounts/ReverseVulnerable/' + agreementId).then(response => {
+                UnBlock();
+                Swal.fire({
+                    title: "Correcto",
+                    text: response.data,
+                    type: 'success',
+                    showConfirmButton: true,
+                });
+            }).catch(error => {
+                UnBlock();
+                Swal.fire({
+                    title: "Correcto",
+                    text: error.response.data.error,
+                    type: 'info',
+                    showConfirmButton: true,
+                });
+            });
         }
     </script>
 }

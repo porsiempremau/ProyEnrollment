@@ -31,7 +31,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             return View();
         }
 
-        [HttpGet("Debt/OneDebt/{idAgreement}")]
+        [HttpGet("Debt/DebtsAgreement/{idAgreement}")]
         public async Task<IActionResult> SearchByNameClient([FromRoute] int idAgreement)
         {
             try
