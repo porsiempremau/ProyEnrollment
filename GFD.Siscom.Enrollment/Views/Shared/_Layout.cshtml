@@ -41,7 +41,12 @@
     </div>
 
     <div class="app-drawer-overlay d-none animated fadeIn"></div>
-
+    <script>
+        const FormatoPeso = new Intl.NumberFormat('es-MX', {
+            style: 'currency',
+            currency: 'MXN'
+        });
+    </script>
     <script type="text/javascript" src="~/assets/scripts/main.cba69814a806ecc7945a.js"></script>
     <script src="~/js/DataTables.js"></script>
     <script src="~/js/SerializerForm.js"></script>
