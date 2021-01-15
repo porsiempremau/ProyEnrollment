@@ -10,7 +10,7 @@ namespace GFD.Siscom.Enrollment.Models
         public int Id { get; set; }
         public string Account { get; set; }
         public string Route { get; set; }
-        public int? Derivatives { get; set; }
+        //public int? Derivatives { get; set; }
         public int TypeServiceId { get; set; }
         public int TypeUseId { get; set; }
         public int TypeConsumeId { get; set; }
@@ -33,5 +33,7 @@ namespace GFD.Siscom.Enrollment.Models
         //public OrderWork OrderWork { get; set; }
         public ICollection<AccountStatusInFileVM> AccountStatusInFiles { get; set; }
         public ICollection<DebtVM> Debts { get; set; }
+
+        //public ICollection<DerivativeVM> Derivatives { get; set; }
     }
 }

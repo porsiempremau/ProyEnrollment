@@ -20,7 +20,7 @@ namespace GFD.Siscom.Enrollment.Models
         public string UserId { get; set; }
         //public ApplicationUser User { get; set; }
         public int PaymentId { get; set; }
-        public PaymentVM Payment { get; set; }
+        //public PaymentVM Payment { get; set; }
         //public ICollection<TaxReceiptCancel> TaxReceiptCancels { get; set; }
     }
 }

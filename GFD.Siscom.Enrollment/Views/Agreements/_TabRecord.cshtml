@@ -1,0 +1,44 @@
+﻿@using GFD.Siscom.Enrollment.Utilities;
+@using Newtonsoft.Json;
+@{
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Historial</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect1">Tipo:</label>
+                            <select class="form-control" id="tipoSelect" onchange="getSelectRecord(this)">
+                                <option value="Pagos" selected>Pagos</option>
+                                <option value="Recibos">Recibos</option>
+                                <option value="Notificaciones">Notificaciones</option>
+                                <option value="Anticipos">Anticipos</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div id="tablaRecord" class="table-responsive">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getSelectRecord(item) {
+        debugger
+        var value = item.value;        
+        ValidateSectionRecord(value);
+    }
+</script>

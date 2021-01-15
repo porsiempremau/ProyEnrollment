@@ -11,6 +11,6 @@ namespace GFD.Siscom.Enrollment.Models
         public string Name { get; set; }        
         public string Code { get; set; }       
         public bool IsActive { get; set; }
-        public ICollection<PaymentVM> Payments { get; set; }
+        //public ICollection<PaymentVM> Payments { get; set; }
     }
 }
