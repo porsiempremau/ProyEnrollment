@@ -36,6 +36,10 @@
             <li class="nav-item"><a id="TabAgreement" data-toggle="tab" href="#agreementTab" class="active nav-link">Contrato</a></li>
             <li class="nav-item"><a id="TabClient" data-toggle="tab" href="#clientTab" class="nav-link" onclick="ValidateSectionAgreement()">Cliente</a></li>
             <li class="nav-item"><a id="TabAddress" data-toggle="tab" href="#addressTab" class="nav-link" onclick="ValidateSectionClients()">Dirección</a></li>
+            @if (idAgreement != 0)
+            {
+                <li class="nav-item"><a id="TabRecord" data-toggle="tab" href="#recordTab" class="nav-link" onclick="ValidateSectionRecord('Pagos')">Historial</a></li>
+            }
         </ul>
     </div>
     <div class="card-body">
@@ -49,6 +53,9 @@
                 </div>
                 <div class="tab-pane" id="addressTab" role="tabpanel">
                     <partial name="~/Views/Agreements/_TabAddress.cshtml" />
+                </div>
+                <div class="tab-pane" id="recordTab" role="tabpanel">
+                    <partial name="~/Views/Agreements/_TabRecord.cshtml" />
                 </div>
             </div>
             <div class="d-block text-center card-footer">
@@ -472,6 +479,142 @@
             } else {
                 StartTabAddress();
             }
+        }
+
+        function ValidateSectionRecord(tipo) {
+            debugger
+            axios.get("/Agreement/record?idAgreement=" + @idAgreement + "&tipo=" + tipo + "")
+                .then(response => {
+                    debugger
+                    var data = response.data;
+
+                    if (tipo == "Pagos") {
+
+                        var cuerpoTabla = "";
+                        data.forEach(x => {
+                            cuerpoTabla += `<tr>
+                                <td>${x.paymentDate}</td>
+                                <td>${x.branchOffice}</td>
+                                <td>${x.payMethod.name}</td>
+                                <td>${x.total}</td>
+                                <td>${(x.status == 'EP001' ? "Cobrado" : "Cancelado")}</td>                                
+                            </tr>`;
+                        });
+
+                        document.getElementById("tablaRecord").innerHTML = `<table style="width: 100%;" id="Table" class="table table-hover table-striped table-bordered">
+                            <thead class="style-theads">
+                                <tr>
+                                    <th width="15%">Fecha</th>
+                                    <th width="15%">Sucursal</th>
+                                    <th width="15%">Forma Pago</th>
+                                    <th width="15%">Monto</th>
+                                    <th width="15%">Estado</th>                                    
+                                </tr>
+                            </thead>
+                            <tbody id="tablaRecordBody">
+                                ${cuerpoTabla}
+                            </tbody>
+                        </table>`;
+                    }
+                    else if (tipo == "Recibos") {
+                        var cuerpoTabla = "";
+                        data.forEach(x => {
+                            cuerpoTabla += `<tr>
+                                <td>${x.fromDate} - ${x.untilDate}</td>
+                                <td>${x.typeIntake}</td>
+                                <td>${x.typeService}</td>                                
+                                <td>${x.amount - x.onAccount}</td>
+                                <td>${(x.type == "TIP01" ? "Servicio" : "Producto")}</td>
+                                <td></td>
+                                <td>${x.debitDate}</td>
+                                <td>${x.descriptionStatus}</td>
+                            </tr>`;
+                        });
+
+                        document.getElementById("tablaRecord").innerHTML = `<table style="width: 100%;" id="Table" class="table table-hover table-striped table-bordered">
+                            <thead class="style-theads">
+                                <tr>
+                                    <th width="10%">Periodo</th>
+                                    <th width="10%">Tipo cuenta</th>
+                                    <th width="10%">Servicio</th>
+                                    <th width="10%">Monto</th>
+                                    <th width="10%">Tipo</th>
+                                    <th width="10%">Total a pagar</th>
+                                    <th width="10%">Emisión</th>
+                                    <th width="20%">Descrición del estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaRecordBody">
+                                ${cuerpoTabla}
+                            </tbody>
+                        </table>`;
+                    }
+                    else if (tipo == "Notificaciones") {
+                        var cuerpoTabla = "";
+                        data.forEach(x => {
+                            cuerpoTabla += `<tr>                                        
+                                <td>${x.folio}</td>
+                                <td>${x.notificationDate}</td>
+                                <td>${x.status}</td>
+                                <td>${x.fromDate} - ${x.untilDate}</td>
+                                <td>${x.total}</td> 
+                            </tr>`;
+                        });
+
+                        document.getElementById("tablaRecord").innerHTML = `<table style="width: 100%;" id="Table" class="table table-hover table-striped table-bordered">
+                            <thead class="style-theads">
+                                <tr>
+                                    <th width="10%">Folio</th>
+                                    <th width="10%">Fecha Notifi</th>
+                                    <th width="10%">Status</th>
+                                    <th width="10%">Periodo</th>
+                                    <th width="10%">Monto Notifi</th>                                        
+                                </tr>
+                            </thead>
+                            <tbody id="tablaRecordBody">
+                                ${cuerpoTabla}
+                            </tbody>
+                        </table>`;
+                    }
+                    else {      //Anticipos
+                        var cuerpoTabla = "";
+                        data.forEach(x => {
+                            cuerpoTabla += `<tr>                                        
+                                <td>${x.prepaidDate}</td>
+                                <td>${x.amount}</td>
+                                <td>${x.accredited}</td>
+                                <td>${x.status}</td>                                                              
+                            </tr>`;
+                        });
+
+                        document.getElementById("tablaRecord").innerHTML = `<table style="width: 100%;" id="Table" class="table table-hover table-striped table-bordered">
+                            <thead class="style-theads">
+                                <tr>
+                                    <th width="10%">Fehca Anticipo</th>
+                                    <th width="10%">Monto</th>
+                                    <th width="10%">Saldo disponible</th>
+                                    <th width="10%">Status</th>                                        
+                                </tr>
+                            </thead>
+                            <tbody id="tablaRecordBody">
+                                ${cuerpoTabla}
+                            </tbody>
+                        </table>`;
+                    }
+
+                    if (!isAyuntamiento)
+                    {
+
+                    }
+
+
+
+
+                })
+                .catch(error => {
+
+                });
+
         }
 
         //GENERAR LA DEUDA AL CREAR EL CONTRATO

@@ -310,5 +310,61 @@ namespace GFD.Siscom.Enrollment.Controllers
                 return null;
             }
         }
+
+        [HttpGet("Agreement/record")]
+        public async Task<IActionResult> getRecord([FromQuery] int idAgreement, [FromQuery] string tipo = "Pagos")
+        {
+            try
+            {
+                //string tipo = "Pagos";
+                List<DebtVM> responseRecibos = new List<DebtVM>();
+                List<NotificationVM> responseNotificacion = new List<NotificationVM>();
+                List<PrepaidVM> responseAnticipos = new List<PrepaidVM>();
+                List<PaymentVM> responsePagos = new List<PaymentVM>();
+                switch (tipo)
+                {
+                    case "Recibos":
+                        var resultRecibos = await RequestsApi.SendURIAsync($"/api/Debts/GetDebtByPeriod/{idAgreement}", HttpMethod.Get, Auth.Login.Token);
+                        if (resultRecibos.Contains("error"))
+                        {
+                            return Conflict(resultRecibos);
+                        }
+                        responseRecibos = JsonConvert.DeserializeObject<List<DebtVM>>(resultRecibos);
+                        return Ok(responseRecibos);
+                        break;
+                    case "Notificaciones":
+                        var resultNotifi = await RequestsApi.SendURIAsync($"/api/Notifications/{idAgreement}", HttpMethod.Get, Auth.Login.Token);
+                        if (resultNotifi.Contains("error"))
+                        {
+                            return Conflict(resultNotifi);
+                        }
+                        responseNotificacion = JsonConvert.DeserializeObject<List<NotificationVM>>(resultNotifi);
+                        return Ok(responseNotificacion);
+                        break;
+                    case "Anticipos":
+                        var resultAnticipos = await RequestsApi.SendURIAsync($"/api/Prepaid/{idAgreement}", HttpMethod.Get, Auth.Login.Token);
+                        if (resultAnticipos.Contains("error"))
+                        {
+                            return Conflict(resultAnticipos);
+                        }
+                        responseAnticipos = JsonConvert.DeserializeObject<List<PrepaidVM>>(resultAnticipos);
+                        return Ok(responseAnticipos);
+                        break;
+                    default: //pagos
+                        var resultPagos = await RequestsApi.SendURIAsync($"/api/PaymentHistory/{idAgreement}", HttpMethod.Get, Auth.Login.Token);
+                        if (resultPagos.Contains("error"))
+                        {
+                            return Conflict(resultPagos);
+                        }
+                        responsePagos = JsonConvert.DeserializeObject<List<PaymentVM>>(resultPagos);
+                        return Ok(responsePagos);
+                        break;
+                }                
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
     }
 }
