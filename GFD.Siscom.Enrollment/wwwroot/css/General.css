@@ -103,3 +103,7 @@ th{
 .disabled .iconX {
     color: #b7b7b7;
 }
+
+.fileinput-remove, .fileinput-upload, .kv-file-upload, .kv-file-zoom {
+    display: none !important;
+}

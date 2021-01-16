@@ -330,6 +330,17 @@ function GetOneSystemParameter(id, list) {
     return value
 }
 
+function loadFileInput(idFileInput, accept = ['jpg', 'png', 'pdf', 'jpeg']) {
+    $("#" + idFileInput).fileinput({
+        showCaption: false,
+        dropZoneEnabled: false,
+        theme: 'fas',
+        language: 'es',
+        uploadUrl: '#',
+        allowedFileExtensions: accept
+    });
+}
+
 const YEAR = [
     {
         "index": 0,

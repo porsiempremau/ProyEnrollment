@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -10,6 +11,7 @@ using GFD.Siscom.Enrollment.Utilities.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace GFD.Siscom.Enrollment.Controllers
 {
@@ -37,24 +39,86 @@ namespace GFD.Siscom.Enrollment.Controllers
             return View("~/Views/Discounts/DiscountVulnerable.cshtml");
         }
 
-        [HttpPost("Discounts/AddDiscountToAgreement")]
-        public async Task<IActionResult> AddDiscount([FromBody] object data)
+        [HttpPost("Discounts/AddDiscountToAgreement/{AgreementId}")]
+        public async Task<IActionResult> AddDiscount(IFormCollection data, [FromRoute] int AgreementId)
         {
             try
             {
-                var body = new StringContent(data.ToString(), Encoding.UTF8, "application/json");
-                var result = await RequestsApi.SendURIAsync("/api/Agreements/AddDiscount", HttpMethod.Post, Auth.Login.Token, body);
-                if (result.Contains("error"))
+                IFormFile File = null;
+                File = data.Files["file"];
+                var uploadFile = await UploadFileVulnerableGroup(File, AgreementId);
+                if (uploadFile.Contains("exito"))
                 {
-                    return Conflict(result);
+                    var objectGV = new DiscountGroupVulnerable()
+                    {
+                        agreementId = AgreementId,
+                        discountId = Convert.ToInt32(data["nameDiscount"].ToString()),
+                        userId = Auth.Login.User,
+                        isActive = true,
+                        observation = "DESCUENTO"
+                    };
+                    var body = new StringContent(data.ToString(), Encoding.UTF8, "application/json");
+                    var result = await RequestsApi.SendURIAsync("/api/Agreements/AddDiscount", HttpMethod.Post, Auth.Login.Token, body);
+                    if (result.Contains("error"))
+                    {
+                        return Conflict(result);
+                    }
+
+                    return Ok(result);
                 }
 
-                return Ok(result);
+                return Conflict(uploadFile);
+                
             }
             catch (Exception e)
             {
                 return Conflict(e.Message);
             }
+        }
+
+        public async Task<string> UploadFileVulnerableGroup(IFormFile file, int AgreementId)
+        {
+            try
+            {
+                List<string> img = new List<string>();
+                string content = "";
+                var ms = new MemoryStream();
+                //MultipartFormDataContent multiContent = new MultipartFormDataContent();
+                if (file != null && file.Length > 0)
+                {
+
+                    
+                    file.CopyTo(ms);
+                    //using (var ms = new MemoryStream())
+                    //{
+                    //    file.CopyTo(ms);
+                    //    var fileBiytes = ms.ToArray();
+                    //    content = "EVIDENCIA_" + AgreementId + Path.GetExtension(file.FileName) + "," + Convert.ToBase64String(fileBiytes);
+                    //    img.Add(content);
+                    //}
+
+                    //byte[] data;
+                    //using (var br = new BinaryReader(file.OpenReadStream()))
+                    //    data = br.ReadBytes((int)file.OpenReadStream().Length);
+
+                    //ByteArrayContent bytes = new ByteArrayContent(data);
+
+                    //multiContent.Add(bytes, "file", file.FileName);
+                }
+
+                var body = new StringContent(JsonConvert.SerializeObject(file), Encoding.UTF8, "application/json");
+                var result = await RequestsApi.UploadImageToServer("/api/FileUpload/" + AgreementId + "/FAG01/Descuento", Auth.Login.Token, "Evidencia_descuento", ms, body);
+                if (result.Contains("error"))
+                {
+                    return "Problema para subir el archivo";
+                }
+                return "exito";
+            }
+            catch (Exception e)
+            {
+                return "Error: " + e.Message;
+            }
+
         }
 
         [HttpPost("Discounts/AddDiscountToDebt/{idAgreement}")]
@@ -96,5 +160,14 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+    }
+
+    public class DiscountGroupVulnerable
+    {
+        public int agreementId { get; set; }
+        public int discountId { get; set; }
+        public string userId { get; set; }
+        public bool isActive { get; set; }
+        public string observation { get; set; }
     }
 }
