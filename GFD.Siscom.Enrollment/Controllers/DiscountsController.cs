@@ -79,35 +79,20 @@ namespace GFD.Siscom.Enrollment.Controllers
         public async Task<string> UploadFileVulnerableGroup(IFormFile file, int AgreementId)
         {
             try
-            {
-                List<string> img = new List<string>();
-                string content = "";
-                var ms = new MemoryStream();
-                //MultipartFormDataContent multiContent = new MultipartFormDataContent();
+            {                
+                MultipartFormDataContent multiContent = new MultipartFormDataContent();
                 if (file != null && file.Length > 0)
                 {
+                    byte[] data;
+                    using (var br = new BinaryReader(file.OpenReadStream()))
+                        data = br.ReadBytes((int)file.OpenReadStream().Length);
 
-                    
-                    file.CopyTo(ms);
-                    //using (var ms = new MemoryStream())
-                    //{
-                    //    file.CopyTo(ms);
-                    //    var fileBiytes = ms.ToArray();
-                    //    content = "EVIDENCIA_" + AgreementId + Path.GetExtension(file.FileName) + "," + Convert.ToBase64String(fileBiytes);
-                    //    img.Add(content);
-                    //}
-
-                    //byte[] data;
-                    //using (var br = new BinaryReader(file.OpenReadStream()))
-                    //    data = br.ReadBytes((int)file.OpenReadStream().Length);
-
-                    //ByteArrayContent bytes = new ByteArrayContent(data);
-
-                    //multiContent.Add(bytes, "file", file.FileName);
+                    ByteArrayContent bytes = new ByteArrayContent(data);                    
+                    multiContent.Add(bytes, "file", file.FileName);                    
                 }
 
                 var body = new StringContent(JsonConvert.SerializeObject(file), Encoding.UTF8, "application/json");
-                var result = await RequestsApi.UploadImageToServer("/api/FileUpload/" + AgreementId + "/FAG01/Descuento", Auth.Login.Token, "Evidencia_descuento", ms, body);
+                var result = await RequestsApi.UploadImageToServer("/api/FileUpload/" + AgreementId + "/FAG01/Descuento", Auth.Login.Token, multiContent, body);
                 if (result.Contains("error"))
                 {
                     return "Problema para subir el archivo";
