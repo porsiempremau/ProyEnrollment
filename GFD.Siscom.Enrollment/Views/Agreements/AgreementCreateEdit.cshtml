@@ -490,22 +490,22 @@
                 .then(response => {
                     
                     var data = response.data;
+                    if (data.length > 0) {
+                        if (tipo == "Pagos") {
 
-                    if (tipo == "Pagos") {
-
-                        var cuerpoTabla = "";
-                        data.forEach(x => {
-                            var PaymentDate = getFormateDate(x.paymentDate);
-                            cuerpoTabla += `<tr>
+                            var cuerpoTabla = "";
+                            data.forEach(x => {
+                                var PaymentDate = getFormateDate(x.paymentDate);
+                                cuerpoTabla += `<tr>
                                 <td>${PaymentDate}</td>
                                 <td>${x.branchOffice}</td>
                                 <td>${x.payMethod.name}</td>
                                 <td>${FormatoPeso.format(x.total)}</td >
                                 <td>${(x.status == 'EP001' ? "Cobrado" : "Cancelado")}</td>
                             </tr>`;
-                        });
+                            });
 
-                        document.getElementById("tablaRecord").innerHTML = `<table style="width: 100%;" id="Table" class="table table-hover table-striped table-bordered">
+                            document.getElementById("tablaRecord").innerHTML = `<table style="width: 100%;" id="Table" class="table table-hover table-striped table-bordered">
                             <thead class="style-theads">
                                 <tr>
                                     <th width="15%">Fecha</th>
@@ -519,27 +519,27 @@
                                 ${cuerpoTabla}
                             </tbody>
                         </table>`;
-                        UnBlock();
-                    }
-                    else if (tipo == "Recibos") {
-                        var cuerpoTabla = "";
-                        data.forEach(x => {
-                            var FromDate = getFormateDate(x.fromDate);
-                            var UntilDate = getFormateDate(x.untilDate);
-                            var DebitDate = getFormateDate(x.debitDate);
-                            cuerpoTabla += `<tr>
+                            UnBlock();
+                        }
+                        else if (tipo == "Recibos") {
+                            var cuerpoTabla = "";
+                            data.forEach(x => {
+                                var FromDate = getFormateDate(x.fromDate);
+                                var UntilDate = getFormateDate(x.untilDate);
+                                var DebitDate = getFormateDate(x.debitDate);
+                                cuerpoTabla += `<tr>
                                 <td>${FromDate} - ${UntilDate}</td>
                                 <td>${x.typeIntake}</td>
                                 <td>${x.typeService}</td>
                                 <td>${FormatoPeso.format(x.amount - x.onAccount)}</td>
-                                <td>${(x.type == "TIP01" ? "Servicio" : "Producto")}</td>
+                                <td>${(x.type == "TIP01" ? "Servicio" : "Recargos")}</td>
                                 <td></td>
                                 <td>${DebitDate}</td>
                                 <td>${x.descriptionStatus}</td>
                             </tr>`;
-                        });
+                            });
 
-                        document.getElementById("tablaRecord").innerHTML = `<table style="width: 100%;" id="Table" class="table table-hover table-striped table-bordered">
+                            document.getElementById("tablaRecord").innerHTML = `<table style="width: 100%;" id="Table" class="table table-hover table-striped table-bordered">
                             <thead class="style-theads">
                                 <tr>
                                     <th width="20%">Periodo</th>
@@ -556,23 +556,23 @@
                                 ${cuerpoTabla}
                             </tbody>
                         </table>`;
-                        UnBlock();
-                    }
-                    else if (tipo == "Notificaciones") {
-                        var cuerpoTabla = "";
-                        data.forEach(x => {
-                            var FromDate = getFormateDate(x.fromDate);
-                            var UntilDate = getFormateDate(x.untilDate);
-                            cuerpoTabla += `<tr>
+                            UnBlock();
+                        }
+                        else if (tipo == "Notificaciones") {
+                            var cuerpoTabla = "";
+                            data.forEach(x => {
+                                var FromDate = getFormateDate(x.fromDate);
+                                var UntilDate = getFormateDate(x.untilDate);
+                                cuerpoTabla += `<tr>
                                 <td>${x.folio}</td>
                                 <td>${x.notificationDate}</td>
                                 <td>${x.status}</td>
                                 <td>${FromDate} - ${UntilDate}</td>
                                 <td>${FormatoPeso.format(x.total)}</td>
                             </tr>`;
-                        });
+                            });
 
-                        document.getElementById("tablaRecord").innerHTML = `<table style="width: 100%;" id="Table" class="table table-hover table-striped table-bordered">
+                            document.getElementById("tablaRecord").innerHTML = `<table style="width: 100%;" id="Table" class="table table-hover table-striped table-bordered">
                             <thead class="style-theads">
                                 <tr>
                                     <th width="10%">Folio</th>
@@ -586,21 +586,21 @@
                                 ${cuerpoTabla}
                             </tbody>
                         </table>`;
-                        UnBlock();
-                    }
-                    else {      //Anticipos
-                        var cuerpoTabla = "";
-                        data.forEach(x => {
-                            var prepaidDate = getFormateDate(x.prepaidDate);
-                            cuerpoTabla += `<tr>
+                            UnBlock();
+                        }
+                        else {      //Anticipos
+                            var cuerpoTabla = "";
+                            data.forEach(x => {
+                                var prepaidDate = getFormateDate(x.prepaidDate);
+                                cuerpoTabla += `<tr>
                                 <td>${prepaidDate}</td>
                                 <td>${FormatoPeso.format(x.amount)}</td>
                                 <td>${x.accredited}</td>
                                 <td>${x.status}</td>
                             </tr>`;
-                        });
+                            });
 
-                        document.getElementById("tablaRecord").innerHTML = `<table style="width: 100%;" id="Table" class="table table-hover table-striped table-bordered">
+                            document.getElementById("tablaRecord").innerHTML = `<table style="width: 100%;" id="Table" class="table table-hover table-striped table-bordered">
                             <thead class="style-theads">
                                 <tr>
                                     <th width="10%">Fehca Anticipo</th>
@@ -613,8 +613,13 @@
                                 ${cuerpoTabla}
                             </tbody>
                         </table>`;
+                            UnBlock();
+                        }
+                    } else {
                         UnBlock();
                     }
+
+                    
 
                     if (!isAyuntamiento)
                     {
@@ -626,7 +631,14 @@
                     }
                 })
                 .catch(error => {
-
+                    UnBlock();
+                    console.log(error.response)
+                    Swal.fire({
+                        type: 'info',
+                        title: 'Disculpa',
+                        text: error.response.data.error,
+                        showConfirmButton: true,
+                    })
                 });
 
         }

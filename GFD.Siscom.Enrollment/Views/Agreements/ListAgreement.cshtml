@@ -223,23 +223,35 @@
         }
 
         function ReverseVulnerable(agreementId) {
-            Block();
-            axios.post('/Discounts/ReverseVulnerable/' + agreementId).then(response => {
-                UnBlock();
-                Swal.fire({
-                    title: "Correcto",
-                    text: response.data,
-                    type: 'success',
-                    showConfirmButton: true,
-                });
-            }).catch(error => {
-                UnBlock();
-                Swal.fire({
-                    title: "Correcto",
-                    text: error.response.data.error,
-                    type: 'info',
-                    showConfirmButton: true,
-                });
+            Swal.fire({
+                title: 'Se eliminará el descuento',
+                text: "¿Está deacuerdo con esto?",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Aceptar'
+            }).then(response => {
+                if (response.value) {
+                    Block();
+                    axios.post('/Discounts/ReverseVulnerable/' + agreementId).then(response => {
+                        UnBlock();
+                        Swal.fire({
+                            title: "Correcto",
+                            text: response.data,
+                            type: 'success',
+                            showConfirmButton: true,
+                        });
+                    }).catch(error => {
+                        UnBlock();
+                        Swal.fire({
+                            title: "Correcto",
+                            text: error.response.data.error,
+                            type: 'info',
+                            showConfirmButton: true,
+                        });
+                    });
+                }
             });
         }
     </script>

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using GFD.Siscom.Enrollment.Utilities.Auth;
 using GFD.Siscom.Enrollment.Utilities.Parameters;
 using GFD.Siscom.Enrollment.Utilities.Services;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -44,11 +45,11 @@ namespace GFD.Siscom.Enrollment.Controllers
         {
             try
             {
-                IFormFile File = null;
-                File = data.Files["file"];
-                var uploadFile = await UploadFileVulnerableGroup(File, AgreementId);
-                if (uploadFile.Contains("exito"))
-                {
+                //IFormFile File = null;
+                //File = data.Files["file"];
+                //var uploadFile = await UploadFileVulnerableGroup(File, AgreementId);
+                //if (uploadFile.Contains("exito"))
+                //{
                     var objectGV = new DiscountGroupVulnerable()
                     {
                         agreementId = AgreementId,
@@ -57,7 +58,7 @@ namespace GFD.Siscom.Enrollment.Controllers
                         isActive = true,
                         observation = "DESCUENTO"
                     };
-                    var body = new StringContent(data.ToString(), Encoding.UTF8, "application/json");
+                    var body = new StringContent(JsonConvert.SerializeObject(objectGV), Encoding.UTF8, "application/json");
                     var result = await RequestsApi.SendURIAsync("/api/Agreements/AddDiscount", HttpMethod.Post, Auth.Login.Token, body);
                     if (result.Contains("error"))
                     {
@@ -65,9 +66,9 @@ namespace GFD.Siscom.Enrollment.Controllers
                     }
 
                     return Ok(result);
-                }
+                //}
 
-                return Conflict(uploadFile);
+                //return Conflict(uploadFile);
                 
             }
             catch (Exception e)
@@ -83,19 +84,20 @@ namespace GFD.Siscom.Enrollment.Controllers
                 List<string> img = new List<string>();
                 string content = "";
                 var ms = new MemoryStream();
+                byte[] fileBytes;
                 //MultipartFormDataContent multiContent = new MultipartFormDataContent();
                 if (file != null && file.Length > 0)
                 {
 
-                    
-                    file.CopyTo(ms);
                     //using (var ms = new MemoryStream())
                     //{
-                    //    file.CopyTo(ms);
-                    //    var fileBiytes = ms.ToArray();
-                    //    content = "EVIDENCIA_" + AgreementId + Path.GetExtension(file.FileName) + "," + Convert.ToBase64String(fileBiytes);
-                    //    img.Add(content);
+                        file.CopyTo(ms);
+                        fileBytes = ms.ToArray();
+                        content = "EVIDENCIA_" + AgreementId + Path.GetExtension(file.FileName) + "," + Convert.ToBase64String(fileBytes);
+                        img.Add(content);
                     //}
+
+                    //file.CopyTo(ms);
 
                     //byte[] data;
                     //using (var br = new BinaryReader(file.OpenReadStream()))
@@ -106,11 +108,11 @@ namespace GFD.Siscom.Enrollment.Controllers
                     //multiContent.Add(bytes, "file", file.FileName);
                 }
 
-                var body = new StringContent(JsonConvert.SerializeObject(file), Encoding.UTF8, "application/json");
-                var result = await RequestsApi.UploadImageToServer("/api/FileUpload/" + AgreementId + "/FAG01/Descuento", Auth.Login.Token, "Evidencia_descuento", ms, body);
+                var body = new StringContent(JsonConvert.SerializeObject(img), Encoding.UTF8, "application/json");
+                var result = await RequestsApi.UploadImageToServer("/api/FileUpload/" + AgreementId + "/FAG01/Descuento", Auth.Login.Token, file.FileName.ToString(), ms, body);
                 if (result.Contains("error"))
                 {
-                    return "Problema para subir el archivo";
+                    return result.ToString(); ;
                 }
                 return "exito";
             }

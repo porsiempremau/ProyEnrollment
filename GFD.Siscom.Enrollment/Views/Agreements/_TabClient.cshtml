@@ -307,10 +307,23 @@
     }
 
     function deleteItemClient(id, tbody) {
-        var itemFound = __listClients.find(x => x.id == id);
-        var index = __listClients.indexOf(itemFound);
-        __listClients.splice(index, 1);
-        fillTableClients(tbody);
+        Swal.fire({
+            title: 'Se eliminará el descuento',
+            text: "¿Está deacuerdo con esto?",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+        }).then(response => {
+            if (response.value) {
+                var itemFound = __listClients.find(x => x.id == id);
+                var index = __listClients.indexOf(itemFound);
+                __listClients.splice(index, 1);
+                fillTableClients(tbody);
+            }
+        });
+        
     }
 
     function setDataClient(id, tbody) {

@@ -220,23 +220,33 @@
     }
 
     function deleteItemAddress(id) {
-        var item = __listaAddress.find(x => x.id == id);
-        var index = __listaAddress.indexOf(item);
-        __listaAddress.splice(index, 1, {
-            id: item.id,
-            street: item.street,
-            outdoor: item.outdoor,
-            indoor: item.indoor,
-            zip: item.zip,
-            reference: item.reference,
-            lat: item.lat,
-            lon: item.lon,
-            typeAddress: item.typeAddress,
-            suburbsId: item.suburbsId,
-            isActive: false,
-            agreementId: item.agreementId
+        Swal.fire({
+            title: 'Se eliminará el descuento',
+            text: "¿Está deacuerdo con esto?",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+        }).then(response => {
+            var item = __listaAddress.find(x => x.id == id);
+            var index = __listaAddress.indexOf(item);
+            __listaAddress.splice(index, 1, {
+                id: item.id,
+                street: item.street,
+                outdoor: item.outdoor,
+                indoor: item.indoor,
+                zip: item.zip,
+                reference: item.reference,
+                lat: item.lat,
+                lon: item.lon,
+                typeAddress: item.typeAddress,
+                suburbsId: item.suburbsId,
+                isActive: false,
+                agreementId: item.agreementId
+            });
+            fillTableAddress("tbodyAddresses");
         });
-        fillTableAddress("tbodyAddresses");
     }
 
     function setDataAddress(id) {
