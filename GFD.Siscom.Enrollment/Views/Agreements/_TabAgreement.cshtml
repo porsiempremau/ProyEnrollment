@@ -31,7 +31,7 @@
                         </div>
                         <div class="col-md-4">
                             <label>Tipo de Predio:</label>
-                            <select class="form-control form-control-sm" id="typeConsume" name="typeConsume"></select>
+                            <select class="form-control form-control-sm" id="typeConsume" name="typeConsume" onchange="ChangeTypeIntakeWithTypeConsume(this.value)"></select>
                         </div>
                         <div class="col-md-4">
                             @if (agreementId == 0)
@@ -67,7 +67,7 @@
                         {<label>Tipo Predio</label> }
                         else
                         { <label>Tipo de Toma:</label>}
-                        <select class="form-control form-control-sm" id="typeIntake" name="typeIntake" onchange="ChangeTypeIntake(this)"></select>
+                        <select class="form-control form-control-sm" id="typeIntake" name="typeIntake" onchange="ChangeTypeIntake(this.value)"></select>
                     </div>
                     <div class="col-md-6">
                         @if (Plataform.IsAyuntamiento)
@@ -115,6 +115,15 @@
                             <select class="form-control form-control-sm" id="typeConsume" name="typeConsume"></select>
                         </div>
                     }
+
+                    @if (agreementId != 0)
+                    {
+                        <div class="col-md-6">
+                            <label>@(Plataform.IsAyuntamiento ? "Estado del Predio" : "Estado del Servicio")</label>
+                            <select class="form-control form-control-sm" id="typeStateService" name="typeStateService"></select>
+                        </div>
+                    }
+                    
 
                     <div class="col-md-6">
                         <label>Observaciones:</label>
@@ -242,8 +251,9 @@
 
 
 <script>
-    function ChangeTypeIntake(element) {
-        var acronym = element.selectedOptions[0].innerText;
+    function ChangeTypeIntake(value) {
+        var a = __typeIntake.find(x => x.id == value);
+        var acronym = a.acronym;
 
         RenderSelectOption(acronym, "typeRegime", __typeRegime);
         RenderSelectOption(acronym, "typeUse", __typeUse);
@@ -255,6 +265,11 @@
             RenderSelectOption(acronym, "diameter", __diameters);
         }
         RenderSelectOption(acronym, "typePeriod", __typePeriod, "", UnBlock);
+    }
+
+    function ChangeTypeIntakeWithTypeConsume(value) {
+        $("#typeIntake").val(value);
+        ChangeTypeIntake(value);
     }
 
     function CompareAccount(account, idTypeConsume) {

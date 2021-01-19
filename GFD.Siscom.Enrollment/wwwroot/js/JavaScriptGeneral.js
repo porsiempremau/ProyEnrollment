@@ -62,23 +62,26 @@ function RenderSelectOption(acronym, idSelect, list, isAyuntamiento, callback = 
 
     if (list.length > 0) {
         list.forEach(x => {
-            if (idSelect == "typeConsume") {
-                var option = document.createElement("option");
-                if (isAyuntamiento) {
-                    option.text = x.acronym;
-                    option.value = x.id;
-                } else {
-                    option.text = x.name;
-                    option.value = x.id;
-                }
-                select.appendChild(option);
-            } else if (idSelect == "typeIntake") {
-                var option = document.createElement("option");
-                option.text = x.acronym;
-                option.value = x.id;
-                select.appendChild(option);
-            } else if (idSelect == "typeService" || idSelect == "services"
-                || idSelect == "typePeriod" || idSelect == "diameter") {
+            //if (idSelect == "typeConsume") {
+            //    var option = document.createElement("option");
+            //    if (isAyuntamiento) {
+            //        option.text = x.acronym;
+            //        option.value = x.id;
+            //    } else {
+            //        option.text = x.name;
+            //        option.value = x.id;
+            //    }
+            //    select.appendChild(option);
+            //}
+            //} else if (idSelect == "typeIntake") {
+            //    var option = document.createElement("option");
+            //    option.text = x.acronym;
+            //    option.value = x.id;
+            //    select.appendChild(option);
+            //}
+            if (idSelect == "typeService" || idSelect == "services"
+                || idSelect == "typePeriod" || idSelect == "diameter" || idSelect == "typeStateService"
+                || idSelect == "typeIntake" || idSelect == "typeConsume") {
                 var option = document.createElement("option");
                 option.text = x.name;
                 option.value = x.id;
@@ -1289,5 +1292,59 @@ const YEAR = [
                 "value": 1
             }
         ]
+    }
+]
+
+const TYPES_AYUNTAMIENTO = [
+    {
+        "idType": "TIP01",
+        "description": "Predial",
+    },
+    {
+        "idType": "TIP02",
+        "description": "Productos",
+    },
+    {
+        "idType": "TIP03",
+        "description": "Notificaciones",
+    },
+    {
+        "idType": "TIP04",
+        "description": "Limpia",
+    },
+    {
+        "idType": "TIP05",
+        "description": "Recargos",
+    },
+    {
+        "idType": "TIP06",
+        "description": "Cuota de Convenio",
+    }
+]
+
+const TYPES_AGUA = [
+    {
+        "idType": "TIP01",
+        "description": "SERVICIOS",
+    },
+    {
+        "idType": "TIP02",
+        "description": "PRODUCTOS",
+    },
+    {
+        "idType": "TIP03",
+        "description": "NOTIFICACIONES",
+    },
+    {
+        "idType": "TIP04",
+        "description": "LIMPIA",
+    },
+    {
+        "idType": "TIP05",
+        "description": "RECARGOS",
+    },
+    {
+        "idType": "TIP06",
+        "description": "CUOTA DE CONVENIO",
     }
 ]

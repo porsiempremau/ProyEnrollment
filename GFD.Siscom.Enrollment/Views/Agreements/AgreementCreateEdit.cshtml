@@ -67,7 +67,8 @@
                             <button type="button" id="btnAddDebt" style="display: none;" data-toggle="modal" data-target="#modalAddDebtAgreement"></button>
                         }
 
-                        @*<button type="button" class="btn btn-success float-right" onclick="AddDebtAgua()">Probar Adeudo</button>*@
+                        <button type="button" id="btnSimulation" style="display: none;" data-toggle="modal" data-target="#modalSimulation"></button>
+                        @*<button type="button" onclick="Simulation('454747')" >Simulation</button>*@
                     </div>
                 </div>
             </div>
@@ -80,8 +81,9 @@
 @section Scripts{
     <partial name="~/Views/Partials/Modals/_ModalSearchTaxUser.cshtml" />
     <partial name="~/Views/Agreements/_ModalAddDebtAgreement.cshtml" />
+    <partial name="~/Views/Agreements/_ModalSimulationCalPredial.cshtml" />
     <script>
-        
+
         var isAyuntamiento = '@Plataform.IsAyuntamiento' == 'True' ? true : false,
             __date = new Date(),
             __AccountAyuntamiento = "",
@@ -224,7 +226,7 @@
                     fillTableContact("tbodyContacts");
 
                     console.log("__listClients: ", __listClients);
-
+                    debugger
                     Addresses.forEach(x => {
                         var address = new AddressVM(x);
                         address.suburbName = x.suburbs.name;
@@ -277,6 +279,9 @@
                     {
                         RenderSelectOption(acronym, "diameter", __diameters, isAyuntamiento);
                     }
+                    if (@idAgreement != 0) {
+                        RenderSelectOption(acronym, "typeStateService", __typeStateService, isAyuntamiento);
+                    }
                     RenderSelectOption(acronym, "services", __services, isAyuntamiento);
                     RenderSelectOption(acronym, "typePeriod", __typePeriod, isAyuntamiento, UnBlock);
 
@@ -288,10 +293,24 @@
             });
         }
 
-
         function SaveData(event) {
             Block();
             event.preventDefault();
+
+            if (@idAgreement > 0 && (GetValue("typeStateService", true) == 2 || GetValue("typeStateService", true) == 4)) {
+                SearchDebts(@idAgreement).then(response => {
+                    if (response > 0) {
+                        UnBlock();
+                        Swal.fire({
+                            title: "Disculpa",
+                            text: "No puedes desactivar o cancelar esta cuenta, porque aun tiene adeudo",
+                            type: 'info',
+                            showConfirmButton: true,
+                        });
+                    }
+                });
+                return false;
+            }
 
             var servicesList = [],
                 clientsList = [],
@@ -337,7 +356,11 @@
             agreement.typeRegimeId = GetValue("typeRegime", true);
             agreement.typePeriodId = GetValue("typePeriod", true);
             agreement.typeCommertialBusinessId = GetValue("typeCommertialBusiness", true);
-            agreement.typeStateServiceId = 1;
+            if (document.getElementById("typeStateService")) {
+                agreement.typeStateServiceId = GetValue("typeStateService", true);
+            } else {
+                agreement.typeStateServiceId = 1;
+            }
             agreement.typeIntakeId = GetValue("typeIntake", true);
             agreement.typeClasificationId = GetValue("typeClassification", true);
             agreement.diameterId = '@Plataform.IsAyuntamiento' == 'True' ? 1 : GetValue("diameter", true);
@@ -367,7 +390,17 @@
                         showConfirmButton: true,
                     }).then(response => {
                         AddEditAgreementDetail(@idAgreement).then(response => {
-                            window.location.href = "/Agreement/EditCreateView?idAgreement=" + @idAgreement;
+                            if (isAyuntamiento) {
+                                GenerateDebtAyuntamiento(@idAgreement, __AccountAyuntamiento);
+                            } else {
+                                var dateCurrently = new Date();
+                                var year = dateCurrently.getFullYear();
+                                var month = dateCurrently.getMonth() + 1;
+                                const url = "/Debt/AddDebtToAgreement?AgreementId=";
+                                axios.post(url + @idAgreement + "&month=" + month + "&year=" + year).then(response => {
+                                    window.location.href = "/Agreement/EditCreateView?idAgreement=" + @idAgreement;
+                                });
+                            }
                         });
                     });
                 } else {
@@ -382,9 +415,8 @@
                             showConfirmButton: true,
                         }).then(response => {
                             if (isAyuntamiento) {
-                                AddEditAgreementDetail(__AgreementIdFound).then(response => {
-                                    AddDebtAyuntamiento(__AgreementIdFound);
-                                });
+                                AddEditAgreementDetail(__AgreementIdFound)
+                                    .then(response => { Simulation(__AccountAyuntamiento); });
                             } else {
                                 $("#btnAddDebt").click();
                             }
@@ -488,7 +520,7 @@
             ClearDataTable("Table");
             axios.get("/Agreement/record?idAgreement=" + @idAgreement + "&tipo=" + tipo + "")
                 .then(response => {
-                    
+
                     var data = response.data;
                     if (data.length > 0) {
                         if (tipo == "Pagos") {
@@ -527,12 +559,18 @@
                                 var FromDate = getFormateDate(x.fromDate);
                                 var UntilDate = getFormateDate(x.untilDate);
                                 var DebitDate = getFormateDate(x.debitDate);
+                                if (isAyuntamiento) {
+                                    var type = getDescriptionType(x.type, TYPES_AYUNTAMIENTO);
+                                } else {
+                                    var type = getDescriptionType(x.type, TYPES_AGUA);
+                                }
+
                                 cuerpoTabla += `<tr>
                                 <td>${FromDate} - ${UntilDate}</td>
                                 <td>${x.typeIntake}</td>
                                 <td>${x.typeService}</td>
                                 <td>${FormatoPeso.format(x.amount - x.onAccount)}</td>
-                                <td>${(x.type == "TIP01" ? "Servicio" : "Recargos")}</td>
+                                <td>${type}</td>
                                 <td></td>
                                 <td>${DebitDate}</td>
                                 <td>${x.descriptionStatus}</td>
@@ -619,7 +657,7 @@
                         UnBlock();
                     }
 
-                    
+
 
                     if (!isAyuntamiento)
                     {
@@ -663,12 +701,14 @@
                 if (i > year && i != positionYearCurrently) {
                     for (let j = 0; j < YEAR[i].months.length; j++) {
                         axios.post(url + AgreementId + "&month=" + YEAR[i].months[j].number + "&year=" + YEAR[i].year).then(response => { });
+                        //GenerateDebtAgua(AgreementId, YEAR[i].months[j].number, YEAR[i].year);
                         __YearBefore = true;
                     }
                 } else if (i == positionYearCurrently) {
                     if (__YearBefore) {
                         for (let monthB = 0; monthB <= __date.getMonth(); monthB++) {
                             axios.post(url + AgreementId + "&month=" + YEAR[i].months[monthB].number + "&year=" + YEAR[i].year).then(response => { });
+                            //GenerateDebtAgua(AgreementId, YEAR[i].months[monthB].number, YEAR[i].year);
                             if (i == positionYearCurrently && monthB == __date.getMonth()) {
                                 UnBlock();
                                 Swal.fire({
@@ -684,6 +724,7 @@
                     } else if (month < __date.getMonth()) {
                         for (let monthB = month; monthB <= __date.getMonth(); monthB++) {
                             axios.post(url + AgreementId + "&month=" + YEAR[i].months[monthB].number + "&year=" + YEAR[i].year).then(response => { });
+                            //GenerateDebtAgua(AgreementId, YEAR[i].months[monthB].number, YEAR[i].year);
                             if (i == positionYearCurrently && monthB == __date.getMonth()) {
                                 UnBlock();
                                 Swal.fire({
@@ -699,6 +740,7 @@
                     } else {
                         for (var monthBC = 0; monthBC <= __date.getMonth(); monthBC++) {
                             axios.post(url + AgreementId + "&month=" + YEAR[i].months[monthBC].number + "&year=" + YEAR[i].year).then(response => { });
+                            //GenerateDebtAgua(AgreementId, YEAR[i].months[monthBC].number, YEAR[i].year);
                             if (i == positionYearCurrently && monthBC == __date.getMonth()) {
                                 UnBlock();
                                 Swal.fire({
@@ -715,12 +757,13 @@
                 } else {
                     for (let k = month; k < YEAR[i].months.length; k++) {
                         axios.post(url + AgreementId + "&month=" + YEAR[i].months[k].number + "&year=" + YEAR[i].year).then(response => { });
+                        //GenerateDebtAgua(AgreementId, YEAR[i].months[k].number, YEAR[i].year);
                     }
                 }
             }
         }
 
-        function AddDebtAyuntamiento(AgreementId) {
+        function BeginDebtAyuntamiento(AgreementId) {
             Swal.fire({
                 title: 'Se agregará un Adeudo',
                 text: "¿Está deacuerdo con esto?",
@@ -732,30 +775,76 @@
             }).then((result) => {
                 Block();
                 if (result.value) {
-                    axios.post("/Debt/AddDebtToAgreement?AgreementId=" + AgreementId).then(response => {
-                        UnBlock();
-                        Swal.fire({
-                            type: 'success',
-                            title: '¡Correcto!',
-                            text: response.data + ' para la cuenta: ' + __AccountAyuntamiento,
-                            showConfirmButton: true,
-                        }).then(response => {
-                            window.location.href = "/Agreement/List";
-                        });
-                    }).catch(error => {
-                        console.log("Error", error.response);
-                        Swal.fire({
-                            type: 'info',
-                            title: '¡Discupe!',
-                            text: error.response,
-                            showConfirmButton: true,
-                        });
-                    });
+                    GenerateDebtAyuntamiento(AgreementId, __AccountAyuntamiento)
                 } else {
                     UnBlock();
                     window.location.href = "/Agreement/List";
                 }
             })
         }
+
+        const SearchDebts = (agreementId) => {
+            return new Promise((resolve, reject) => {
+                axios.get("/Debt/DebtsAgreement/" + agreementId).then(response => {
+                    resolve(response.data.length);
+                }).catch(error => {
+                    reject(error.response.data.error);
+                });
+            });
+        }
+
+        function Simulation(agreementId) {
+            $("#tbodySimulation").html("");
+            axios.post("/Agreement/RunAccountSimulation/" + agreementId).then(response => {
+                var data = response.data;
+                console.log(data);
+                if (data.length > 0) {
+                    $("#btnSimulation").click();
+                    data.forEach(x => {
+                        $("#SimulationCuenta").html(`<b>Cuenta: </b>${x.cuenta}`);
+                        $("#SimulationValorCatastral").html(`<b>Valor Catastral: </b>${x.valor_Catastral}`);
+                        $("#SimulationContruccion").html(`<b>Construcción: </b>${x.construccion}`);
+                        $("#SimulationTerreno").html(`<b>Terreno: </b>${x.terreno}`);
+                        $("#SimulationLimpia").html(`<b>Limpia: </b>${FormatoPeso.format(x.limpia_calculado)}`);
+                        $("#SimulationPredial").html(`<b>Predial: </b>${FormatoPeso.format(x.predial_calculado)}`);
+                        $("#SimulationFromula").html(x.formulA_APLICADA);
+                    });
+                } else {
+                    BeginDebtAyuntamiento(__AgreementIdFound);
+                }
+            });
+        }
+
+        function GenerateDebtAyuntamiento(AgreementId, account) {
+            axios.post("/Debt/AddDebtToAgreement?AgreementId=" + AgreementId).then(response => {
+                UnBlock();
+                Swal.fire({
+                    type: 'success',
+                    title: '¡Correcto!',
+                    text: response.data + ' para la cuenta: ' + account,
+                    showConfirmButton: true,
+                }).then(response => {
+                    window.location.href = "/Agreement/List";
+                });
+            }).catch(error => {
+                console.log("Error", error.response);
+                Swal.fire({
+                    type: 'info',
+                    title: '¡Discupe!',
+                    text: error.response,
+                    showConfirmButton: true,
+                });
+            });
+        }
+
+        //const GenerateDebtAgua = (AgreementId, month, year) => {
+        //    const url = "/Debt/AddDebtToAgreement?AgreementId=";
+        //    return new Promise((resolve, reject) => {
+        //        axios.post(url + AgreementId + "&month=" + month + "&year=" + year).then(response => {
+
+        //        });
+        //    });
+
+        //}
     </script>
 }

@@ -151,8 +151,8 @@ class AddressVM {
         this.indoor = address.indoor || "";
         this.zip = address.zip || "";
         this.reference = address.reference || "";
-        this.lat = address.lat || "0";
-        this.lon = address.lon || "0";
+        this.lat = address.lat || "";
+        this.lon = address.lon || "";
         this.typeAddress = address.typeAddress || "";
         this.suburbsId = address.suburbsId || 0;
         this.isActive = address.isActive;

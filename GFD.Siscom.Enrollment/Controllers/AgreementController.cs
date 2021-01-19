@@ -366,5 +366,26 @@ namespace GFD.Siscom.Enrollment.Controllers
                 return BadRequest();
             }
         }
+
+        [HttpPost("Agreement/RunAccountSimulation/{account}")]
+        public async Task<IActionResult> RunAccountSimulation([FromRoute] string account)
+        {
+            try
+            {
+                //var body = new StringContent(nombre.ToString(), Encoding.UTF8, "application/json");
+                var result = await RequestsApi.SendURIAsync("/api/StoreProcedure/runAccountSimulation/" + account, HttpMethod.Post, Auth.Login.Token);
+                if (result.Contains("error"))
+                {
+                    return Conflict(result);
+                }
+                var response = JsonConvert.DeserializeObject<List<SimulationCalPredialVM>>(result);
+                return Ok(response);
+
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
     }
 }

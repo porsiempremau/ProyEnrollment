@@ -258,6 +258,46 @@ namespace GFD.Siscom.Enrollment.Utilities.Services
             }
         }
 
+        public async Task<string> UploadImageToServer(string endPoint, string Token, MultipartFormDataContent multipartFormDataContent , StringContent data = null)
+        {
+            using (var client = new HttpClient())
+            {
+                HttpResponseMessage httpResponse = null;
+                try
+                { 
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
+                    httpResponse = await client.PostAsync(new Uri(UrlBase + endPoint), multipartFormDataContent);
+                    var input = await httpResponse.Content.ReadAsStringAsync();
+
+                    switch (httpResponse.StatusCode)
+                    {
+                        case System.Net.HttpStatusCode.OK:
+                            return await httpResponse.Content.ReadAsStringAsync();
+                        case System.Net.HttpStatusCode.InternalServerError:
+                            return "{\"error\": \"Servicio temporalmente no disponible contacte al Administrador, disculpe las molestias\"}";
+                        case System.Net.HttpStatusCode.ServiceUnavailable:
+                            return "{\"error\": \"Servicio temporalmente no disponible contacte al Administrador, disculpe las molestias\"}";
+                        case System.Net.HttpStatusCode.Unauthorized:
+                            return "{\"error\": \"Sesión expírada o no cuenta con la autorización \"}";
+                        default:
+                            return await httpResponse.Content.ReadAsStringAsync();
+                    }
+                }
+                catch (Exception e)
+                {
+                    return "{\"error\": \"Servicio no disponible contacte al Administrador\"}";
+                }
+                finally
+                {
+                    if (httpResponse != null)
+                    {
+                        httpResponse.Dispose();
+                    }
+                }
+            }
+        }
+
         //--
         public async Task<HttpResponseMessage> RequestAPIAsync(string endPoint, string strMethod , string Token, HttpContent httpContent = null)
         {

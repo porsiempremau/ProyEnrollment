@@ -4,7 +4,11 @@
     dynamic mo = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(Model));
     var IDAgree = mo["id"];
 }
-
+<style>
+    #MapAgreement{
+        height: 307px;
+    }
+</style>
 <div class="row">
     <div class="col-md-4">
         <div class="main-card mb-3 card">
@@ -32,7 +36,7 @@
 
                     <div class="col-md-12">
                         <label>Calle:</label>
-                        <input type="text" class="form-control form-control-sm" id="street" name="street" maxlength="15"/>
+                        <input type="text" class="form-control form-control-sm" id="street" name="street" maxlength="15" />
                     </div>
 
                     <div class="col-md-6">
@@ -51,19 +55,12 @@
 
                     <div class="col-md-12">
                         <label>Referencias:</label>
-                        <input type="text" class="form-control form-control-sm" id="references" name="references" maxlength="20"/>
+                        <input type="text" class="form-control form-control-sm" id="references" name="references" maxlength="20" />
                     </div>
 
                     <div class="col-md-12">
                         <label>Tipo de Dirección:</label>
                         <select class="form-control form-control-sm" id="typeAddress" name="typeAddress"></select>
-                    </div>
-                </div>
-                <br />
-                <div class="row">
-                    <div class="col-md-12">
-                        <button type="button" id="btnAddAddress" class="btn btn-GFD float-right" onclick="AddAddressToTable()">Agregar Dirección</button>
-                        <button type="button" id="btnEditAddress" class="btn btn-GFD float-right" onclick="EditAddress(document.getElementById('idAddress').value)" style="display: none">Editar Dirección</button>
                     </div>
                 </div>
             </div>
@@ -95,6 +92,35 @@
                 </div>
             </div>
         </div>
+
+
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Mapa</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="ContentMap"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Latitud:</label>
+                        <input class="form-control form-control-sm" id="lat" name="lat" readonly />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Longitud:</label>
+                        <input class="form-control form-control-sm" id="lon" name="lon" readonly />
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" id="btnAddAddress" class="btn btn-GFD float-right" onclick="AddAddressToTable()">Agregar Dirección</button>
+                        <button type="button" id="btnEditAddress" class="btn btn-success float-right" onclick="EditAddress(document.getElementById('idAddress').value)" style="display: none">Editar Dirección</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @if (IDAgree != 0)
@@ -109,12 +135,16 @@
     </div>
 }
 
-<script> 
+<script>
+    var __lat = "",
+        __lon = "";
+
     function StartTabAddress() {
         GetCountries("stateId");
         SearchTownByIdState(21, "townId");
         SearchSuburbByIdTown(2, "suburbId");
         RenderSelectOption("", "typeAddress", __typeAddresses);
+        loadMap(19.090529325925676, -98.27371912224939);
     }
 
     function AddAddressToTable() {
@@ -161,7 +191,9 @@
                 zip,
                 reference,
                 typeAddress,
-                isActive: true
+                isActive: true,
+                lat: __lat,
+                lon: __lon
             });
             fillTableAddress("tbodyAddresses");
         }
@@ -171,6 +203,7 @@
         var btnSaveData = document.getElementById("btnSaveData");
         $("#" + idTBody).html("");
         CleanFieldAddress();
+        let i = 0;
         if (__listaAddress.length > 0) {
             __listaAddress.forEach(x => {
                 if (x.isActive) {
@@ -183,19 +216,20 @@
                             <td>${x.stateName}</td>
                             <td>${nameTypeAddress}</td>
                             <td>
-                                <a class="nav-link btn-flush" onclick="setDataAddress(${x.id})" type="button"
+                                <a class="nav-link btn-flush" onclick="setDataAddress(${x.id}, ${i})" type="button"
                                    data-caret="false" style="margin: 0 auto;">
                                     <i class="fas fa-edit iconX" title="Editar Cliente"></i>
                                 </a>
                             </td>
                             <td>
-                                <a id="IconDeleteAddress" class="nav-link btn-flush" onclick="deleteItemAddress(${x.id})" type="button"
+                                <a id="IconDeleteAddress${i}" class="nav-link btn-flush" onclick="deleteItemAddress(${x.id})" type="button"
                                    data-caret="false" style="margin: 0 auto;">
                                     <i class="fas fa-trash iconX" title="Eliminar Dirección"></i>
                                 </a>
                             </td>
                         </tr>
                     `);
+                    i++;
                 }
             });
             if (btnSaveData != null) {
@@ -215,13 +249,15 @@
         $("#numInt").val("");
         $("#zip").val("");
         $("#references").val("");
+        $("#lat").val("");
+        $("#lon").val("");
         document.getElementById("btnAddAddress").style.display = "block";
         document.getElementById("btnEditAddress").style.display = "none";
     }
 
     function deleteItemAddress(id) {
         Swal.fire({
-            title: 'Se eliminará el descuento',
+            title: 'Se eliminará la dirección',
             text: "¿Está deacuerdo con esto?",
             type: 'warning',
             showCancelButton: true,
@@ -229,27 +265,31 @@
             cancelButtonColor: '#d33',
             confirmButtonText: 'Aceptar'
         }).then(response => {
-            var item = __listaAddress.find(x => x.id == id);
-            var index = __listaAddress.indexOf(item);
-            __listaAddress.splice(index, 1, {
-                id: item.id,
-                street: item.street,
-                outdoor: item.outdoor,
-                indoor: item.indoor,
-                zip: item.zip,
-                reference: item.reference,
-                lat: item.lat,
-                lon: item.lon,
-                typeAddress: item.typeAddress,
-                suburbsId: item.suburbsId,
-                isActive: false,
-                agreementId: item.agreementId
-            });
-            fillTableAddress("tbodyAddresses");
+            if (response.value) {
+                var item = __listaAddress.find(x => x.id == id);
+                var index = __listaAddress.indexOf(item);
+                __listaAddress.splice(index, 1, {
+                    id: item.id,
+                    street: item.street,
+                    outdoor: item.outdoor,
+                    indoor: item.indoor,
+                    zip: item.zip,
+                    reference: item.reference,
+                    lat: item.lat,
+                    lon: item.lon,
+                    typeAddress: item.typeAddress,
+                    suburbsId: item.suburbsId,
+                    isActive: false,
+                    agreementId: item.agreementId,
+                    lat: item.lat,
+                    lon: item.lon
+                });
+                fillTableAddress("tbodyAddresses");
+            }
         });
     }
 
-    function setDataAddress(id) {
+    function setDataAddress(id, index) {
         var item = __listaAddress.find(x => x.id == id);
 
         document.getElementById("btnAddAddress").style.display = "none";
@@ -260,7 +300,10 @@
         if (@IDAgree == 0) {
             document.getElementById("btnSaveData").disabled = true;
         }
-        document.getElementById("IconDeleteAddress").classList.add("disabled");
+        for (var i = 0; i < __listaAddress.length; i++) {
+            document.getElementById("IconDeleteAddress" + i).classList.remove("disabled");
+        }
+        document.getElementById("IconDeleteAddress" + index).classList.add("disabled");
 
         SearchSuburbByIdTown(item.townId, "suburbId").then(response => {
             $("#idAddress").val(item.id);
@@ -273,6 +316,9 @@
             $("#zip").val(item.zip);
             $("#references").val(item.reference);
             $("#typeAddress").val(item.typeAddress);
+            $("#lat").val(item.lat);
+            $("#lon").val(item.lon);
+            loadMap(parseFloat(item.lat), parseFloat(item.lon));
         });
     }
 
@@ -296,6 +342,9 @@
             townName = document.getElementById("townId").selectedOptions[0].innerText,
             suburbName = document.getElementById("suburbId").selectedOptions[0].innerText;
 
+        var lat = document.getElementById("lat").value,
+            lon = document.getElementById("lon").value;
+
         __listaAddress.splice(index, 1, {
             id,
             stateId,
@@ -310,7 +359,9 @@
             zip,
             reference,
             typeAddress,
-            isActive: true
+            isActive: true,
+            lat,
+            lon
         });
 
         fillTableAddress("tbodyAddresses");
@@ -322,7 +373,7 @@
         if (@IDAgree == 0) {
             document.getElementById("btnSaveData").disabled = false;
         }
-        document.getElementById("IconDeleteAddress").classList.remove("disabled");
+        document.getElementById("IconDeleteAddress" + index).classList.remove("disabled");
     }
 
     function UpdateAddresses() {
@@ -355,4 +406,37 @@
             });
         });
     }
+
+    function loadMap(lat, lng) {
+        $("#ContentMap").html(`<div id="MapAgreement"></div>`);
+        
+        var map = L.map('MapAgreement').setView([lat, lng], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        var marker = L.marker([lat, lng]).addTo(map);
+        //.bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+        //.openPopup();
+        map.on('click', getCoordinates);
+    }
+
+    function getCoordinates(e) {
+        //console.log("event: ", e);
+        var latlng = e.latlng;
+        __lat = latlng.lat.toString();
+        __lon = latlng.lng.toString();
+        //console.log("__lat: ", __lat);
+        //console.log("__lon: ", __lon);
+        $("#lat").val(__lat);
+        $("#lon").val(__lon);
+    }
+
+    //function initMap() {
+    //    map = new google.maps.Map(document.getElementById("MapAgreement"), {
+    //        center: { lat: 19.090529325925676, lng: -98.27371912224939 },
+    //        zoom: 8,
+    //    });
+    //}
 </script>

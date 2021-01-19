@@ -85,7 +85,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <button type="button" id="btnAddClient" class="btn btn-GFD float-right" onclick="addClientsToTable()">Agregar Cliente</button>
-                        <button type="button" id="btnEditClient" class="btn btn-GFD float-right" onclick="EditClient(document.getElementById('idClient').value)" style="display: none">Editar Cliente</button>
+                        <button type="button" id="btnEditClient" class="btn btn-success float-right" onclick="EditClient(document.getElementById('idClient').value)" style="display: none">Editar Cliente</button>
                     </div>
                 </div>
             </div>
@@ -228,24 +228,26 @@
     function fillTableClients(idTBody) {
         $("#" + idTBody).html("");
         cleanInputsClient();
+        let i = 0;
         __listClients.forEach(x => {
             $("#" + idTBody).append(`
                 <tr>
                     <td>${x.name} ${x.lastName} ${x.secondLastName}</td>
                     <td>
-                        <a class="nav-link btn-flush" onclick="setDataClient(${x.id}, 'tbodyClients')" type="button"
+                        <a class="nav-link btn-flush" onclick="setDataClient(${x.id}, ${i})" type="button"
                            data-caret="false" style="margin: 0 auto;">
                             <i class="fas fa-edit iconX" title="Editar Cliente"></i>
                         </a>
                     </td>
                     <td>
-                        <a id="btnDeleteClient" class="nav-link btn-flush" onclick="deleteItemClient(${x.id}, 'tbodyClients')" type="button"
+                        <a id="btnDeleteClient${i}" class="nav-link btn-flush" onclick="deleteItemClient(${x.id}, 'tbodyClients')" type="button"
                            data-caret="false" style="margin: 0 auto;">
                             <i class="fas fa-trash iconX" title="Eliminar Cliente"></i>
                         </a>
                     </td>
                 </tr>
             `);
+            i++;
         });
     }
 
@@ -308,7 +310,7 @@
 
     function deleteItemClient(id, tbody) {
         Swal.fire({
-            title: 'Se eliminará el descuento',
+            title: 'Se eliminará el contribuyente',
             text: "¿Está deacuerdo con esto?",
             type: 'warning',
             showCancelButton: true,
@@ -326,12 +328,16 @@
         
     }
 
-    function setDataClient(id, tbody) {
+    function setDataClient(id, index) {
         var itemFound = __listClients.find(x => x.id == id);
 
         document.getElementById("btnAddClient").style.display = "none";
         document.getElementById("btnEditClient").style.display = "block";
-        document.getElementById("btnDeleteClient").classList.add("disabled");
+        for (var i = 0; i < __listClients.length; i++) {
+            document.getElementById("btnDeleteClient" + i).classList.remove("disabled");
+        }
+        document.getElementById("btnDeleteClient" + index).classList.add("disabled");
+
         document.getElementById("idClient").value = itemFound.id;
         document.getElementById("isMoral").checked = itemFound.taxRegime;
         document.getElementById("nameClient").value = itemFound.name;
@@ -387,7 +393,7 @@
         }
         document.getElementById("btnAddClient").style.display = "block";
         document.getElementById("btnEditClient").style.display = "none";
-        document.getElementById("btnDeleteClient").classList.remove("disabled");
+        document.getElementById("btnDeleteClient" + index).classList.remove("disabled");
     }
 
     function UpdateClient() {

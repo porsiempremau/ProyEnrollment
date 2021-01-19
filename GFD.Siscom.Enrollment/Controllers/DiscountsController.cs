@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using GFD.Siscom.Enrollment.Utilities.Auth;
 using GFD.Siscom.Enrollment.Utilities.Parameters;
 using GFD.Siscom.Enrollment.Utilities.Services;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -45,9 +44,9 @@ namespace GFD.Siscom.Enrollment.Controllers
         {
             try
             {
-                //IFormFile File = null;
-                //File = data.Files["file"];
-                //var uploadFile = await UploadFileVulnerableGroup(File, AgreementId);
+                IFormFile File = null;
+                File = data.Files["file"];
+                var uploadFile = await UploadFileVulnerableGroup(File, AgreementId);
                 //if (uploadFile.Contains("exito"))
                 //{
                     var objectGV = new DiscountGroupVulnerable()
@@ -80,39 +79,23 @@ namespace GFD.Siscom.Enrollment.Controllers
         public async Task<string> UploadFileVulnerableGroup(IFormFile file, int AgreementId)
         {
             try
-            {
-                List<string> img = new List<string>();
-                string content = "";
-                var ms = new MemoryStream();
-                byte[] fileBytes;
-                //MultipartFormDataContent multiContent = new MultipartFormDataContent();
+            {                
+                MultipartFormDataContent multiContent = new MultipartFormDataContent();
                 if (file != null && file.Length > 0)
                 {
+                    byte[] data;
+                    using (var br = new BinaryReader(file.OpenReadStream()))
+                        data = br.ReadBytes((int)file.OpenReadStream().Length);
 
-                    //using (var ms = new MemoryStream())
-                    //{
-                        file.CopyTo(ms);
-                        fileBytes = ms.ToArray();
-                        content = "EVIDENCIA_" + AgreementId + Path.GetExtension(file.FileName) + "," + Convert.ToBase64String(fileBytes);
-                        img.Add(content);
-                    //}
-
-                    //file.CopyTo(ms);
-
-                    //byte[] data;
-                    //using (var br = new BinaryReader(file.OpenReadStream()))
-                    //    data = br.ReadBytes((int)file.OpenReadStream().Length);
-
-                    //ByteArrayContent bytes = new ByteArrayContent(data);
-
-                    //multiContent.Add(bytes, "file", file.FileName);
+                    ByteArrayContent bytes = new ByteArrayContent(data);                    
+                    multiContent.Add(bytes, "file", file.FileName);                    
                 }
 
-                var body = new StringContent(JsonConvert.SerializeObject(img), Encoding.UTF8, "application/json");
-                var result = await RequestsApi.UploadImageToServer("/api/FileUpload/" + AgreementId + "/FAG01/Descuento", Auth.Login.Token, file.FileName.ToString(), ms, body);
+                var body = new StringContent(JsonConvert.SerializeObject(file), Encoding.UTF8, "application/json");
+                var result = await RequestsApi.UploadImageToServer("/api/FileUpload/" + AgreementId + "/FAG01/Descuento", Auth.Login.Token, multiContent, body);
                 if (result.Contains("error"))
                 {
-                    return result.ToString(); ;
+                    return "Problema para subir el archivo";
                 }
                 return "exito";
             }
