@@ -179,7 +179,7 @@
                     var controller = ViewContext.RouteData.Values["Controller"].ToString();
                 }
 
-                @if (Auth.Login.RolName[0] == "Admin" || Auth.Login.RolName[0] == "SUPERVISOR")
+                @if (Auth.Login.RolName[0] == "Admin" || Auth.Login.RolName[0] == "Supervisor")
                 {
                     <li class="@(controller == "Agreement" ? "mm-active" : "")">
                         @if (Plataform.IsAyuntamiento)
@@ -193,7 +193,7 @@
                     </li>
                 }
 
-                @if (Auth.Login.RolName[0] == "Admin" || Auth.Login.RolName[0] == "SUPERVISOR")
+                @if (Auth.Login.RolName[0] == "Admin" || Auth.Login.RolName[0] == "Supervisor")
                 {
                     <li>
                         <a href="#">

@@ -409,26 +409,24 @@
 
     function loadMap(lat, lng) {
         $("#ContentMap").html(`<div id="MapAgreement"></div>`);
-        
         var map = L.map('MapAgreement').setView([lat, lng], 13);
-
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        var marker = L.marker([lat, lng]).addTo(map);
+        var marker = L.marker([lat, lng], {
+            draggable: true
+        }).addTo(map)
+            .on('drag', getCoordinates);
         //.bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
         //.openPopup();
-        map.on('click', getCoordinates);
+        //map.on('click', getCoordinates);      
     }
 
     function getCoordinates(e) {
-        //console.log("event: ", e);
         var latlng = e.latlng;
         __lat = latlng.lat.toString();
         __lon = latlng.lng.toString();
-        //console.log("__lat: ", __lat);
-        //console.log("__lon: ", __lon);
         $("#lat").val(__lat);
         $("#lon").val(__lon);
     }
