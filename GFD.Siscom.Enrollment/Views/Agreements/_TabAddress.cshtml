@@ -111,12 +111,9 @@
                         <label>Longitud:</label>
                         <input class="form-control form-control-sm" id="lon" name="lon" readonly />
                     </div>
-                </div>
-                <br />
-                <div class="row">
-                    <div class="col-md-12">
-                        <button type="button" id="btnAddAddress" class="btn btn-GFD float-right" onclick="AddAddressToTable()">Agregar Dirección</button>
-                        <button type="button" id="btnEditAddress" class="btn btn-success float-right" onclick="EditAddress(document.getElementById('idAddress').value)" style="display: none">Editar Dirección</button>
+                    <div class="col-md-4">
+                        <button type="button" id="btnAddAddress" class="btn btn-GFD margin-top-btns" onclick="AddAddressToTable()">Agregar Dirección</button>
+                        <button type="button" id="btnEditAddress" class="btn btn-success margin-top-btns" onclick="EditAddress(document.getElementById('idAddress').value)" style="display: none">Editar Dirección</button>
                     </div>
                 </div>
             </div>
@@ -409,7 +406,7 @@
 
     function loadMap(lat, lng) {
         $("#ContentMap").html(`<div id="MapAgreement"></div>`);
-        var map = L.map('MapAgreement').setView([lat, lng], 13);
+        var map = L.map('MapAgreement').setView([lat, lng], 15);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
