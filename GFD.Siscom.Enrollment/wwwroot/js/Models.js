@@ -164,3 +164,57 @@ class AddressVM {
         this.agreementId = address.agreementId || 0;
     }
 }
+
+class DebtVM {
+    id;
+    debitDate;
+    fromDate;
+    untilDate;
+    derivatives;
+    typeIntake;
+    typeService;
+    consumption;
+    discount;
+    amount;
+    onAccount;
+    year;
+    type;
+    descriptionType;
+    status;
+    descriptionStatus;
+    newStatus;
+    debtPeriodId;
+    expirationDate;
+    rechargesDate;
+    observations;
+    agreementId;
+    agreement;
+    debtDetails;
+    constructor(d) {
+        this.id = d.id || 0;
+        this.debitDate = d.debitDate;
+        this.fromDate = d.fromDate;
+        this.untilDate = d.untilDate;
+        this.derivatives = d.derivatives || 0;
+        this.typeIntake = d.typeIntake || "";
+        this.typeService = d.typeService || "";
+        this.consumption = d.consumption || "";
+        this.discount = d.discount || "";
+        this.amount = d.amount || 0.0;
+        this.onAccount = d.onAccount || 0.0;
+        this.year = d.year || 0;
+        this.type = d.type || "";
+        this.descriptionType = d.descriptionType || "";
+        this.status = d.status || "";
+        this.descriptionStatus = d.descriptionStatus || "";
+        this.newStatus = d.newStatus || "";
+        this.debtPeriodId = d.debtPeriodId || 0;
+        this.expirationDate = d.expirationDate;
+        this.rechargesDate = d.rechargesDate;
+        this.observations = d.observation || "";
+        this.agreementId = d.agreementId || 0;
+        this.agreement = d.agreement;
+        this.debtDetails = d.debtDetails || [];
+    }
+}
+

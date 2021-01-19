@@ -7,6 +7,7 @@
     <meta http-equiv="Content-Language" content="es">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>@ViewData["Title"]</title>
+    <link rel="shortcut icon" type="image/x-icon" href="~/img/SISCOMSITO.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
     <meta name="description" content="ArchitectUI HTML Bootstrap 4 Dashboard Template">
     <!-- Disable tap highlight on IE -->
@@ -29,6 +30,7 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
             integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
             crossorigin=""></script>
+
     <style>
         .swal2-container {
             zoom: 0.77;
@@ -84,6 +86,23 @@
         $(".modal-dialog").draggable({
             handle: ".modalHeader"
         });
+
+        function openLogout() {
+            var DropDown = document.getElementById("DropDown").classList;
+            var found = false;
+            DropDown.forEach(x => {
+                if (x == "show") {
+                    found = true;
+                } else {
+                    found = false
+                }
+            });
+            if (!found) {
+                DropDown.add("show");
+            } else {
+                DropDown.remove("show");
+            }
+        }
     </script>
 
     <div id="loader" class="sk-chase" style="display: none;">

@@ -101,7 +101,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-12">
-                        <div id="MapAgreement"></div>
+                        <div id="ContentMap"></div>
                     </div>
                     <div class="col-md-4">
                         <label>Latitud:</label>
@@ -134,26 +134,26 @@
 
 <script>
     var __lat = "",
-        __lon = "",
-        map = L.map('MapAgreement'),
-        marker = L.marker([19.0894637, -98.2733105], { draggable: true });
+        __lon = "";
+    //    map = L.map('MapAgreement').setView([19.0894637, -98.2733105], 15);
 
-    L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-        maxZoom: 15,
-        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-        //attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap contributors',
-    }).addTo(map);
-    map.setView([19.0894637, -98.2733105], 15);
+    //var marker = L.marker([19.0894637, -98.2733105], { draggable: true });
 
-    marker.addTo(map).on('drag', getCoordinates);
+    //L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+    //    maxZoom: 15,
+    //    subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    //    //attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap contributors',
+    //}).addTo(map);
+    ////map.setView([19.0894637, -98.2733105], 15);
+    //marker.addTo(map).on('drag', getCoordinates);
         
 
     function StartTabAddress() {
+        loadMap(19.0894637, -98.2733105);
         GetCountries("stateId");
         SearchTownByIdState(21, "townId");
         SearchSuburbByIdTown(2, "suburbId");
         RenderSelectOption("", "typeAddress", __typeAddresses);
-        //loadMap(19.090529325925676, -98.27371912224939);
     }
 
     function AddAddressToTable() {
@@ -395,7 +395,7 @@
         });
 
         axios.put(`/Agreement/CreateEditAddress/${@IDAgree}`, { addresses }).then(response => {
-            console.log("Update Address: ", response.data);
+            //console.log("Update Address: ", response.data);
             UnBlock();
             Swal.fire({
                 title: "Bien",
@@ -417,18 +417,18 @@
     }
 
     function loadMap(lat, lng) {
-        
-        map.eachLayer((layer) => {
-            layer.remove();
-        });
 
-        //map = L.map('MapAgreement').setView([lat, lng], 15);
+        $("#ContentMap").html(`<div id="MapAgreement"></div>`);
+        var map = L.map('MapAgreement').setView([lat, lng], 15);
+        //map.eachLayer((layer) => {
+        //    layer.remove();
+        //});
         var layer = new L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-            maxZoom: 20,
+            maxZoom: 15,
             subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
         });
         map.addLayer(layer);
-        map.setView([lat, lng], 15);
+        //map.setView([lat, lng], 15);
 
         marker = L.marker([lat, lng], {
             draggable: true
