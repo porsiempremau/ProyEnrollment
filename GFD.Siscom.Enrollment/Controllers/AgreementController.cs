@@ -387,5 +387,12 @@ namespace GFD.Siscom.Enrollment.Controllers
                 return null;
             }
         }
+
+        [HttpGet("pdf")]
+        public IActionResult PDF()
+        {
+            ViewData["Title"] = "PDF";
+            return View("~/Views/Agreements/EstadoDeCuentaPDF.cshtml");
+        }
     }
 }

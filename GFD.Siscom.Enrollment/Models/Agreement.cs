@@ -13,5 +13,8 @@ namespace GFD.Siscom.Enrollment.Models
         public string route { get; set; }
         public string token { get; set; }
         public DateTime accountDate { get; set; }
+        public List<ClientVM> clients { get; set; }
+        public List<AddressVM> addresses { get; set; }
+        public List<AgreementDetailVM> agreementDetails { get; set; }
     }
 }

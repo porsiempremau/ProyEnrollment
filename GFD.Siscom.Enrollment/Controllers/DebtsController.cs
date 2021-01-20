@@ -82,5 +82,29 @@ namespace GFD.Siscom.Enrollment.Controllers
                 return null;
             }
         }
+
+        [HttpGet("Debt/EstadoDeCuenta/{agreementId}")]
+        public async Task<IActionResult> GetDebtsEstadoDeCuenta([FromRoute] int agreementId)
+        {
+            try
+            {
+                var resultDebt = await RequestsApi.SendURIAsync("/api/Debts/" + agreementId, HttpMethod.Get, Auth.Login.Token);
+                var resultAgreement = await RequestsApi.SendURIAsync("/api/Agreements/" + agreementId, HttpMethod.Get, Auth.Login.Token);
+                var resultADetails = await RequestsApi.SendURIAsync("/api/AgreementDetails/" + agreementId, HttpMethod.Get, Auth.Login.Token);
+                //if (resultDebt.Contains("error") || resultADetails.Contains("error") || resultAgreement.Contains("error"))
+                //{
+                //    return Conflict(resultDebt);
+                //}
+                var debts = JsonConvert.DeserializeObject<List<DebtVM>>(resultDebt);
+                var agreements = JsonConvert.DeserializeObject<Agreement>(resultAgreement);
+                var agreementDetails = JsonConvert.DeserializeObject<AgreementDetailVM>(resultADetails);
+                return View("~/Views/Agreements/EstadoDeCuenta.cshtml", new { debt = debts, agreement = agreements, agreementDetail = agreementDetails });
+
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
     }
 }

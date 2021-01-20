@@ -18,5 +18,6 @@ namespace GFD.Siscom.Enrollment.Models
         public string TypeAddress { get; set; }
         public int SuburbsId { get; set; }
         public bool IsActive { get; set; }
+        public SuburbVM suburbs { get; set; }
     }
 }

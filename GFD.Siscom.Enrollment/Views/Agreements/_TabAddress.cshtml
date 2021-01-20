@@ -134,26 +134,16 @@
 
 <script>
     var __lat = "",
-        __lon = "";
-    //    map = L.map('MapAgreement').setView([19.0894637, -98.2733105], 15);
-
-    //var marker = L.marker([19.0894637, -98.2733105], { draggable: true });
-
-    //L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-    //    maxZoom: 15,
-    //    subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-    //    //attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap contributors',
-    //}).addTo(map);
-    ////map.setView([19.0894637, -98.2733105], 15);
-    //marker.addTo(map).on('drag', getCoordinates);
-        
+        __lon = "";        
 
     function StartTabAddress() {
-        loadMap(19.0894637, -98.2733105);
         GetCountries("stateId");
         SearchTownByIdState(21, "townId");
         SearchSuburbByIdTown(2, "suburbId");
         RenderSelectOption("", "typeAddress", __typeAddresses);
+        setTimeout(() => {
+            loadMap(19.0894637, -98.2733105);
+        }, 1000)
     }
 
     function AddAddressToTable() {
@@ -419,22 +409,21 @@
     function loadMap(lat, lng) {
 
         $("#ContentMap").html(`<div id="MapAgreement"></div>`);
-        var map = L.map('MapAgreement').setView([lat, lng], 15);
+        var map = L.map('MapAgreement').setView([lat, lng], 18);
         //map.eachLayer((layer) => {
         //    layer.remove();
         //});
         var layer = new L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-            maxZoom: 15,
+            maxZoom: 18,
             subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
         });
         map.addLayer(layer);
-        //map.setView([lat, lng], 15);
 
         marker = L.marker([lat, lng], {
             draggable: true
         }).addTo(map).on('drag', getCoordinates);
 
-        //map.on('click', getCoordinates);      
+        map.on('click', getCoordinates);      
     }
 
     function getCoordinates(e) {

@@ -96,6 +96,7 @@
                             @if (typePage == "agreements")
                             {
                                 <th></th>
+                                <th></th>
                             }
                         </tr>
                     </thead>
@@ -103,7 +104,7 @@
                         <tr>
                             @if (typePage == "agreements")
                             {
-                                <td colspan="10" style="font-size: 20px; text-align: center">Sin Datos</td>
+                                <td colspan="11" style="font-size: 20px; text-align: center">Sin Datos</td>
                             }
                             else
                             {
@@ -164,7 +165,7 @@
                 rfc = document.getElementById("rfc").value,
                 address = document.getElementById("address").value,
                 query = "",
-                colspan = 10;
+                colspan = 11;
 
             if (name != "") {
                 query = "?name=" + name;
@@ -203,6 +204,11 @@
                                     <td>
                                         <a class="nav-link btn-flush" onclick="GetDebts(${x.agreementId})" data-caret="false" style="margin: 0 auto;">
                                             <i class="fas fa-eye iconX" title="Ver Adeudo"></i>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a class="nav-link btn-flush" href="/Debt/EstadoDeCuenta/${x.agreementId}" onclick="Block()" data-caret="false" style="margin: 0 auto;">
+                                            <i class="fas fa-print iconX" title="Ver Estado de Cuenta"></i>
                                         </a>
                                     </td>
                                 </tr>
