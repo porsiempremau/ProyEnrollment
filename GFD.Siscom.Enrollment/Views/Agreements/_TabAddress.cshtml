@@ -135,13 +135,25 @@
 <script>
     var __lat = "",
         __lon = "";
+    //    map = L.map('MapAgreement').setView([19.0894637, -98.2733105], 15);
+
+    //var marker = L.marker([19.0894637, -98.2733105], { draggable: true });
+
+    //L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+    //    maxZoom: 15,
+    //    subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    //    //attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap contributors',
+    //}).addTo(map);
+    ////map.setView([19.0894637, -98.2733105], 15);
+    //marker.addTo(map).on('drag', getCoordinates);
+        
 
     function StartTabAddress() {
+        loadMap(19.0894637, -98.2733105);
         GetCountries("stateId");
         SearchTownByIdState(21, "townId");
         SearchSuburbByIdTown(2, "suburbId");
         RenderSelectOption("", "typeAddress", __typeAddresses);
-        loadMap(19.090529325925676, -98.27371912224939);
     }
 
     function AddAddressToTable() {
@@ -383,7 +395,7 @@
         });
 
         axios.put(`/Agreement/CreateEditAddress/${@IDAgree}`, { addresses }).then(response => {
-            console.log("Update Address: ", response.data);
+            //console.log("Update Address: ", response.data);
             UnBlock();
             Swal.fire({
                 title: "Bien",
@@ -405,18 +417,23 @@
     }
 
     function loadMap(lat, lng) {
+
         $("#ContentMap").html(`<div id="MapAgreement"></div>`);
         var map = L.map('MapAgreement').setView([lat, lng], 15);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+        //map.eachLayer((layer) => {
+        //    layer.remove();
+        //});
+        var layer = new L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 15,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        });
+        map.addLayer(layer);
+        //map.setView([lat, lng], 15);
 
-        var marker = L.marker([lat, lng], {
+        marker = L.marker([lat, lng], {
             draggable: true
-        }).addTo(map)
-            .on('drag', getCoordinates);
-        //.bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-        //.openPopup();
+        }).addTo(map).on('drag', getCoordinates);
+
         //map.on('click', getCoordinates);      
     }
 
@@ -428,10 +445,4 @@
         $("#lon").val(__lon);
     }
 
-    //function initMap() {
-    //    map = new google.maps.Map(document.getElementById("MapAgreement"), {
-    //        center: { lat: 19.090529325925676, lng: -98.27371912224939 },
-    //        zoom: 8,
-    //    });
-    //}
 </script>
