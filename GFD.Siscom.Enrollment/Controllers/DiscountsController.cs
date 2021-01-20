@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using GFD.Siscom.Enrollment.Middleware;
 using GFD.Siscom.Enrollment.Utilities.Auth;
 using GFD.Siscom.Enrollment.Utilities.Parameters;
 using GFD.Siscom.Enrollment.Utilities.Services;
@@ -15,6 +16,7 @@ using Newtonsoft.Json;
 
 namespace GFD.Siscom.Enrollment.Controllers
 {
+    [Auth]
     public class DiscountsController : Controller
     {
         private readonly IOptions<BaseModel> appSettings;

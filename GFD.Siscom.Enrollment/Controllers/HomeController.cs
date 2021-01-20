@@ -10,10 +10,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using GFD.Siscom.Enrollment.Utilities.Parameters;
 using GFD.Siscom.Enrollment.Utilities.Services;
+using GFD.Siscom.Enrollment.Middleware;
 
 namespace GFD.Siscom.Enrollment.Controllers
 {   
-
+    [Auth]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -26,7 +27,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             appSettings = app;
             RequestsApi = new RequestApi(appSettings.Value.WebApiBaseUrl);
         }
-
+        
         [HttpGet("Home")]
         public IActionResult Index()
         {

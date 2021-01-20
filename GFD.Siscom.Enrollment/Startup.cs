@@ -42,7 +42,7 @@ namespace GFD.Siscom.Enrollment
             {
                 // Establezca un tiempo de espera corto para realizar pruebas fácilmente.
                 options.Cookie.Name = ".Siscom.Session";
-                options.IdleTimeout = TimeSpan.FromMinutes(10);
+                options.IdleTimeout = TimeSpan.FromMinutes(1);
                 options.Cookie.HttpOnly = true;
                 // Haz que la cookie de sesión sea esencial
                 options.Cookie.IsEssential = true;

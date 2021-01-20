@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using GFD.Siscom.Enrollment.Middleware;
 using GFD.Siscom.Enrollment.Models;
 using GFD.Siscom.Enrollment.Utilities;
 using GFD.Siscom.Enrollment.Utilities.Auth;
@@ -16,6 +17,7 @@ using Newtonsoft.Json;
 
 namespace GFD.Siscom.Enrollment.Controllers
 {
+    [Auth]
     public class DebtsController : Controller
     {
         private readonly IOptions<BaseModel> appSettings;
