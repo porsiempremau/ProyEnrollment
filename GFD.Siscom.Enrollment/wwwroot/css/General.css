@@ -107,3 +107,8 @@ th{
 .fileinput-remove, .fileinput-upload, .kv-file-upload, .kv-file-zoom {
     display: none !important;
 }
+
+.style-btn-agregar-nuevo {
+    font-size: 17px;
+    font-weight: 100;
+}

@@ -50,16 +50,16 @@
     <div class="col-md-12">
         @if (typePage == "agreements")
         {
-            <a type="button" class="btn btn-GFD float-right" href="/Agreement/EditCreateView">
-                Agregar Nuevo
-                <i class="fas fa-plus" title="Agregar Nuevo"></i>
-            </a>
+        <a type="button" class="btn btn-GFD float-right style-btn-agregar-nuevo" href="/Agreement/EditCreateView">
+            <i class="fas fa-plus-circle" title="Agregar Nuevo"></i>
+            Agregar Nuevo
+        </a>
         }
         else
         {
-            <a type="button" class="btn btn-GFD float-right" href="/Discounts/ViewDiscountVulnerable">
+            <a type="button" class="btn btn-GFD float-right style-btn-agregar-nuevo" href="/Discounts/ViewDiscountVulnerable">
+                <i class="fas fa-plus-circle" title="Agregar Nuevo"></i>
                 Agregar Descuento
-                <i class="fas fa-plus" title="Agregar Nuevo"></i>
             </a>
         }
 
@@ -93,7 +93,10 @@
                                 <th>Con Descuento</th>
                             }
                             <th></th>
-                            <th></th>
+                            @if (typePage == "agreements")
+                            {
+                                <th></th>
+                            }
                         </tr>
                     </thead>
                     <tbody id="tbody">
@@ -261,13 +264,19 @@
                     __ListDebts.forEach(x => {
                         var fromDate = getFormateDate(x.fromDate),
                             untilDate = getFormateDate(x.untilDate),
-                            expirationDate = getFormateDate(x.expirationDate);
+                            expirationDate = getFormateDate(x.expirationDate),
+                            discount = "";
+                        if (x.discount == "" || x.discount == null) {
+                            discount = "N/A";
+                        } else {
+                            discount = x.discount;
+                        }
                         $("#tbodyDebtsFromAgreement").append(`
                             <tr>
                                 <td>${fromDate}-${untilDate}</td>
                                 <td>${x.descriptionType}</td>
+                                <td>${discount}</td>
                                 <td>${FormatoPeso.format(x.amount)}</td>
-                                <td>${FormatoPeso.format(x.discount)}</td>
                                 <td>${FormatoPeso.format(x.onAccount)}</td>
                                 <td>${expirationDate}</td>
                                 <td>

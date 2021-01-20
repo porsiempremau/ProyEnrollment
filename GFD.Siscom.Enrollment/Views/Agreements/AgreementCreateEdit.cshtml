@@ -18,16 +18,25 @@
 
 <div class="app-page-title">
     <div class="page-title-wrapper">
-        <div class="page-title-heading">
-            <div class="page-title-icon">
-                <i class="fas fa-paste">
-                </i>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="page-title-heading">
+                        <div class="page-title-icon">
+                            <i class="fas fa-paste">
+                            </i>
+                        </div>
+                        <h1 class="style-main-title">
+                            @ViewData["Title"]
+                        </h1>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label id="accountMain" style="float: right; font-size: 24px;"></label>
+                </div>
             </div>
-            <h1 class="style-main-title">
-                @ViewData["Title"]
-            </h1>
-        </div>
-    </div>
+        </div>       
+    </div>    
 </div>
 <br />
 <div class="main-card mb-3 card">
@@ -182,6 +191,7 @@
                 getData(data.typeIntake.acronym).then(response => {
                     $("#typeConsume").val(data.typeConsumeId);
                     $("#account").val(data.account);
+                    $("#accountMain").html(`<b>Cuenta: </b>${data.account}`);
                     $("#typeIntake").val(data.typeIntakeId);
                     $("#typeRegime").val(data.typeRegimeId);
                     $("#typeUse").val(data.typeUseId);

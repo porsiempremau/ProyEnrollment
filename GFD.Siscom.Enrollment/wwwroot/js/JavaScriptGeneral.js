@@ -308,7 +308,7 @@ function getFormateDate(d) {
     if (month < 10) {
         month = `0${month}`;
     }
-    var result = year + "-" + month + "-" + day;
+    var result = day + "/" + month + "/" + year;
     return result;
 }
 
