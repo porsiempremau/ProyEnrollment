@@ -56,7 +56,7 @@
                     <p style="display: inline-block; margin-bottom: 0px;">NOMBRE: @agreement.clients[0].Name @agreement.clients[0].LastName @agreement.clients[0].SecondLastName</p><br />
                     <p style="display: inline-block; margin-bottom: 0px; margin-top: 4px;">DIRECCIÓN: @agreement.addresses[0].Street, @agreement.addresses[0].Outdoor @agreement.addresses.First().suburbs.Name</p><br />
                     <p style="display: inline-block; margin-bottom: 0px; margin-top: 4px;">SITUACIÓN SOCIAL: </p><br />
-                    <p style="display: inline-block; margin-bottom: 0px; margin-top: 4px;">TIPO PREDIO: @agreement.typeAgreement</p><br />
+                    <p style="display: inline-block; margin-bottom: 0px; margin-top: 4px;">TIPO PREDIO: @(agreement.typeAgreement == "CLI01")</p><br />
                     <p style="display: inline-block; margin-bottom: 0px; margin-top: 4px;">TERRENO: @agreement.agreementDetails.First().Ground</p><br />
                 </div>
 

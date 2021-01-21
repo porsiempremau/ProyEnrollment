@@ -186,33 +186,35 @@
                 if (data.length > 0) {
                     data.forEach(x => {
                         if ('@typePage' == "agreements") {
-                            $("#tbody").append(`
-                                <tr>
-                                    <td>${x.account}</td>
-                                    <td>${x.nombre}</td>
-                                    <td>${x.address}</td>
-                                    <td>${x.status}</td>
-                                    <td>${x.type}</td>
-                                    <td>${x.token}</td>
-                                    <td>${x.isActiveDiscount ? "Activo" : "Inactivo"}</td>
-                                    <td>${x.nameDiscount != "" ? x.nameDiscount : "N/A"}</td>
-                                    <td>
-                                        <a class="nav-link btn-flush" href="/Agreement/EditCreateView?idAgreement=${x.agreementId}" data-caret="false" style="margin: 0 auto;">
-                                            <i class="fas fa-edit iconX" title="Editar"></i>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a class="nav-link btn-flush" onclick="GetDebts(${x.agreementId})" data-caret="false" style="margin: 0 auto;">
-                                            <i class="fas fa-eye iconX" title="Ver Adeudo"></i>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a class="nav-link btn-flush" href="/Debt/EstadoDeCuenta/${x.agreementId}" onclick="Block()" data-caret="false" style="margin: 0 auto;">
-                                            <i class="fas fa-print iconX" title="Ver Estado de Cuenta"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            `);
+                            if ((!x.isActiveDiscount && x.nameDiscount == "") || (x.isActiveDiscount && x.nameDiscount != "")) {
+                                $("#tbody").append(`
+                                    <tr>
+                                        <td>${x.account}</td>
+                                        <td>${x.nombre}</td>
+                                        <td>${x.address}</td>
+                                        <td>${x.status}</td>
+                                        <td>${x.type}</td>
+                                        <td>${x.token}</td>
+                                        <td>${x.isActiveDiscount ? "Activo" : "Inactivo"}</td>
+                                        <td>${x.nameDiscount != "" ? x.nameDiscount : "N/A"}</td>
+                                        <td>
+                                            <a class="nav-link btn-flush" href="/Agreement/EditCreateView?idAgreement=${x.agreementId}" data-caret="false" style="margin: 0 auto;">
+                                                <i class="fas fa-edit iconX" title="Editar"></i>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a class="nav-link btn-flush" onclick="GetDebts(${x.agreementId})" data-caret="false" style="margin: 0 auto;">
+                                                <i class="fas fa-eye iconX" title="Ver Adeudo"></i>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a class="nav-link btn-flush" href="/Debt/EstadoDeCuenta/${x.agreementId}" onclick="Block()" data-caret="false" style="margin: 0 auto;">
+                                                <i class="fas fa-print iconX" title="Ver Estado de Cuenta"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                `);
+                            }
                         } else {
                             colspan = 9;
                             if (x.isActiveDiscount) {
@@ -277,6 +279,7 @@
                         } else {
                             discount = x.discount;
                         }
+                        var status = getDescriptionType(x.status, STATUS);
                         $("#tbodyDebtsFromAgreement").append(`
                             <tr>
                                 <td>${fromDate}-${untilDate}</td>
@@ -284,6 +287,7 @@
                                 <td>${discount}</td>
                                 <td>${FormatoPeso.format(x.amount)}</td>
                                 <td>${FormatoPeso.format(x.onAccount)}</td>
+                                <td>${status}</td>
                                 <td>${expirationDate}</td>
                                 <td>
                                     <a class="nav-link btn-flush" onclick="GetDebtDetails(${x.id})" data-caret="false" style="margin: 0 auto;">

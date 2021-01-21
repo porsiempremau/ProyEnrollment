@@ -105,7 +105,7 @@ class ClientVM {
         this.typeUser = c.typeUser || "";
         this.taxRegime = c.taxRegime || false;
         this.isMale = c.isMale || true;
-        this.isActive = c.isActive || true;
+        this.isActive = c.isActive;
         this.contacts = c.contacts || [];
         this.agreementId = c.agreementId || 0;
     }

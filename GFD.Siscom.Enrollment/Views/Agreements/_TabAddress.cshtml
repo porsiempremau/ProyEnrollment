@@ -112,8 +112,14 @@
                         <input class="form-control form-control-sm" id="lon" name="lon" readonly />
                     </div>
                     <div class="col-md-4">
-                        <button type="button" id="btnAddAddress" class="btn btn-GFD margin-top-btns" onclick="AddAddressToTable()">Agregar Dirección</button>
-                        <button type="button" id="btnEditAddress" class="btn btn-success margin-top-btns" onclick="EditAddress(document.getElementById('idAddress').value)" style="display: none">Editar Dirección</button>
+                        <button type="button" id="btnAddAddress" class="btn btn-GFD margin-top-btns" onclick="AddAddressToTable()">
+                            <i class="fas fa-plus-circle"></i>
+                            Agregar Dirección
+                        </button>
+                        <button type="button" id="btnEditAddress" class="btn btn-success margin-top-btns" onclick="EditAddress(document.getElementById('idAddress').value)" style="display: none">
+                            <i class="fas fa-edit"></i>
+                            Editar Dirección
+                        </button>
                     </div>
                 </div>
             </div>
@@ -124,9 +130,9 @@
 {
     <div class="row">
         <div class="col-md-12">
-            <button type="button" id="btnUpdateAddress" class="btn btn-success float-right" style="margin-bottom: 17px;"
-                    onclick="UpdateAddresses()">
-                Modificar Dirección
+            <button type="button" id="btnUpdateAddress" class="btn btn-success float-right btn-save-gral-agrement" onclick="UpdateAddresses()">
+                <i class="fas fa-map-marked-alt"></i>
+                Salvar Cambios
             </button>
         </div>
     </div>
@@ -134,7 +140,7 @@
 
 <script>
     var __lat = "",
-        __lon = "";        
+        __lon = "";
 
     function StartTabAddress() {
         GetCountries("stateId");
@@ -204,7 +210,7 @@
         CleanFieldAddress();
         let i = 0;
         if (__listaAddress.length > 0) {
-            __listaAddress.forEach(x => {
+            __listaAddress.forEach(x => {               
                 if (x.isActive) {
                     var nameTypeAddress = getDescriptionType(x.typeAddress, __typeAddresses);
                     $("#" + idTBody).append(`
@@ -221,7 +227,7 @@
                                 </a>
                             </td>
                             <td>
-                                <a id="IconDeleteAddress${i}" class="nav-link btn-flush" onclick="deleteItemAddress(${x.id})" type="button"
+                                <a id="IconDeleteAddress${i}" class="nav-link btn-flush ${x.typeAddress == 'DIR01' ? 'disabled' : ''}"  onclick="deleteItemAddress(${x.id})" type="button"
                                    data-caret="false" style="margin: 0 auto;">
                                     <i class="fas fa-trash iconX" title="Eliminar Dirección"></i>
                                 </a>
@@ -290,7 +296,7 @@
 
     function setDataAddress(id, index) {
         var item = __listaAddress.find(x => x.id == id);
-
+        var lat, lng;
         document.getElementById("btnAddAddress").style.display = "none";
         document.getElementById("btnEditAddress").style.display = "block";
         if (@IDAgree > 0) {
@@ -300,9 +306,9 @@
             document.getElementById("btnSaveData").disabled = true;
         }
         for (var i = 0; i < __listaAddress.length; i++) {
-            document.getElementById("IconDeleteAddress" + i).classList.remove("disabled");
+            document.getElementById("IconDeleteAddress" + i).classList.add("disabled");
         }
-        document.getElementById("IconDeleteAddress" + index).classList.add("disabled");
+        //document.getElementById("IconDeleteAddress" + index).classList.add("disabled");
 
         SearchSuburbByIdTown(item.townId, "suburbId").then(response => {
             $("#idAddress").val(item.id);
@@ -317,7 +323,17 @@
             $("#typeAddress").val(item.typeAddress);
             $("#lat").val(item.lat);
             $("#lon").val(item.lon);
-            loadMap(parseFloat(item.lat), parseFloat(item.lon));
+            if (item.lat == "0" || item.lat == "" || item.lat == null) {
+                lat = "19.0894637";
+            } else {
+                lat = item.lat;
+            }
+            if (item.lon == "0" || item.lon == "" || item.lon == null) {
+                lng = "-98.2733105";
+            } else {
+                lng = item.lon;
+            }
+            loadMap(parseFloat(lat), parseFloat(lng));
         });
     }
 
@@ -362,8 +378,6 @@
             lat,
             lon
         });
-
-        fillTableAddress("tbodyAddresses");
         document.getElementById("btnAddAddress").style.display = "block";
         document.getElementById("btnEditAddress").style.display = "none";
         if (@IDAgree > 0) {
@@ -372,7 +386,10 @@
         if (@IDAgree == 0) {
             document.getElementById("btnSaveData").disabled = false;
         }
-        document.getElementById("IconDeleteAddress" + index).classList.remove("disabled");
+        for (var i = 0; i < __listaAddress.length; i++) {
+            document.getElementById("IconDeleteAddress" + i).classList.remove("disabled");
+        }
+        fillTableAddress("tbodyAddresses");
     }
 
     function UpdateAddresses() {
@@ -423,7 +440,7 @@
             draggable: true
         }).addTo(map).on('drag', getCoordinates);
 
-        map.on('click', getCoordinates);      
+        map.on('click', getCoordinates);
     }
 
     function getCoordinates(e) {

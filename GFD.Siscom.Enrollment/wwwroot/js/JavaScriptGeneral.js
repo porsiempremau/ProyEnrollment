@@ -297,7 +297,7 @@ function onlyNumbers(e) {
     }
 }
 
-function getFormateDate(d) {
+function getFormateDate(d, isToInput = false) {
     var date = new Date(d);
     var month = date.getMonth() + 1;
     var day = date.getDate();
@@ -308,7 +308,12 @@ function getFormateDate(d) {
     if (month < 10) {
         month = `0${month}`;
     }
-    var result = day + "/" + month + "/" + year;
+    if (isToInput) {
+        var result = year + "-" + month + "-" + day;
+    } else {
+        var result = day + "/" + month + "/" + year;
+    }
+    
     return result;
 }
 
@@ -1298,27 +1303,27 @@ const YEAR = [
 const TYPES_AYUNTAMIENTO = [
     {
         "idType": "TIP01",
-        "description": "Predial",
+        "description": "PREDIAL",
     },
     {
         "idType": "TIP02",
-        "description": "Productos",
+        "description": "PRODUCTOS",
     },
     {
         "idType": "TIP03",
-        "description": "Notificaciones",
+        "description": "NOTIFICACIONES",
     },
     {
         "idType": "TIP04",
-        "description": "Limpia",
+        "description": "LIMPIA",
     },
     {
         "idType": "TIP05",
-        "description": "Recargos",
+        "description": "RECARGOS",
     },
     {
         "idType": "TIP06",
-        "description": "Cuota de Convenio",
+        "description": "CUOTA DE CONVENIO",
     }
 ]
 
@@ -1347,4 +1352,68 @@ const TYPES_AGUA = [
         "idType": "TIP06",
         "description": "CUOTA DE CONVENIO",
     }
+]
+
+const STATUS = [
+    {
+        "idType": "ED001",
+        "description": "ACTIVO",
+    },
+    {
+        "idType": "ED002",
+        "description": "INTEGRADO",
+    },
+    {
+        "idType": "ED003",
+        "description": "ANULADO POR DESCUENTO",
+    },
+    {
+        "idType": "ED004",
+        "description": "PARCIAL",
+    },
+    {
+        "idType": "ED005",
+        "description": "PAGADO",
+    },
+    {
+        "idType": "ED006",
+        "description": "CANCELADO",
+    },
+    {
+        "idType": "ED007",
+        "description": "PARCIAL CON ANTICIPO",
+    },
+    {
+        "idType": "ED008",
+        "description": "PAGADO CON ANTICIPO",
+    },
+    {
+        "idType": "ED009",
+        "description": "CONDONADO",
+    },
+    {
+        "idType": "ED010",
+        "description": "CADUCIDAD",
+    },
+    {
+        "idType": "ED011",
+        "description": "ACTIVO CON DESCUENTO",
+    },
+    {
+        "idType": "ED012",
+        "description": "PAGADO ACREDITADO",
+    },
+    {
+        "idType": "ED013",
+        "description": "DEUDA EN CONVENIO",
+    },
+    {
+        "idType": "ED014",
+        "description": "INCOBRABLE",
+    },
+    {
+        "idType": "ED015",
+        "description": "APOYO COVID",
+    }
+
 ]

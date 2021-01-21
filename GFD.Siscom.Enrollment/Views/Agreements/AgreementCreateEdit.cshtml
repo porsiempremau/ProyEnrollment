@@ -52,7 +52,7 @@
         </ul>
     </div>
     <div class="card-body">
-        <form id="FormData" onsubmit="SaveData(event)">
+        @*<form id="FormData" onsubmit="SaveData(event)">*@
             <div class="tab-content">
                 <div class="tab-pane active" id="agreementTab" role="tabpanel">
                     <partial name="~/Views/Agreements/_TabAgreement.cshtml" />
@@ -72,7 +72,7 @@
                     <div class="col-md-12">
                         @if (idAgreement == 0)
                         {
-                            <button type="submit" id="btnSaveData" class="btn btn-success float-right" disabled>Guardar Datos</button>
+                            <button type="submit" id="btnSaveData" class="btn btn-success float-right" onclick="SaveData()" disabled>Guardar Datos</button>
                             <button type="button" id="btnAddDebt" style="display: none;" data-toggle="modal" data-target="#modalAddDebtAgreement"></button>
                         }
 
@@ -81,7 +81,7 @@
                     </div>
                 </div>
             </div>
-        </form>
+        @*</form>*@
     </div>
 </div>
 
@@ -148,21 +148,21 @@
                 }
             }
 
-            form = document.getElementById("FormData");
-            form.route.addEventListener("keypress", onlyNumbers, false);
-            form.phone.addEventListener("keypress", onlyNumbers, false);
-            form.ine.addEventListener("keypress", onlyNumbers, false);
-            form.zip.addEventListener("keypress", onlyNumbers, false);
+            //form = document.getElementById("FormData");
+            //form.route.addEventListener("keypress", onlyNumbers, false);
+            //form.phone.addEventListener("keypress", onlyNumbers, false);
+            //form.ine.addEventListener("keypress", onlyNumbers, false);
+            //form.zip.addEventListener("keypress", onlyNumbers, false);
 
             if ('@Plataform.IsAyuntamiento' == 'True')
             {
-                form.folio.addEventListener("keypress", onlyNumbers, false);
-                form.register.addEventListener("keypress", onlyNumbers, false);
-                form.taxableBase.addEventListener("keypress", onlyNumbers, false);
-                form.ground.addEventListener("keypress", onlyNumbers, false);
-                form.build.addEventListener("keypress", onlyNumbers, false);
+                //form.folio.addEventListener("keypress", onlyNumbers, false);
+                //form.register.addEventListener("keypress", onlyNumbers, false);
+                //form.taxableBase.addEventListener("keypress", onlyNumbers, false);
+                //form.ground.addEventListener("keypress", onlyNumbers, false);
+                //form.build.addEventListener("keypress", onlyNumbers, false);
                 var dateCurrently = new Date();
-                $("#agreementDetailDate").val(getFormateDate(dateCurrently));
+                $("#agreementDetailDate").val(getFormateDate(dateCurrently, true));
             }
 
             $("#ID").val('@idAgreement');
@@ -204,8 +204,8 @@
                     //Agreement Details
                     if (AgreementDetails.length > 0) {
                         AgreementDetails.forEach(x => {
-                            var agreementDetailDate = getFormateDate(x.agreementDetailDate);
-                            var lastUpdate = getFormateDate(x.lastUpdate);
+                            var agreementDetailDate = getFormateDate(x.agreementDetailDate, true);
+                            var lastUpdate = getFormateDate(x.lastUpdate, true);
                             $("#idAgreementDetail").val(x.id);
                             $("#folio").val(x.folio);
                             $("#register").val(x.register);
@@ -236,8 +236,7 @@
                     fillTableClients("tbodyClients");
                     fillTableContact("tbodyContacts");
 
-                    console.log("__listClients: ", __listClients);
-                    debugger
+                    //console.log("__listClients: ", __listClients);
                     Addresses.forEach(x => {
                         var address = new AddressVM(x);
                         address.suburbName = x.suburbs.name;
@@ -304,9 +303,9 @@
             });
         }
 
-        function SaveData(event) {
+        function SaveData() {
             Block();
-            event.preventDefault();
+            //event.preventDefault();
 
             if (@idAgreement > 0 && (GetValue("typeStateService", true) == 2 || GetValue("typeStateService", true) == 4)) {
                 SearchDebts(@idAgreement).then(response => {

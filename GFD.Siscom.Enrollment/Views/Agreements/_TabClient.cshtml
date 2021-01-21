@@ -12,80 +12,89 @@
                 <p>Información</p>
             </div>
             <div class="card-body">
-                <div class="row">
+                <form id="FormClient" onsubmit="addClientsToTable(event)">
 
-                    <div class="col-md-12" style="margin-bottom: 10px;">
-                        <label>Persona Moral:</label>
-                        <input type="checkbox" class="form-check" id="isMoral" name="isMoral" onchange="checkedIsMoral()" />
-                    </div>
+                    <div class="row">
 
-                    <div class="col-md-12">
-                        <div class="row">
-                            <div class="col-md-10">
-                                <label>Nombre:</label>
-                                <input type="hidden" id="idClient" name="idClient" />
-                                <input type="text" class="form-control form-control-sm" id="nameClient" name="nameClient" />
-                            </div>
-                            <div class="col-md-2">
-                                <button type="button" class="btn btn-GFD margin-top-btns" onclick="SearchTaxUser(document.getElementById('nameClient').value)"
-                                        data-toggle="modal" data-target="#modalSearchTaxUser">
-                                    Buscar
-                                </button>
-                            </div>
+                        <div class="col-md-12" style="margin-bottom: 10px;">
+                            <label>Persona Moral:</label>
+                            <input type="checkbox" class="form-check" id="isMoral" name="isMoral" onchange="checkedIsMoral()" />
                         </div>
 
-                    </div>
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <label>Nombre:</label>
+                                    <input type="hidden" id="idClient" name="idClient" />
+                                    <input type="text" class="form-control form-control-sm" id="nameClient" name="nameClient" required/>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-GFD margin-top-btns" onclick="SearchTaxUser(document.getElementById('nameClient').value)"
+                                            data-toggle="modal" data-target="#modalSearchTaxUser">
+                                        Buscar
+                                    </button>
+                                </div>
+                            </div>
 
-                    <div id="divLastName" class="col-md-6">
-                        <label>Paterno:</label>
-                        <input type="text" class="form-control form-control-sm" id="lastName" name="lastName" />
-                    </div>
-                    <div id="divsecondLastName" class="col-md-6">
-                        <label>Materno:</label>
-                        <input type="text" class="form-control form-control-sm" id="secondLastName" name="secondLastName" />
-                    </div>
+                        </div>
 
-                    <div class="col-md-6">
-                        <label>RFC:</label>
-                        <input type="text" class="form-control form-control-sm" id="rfc" name="rfc" maxlength="13"
-                               onkeyup="this.value = this.value.toUpperCase();" oninput="validarCampo(this, 'resultadoRFC', 'RFC')" />
-                        <pre id="resultadoRFC" style="padding-left: 7px;"></pre>
-                    </div>
-                    <div class="col-md-6">
-                        <label>INE:</label>
-                        <input type="text" class="form-control form-control-sm" id="ine" name="ine" maxlength="13"
-                               onkeyup="this.value = this.value.toUpperCase();" oninput="validarCampo(this, 'resultadoINE', 'INE')" />
-                        <pre id="resultadoINE" style="padding-left: 7px;"></pre>
-                    </div>
+                        <div id="divLastName" class="col-md-6">
+                            <label>Paterno:</label>
+                            <input type="text" class="form-control form-control-sm" id="lastName" name="lastName" />
+                        </div>
+                        <div id="divsecondLastName" class="col-md-6">
+                            <label>Materno:</label>
+                            <input type="text" class="form-control form-control-sm" id="secondLastName" name="secondLastName" />
+                        </div>
 
-                    <div class="col-md-6">
-                        <label>CURP:</label>
-                        <input type="text" class="form-control form-control-sm" id="curp" name="curp" maxlength="18"
-                               onkeyup="this.value = this.value.toUpperCase();" oninput="validarCurp(this, 'resultadoCURP')" />
-                        <pre id="resultadoCURP" style="padding-left: 7px;"></pre>
-                    </div>
-                    <div class="col-md-6">
-                        <label>Correo:</label>
-                        <input type="email" class="form-control form-control-sm" id="email" name="email" />
-                    </div>
+                        <div class="col-md-6">
+                            <label>RFC:</label>
+                            <input type="text" class="form-control form-control-sm" id="rfc" name="rfc" maxlength="13"
+                                   onkeyup="this.value = this.value.toUpperCase();" oninput="validarCampo(this, 'resultadoRFC', 'RFC')" />
+                            <pre id="resultadoRFC" style="padding-left: 7px;"></pre>
+                        </div>
+                        <div class="col-md-6">
+                            <label>INE:</label>
+                            <input type="text" class="form-control form-control-sm" id="ine" name="ine" maxlength="13"
+                                   onkeyup="this.value = this.value.toUpperCase();" oninput="validarCampo(this, 'resultadoINE', 'INE')" />
+                            <pre id="resultadoINE" style="padding-left: 7px;"></pre>
+                        </div>
 
-                    <div class="col-md-6">
-                        <label>Tipo de Cliente:</label>
-                        <select class="form-control form-control-sm" id="typeClient" name="typeClient"></select>
+                        <div class="col-md-6">
+                            <label>CURP:</label>
+                            <input type="text" class="form-control form-control-sm" id="curp" name="curp" maxlength="18"
+                                   onkeyup="this.value = this.value.toUpperCase();" oninput="validarCurp(this, 'resultadoCURP')" />
+                            <pre id="resultadoCURP" style="padding-left: 7px;"></pre>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Correo:</label>
+                            <input type="email" class="form-control form-control-sm" id="email" name="email" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Tipo de Cliente:</label>
+                            <select class="form-control form-control-sm" id="typeClient" name="typeClient" required></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Género:</label>
+                            <select class="form-control form-control-sm" id="isMale" name="isMale">
+                                <option value="true">Masculino</option>
+                                <option value="false">Femenino</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label>Género:</label>
-                        <select class="form-control form-control-sm" id="isMale" name="isMale">
-                            <option value="true">Masculino</option>
-                            <option value="false">Femenino</option>
-                        </select>
-                    </div>
-                </div>
+                </form>
                 <br />
                 <div class="row">
                     <div class="col-md-12">
-                        <button type="button" id="btnAddClient" class="btn btn-GFD float-right" onclick="addClientsToTable()">Agregar Cliente</button>
-                        <button type="button" id="btnEditClient" class="btn btn-success float-right" onclick="EditClient(document.getElementById('idClient').value)" style="display: none">Editar Cliente</button>
+                        <button type="submit" id="btnAddClient" class="btn btn-GFD float-right" form="FormClient">
+                            <i class="fas fa-plus-circle"></i>
+                            Agregar Cliente
+                        </button>
+                        <button type="submit" id="btnEditClient" class="btn btn-success float-right" onclick="EditClient(document.getElementById('idClient').value)" style="display: none">
+                            <i class="fas fa-edit"></i>
+                            Editar Cliente
+                        </button>
                     </div>
                 </div>
             </div>
@@ -158,9 +167,9 @@
 {
     <div class="row">
         <div class="col-md-12">
-            <button type="button" id="btnUpdateClient" class="btn btn-success float-right" style="margin-bottom: 17px;"
-                    onclick="UpdateClient()">
-                Modificar Cliente
+            <button type="button" id="btnUpdateClient" class="btn btn-success float-right btn-save-gral-agrement" onclick="UpdateClient()">
+                <i class="fas fa-user"></i>
+                Salvar Cambios
             </button>
         </div>
     </div>
@@ -174,7 +183,8 @@
         RenderSelectOption("", "typeClient", __typeClients);
     }
 
-    function addClientsToTable() {
+    function addClientsToTable(event) {
+        event.preventDefault();
         var name = GetValue("nameClient", false),
             lastName = GetValue("lastName", false),
             secondLastName = GetValue("secondLastName", false),
@@ -202,7 +212,9 @@
             eMail,
             taxRegime,
             isMale,
-            typeUser
+            typeUser,
+            isActive: true,
+            agreementId: @IDAgreement
         });
 
         fillTableClients("tbodyClients");
@@ -230,24 +242,26 @@
         cleanInputsClient();
         let i = 0;
         __listClients.forEach(x => {
-            $("#" + idTBody).append(`
-                <tr>
-                    <td>${x.name} ${x.lastName} ${x.secondLastName}</td>
-                    <td>
-                        <a class="nav-link btn-flush" onclick="setDataClient(${x.id}, ${i})" type="button"
-                           data-caret="false" style="margin: 0 auto;">
-                            <i class="fas fa-edit iconX" title="Editar Cliente"></i>
-                        </a>
-                    </td>
-                    <td>
-                        <a id="btnDeleteClient${i}" class="nav-link btn-flush" onclick="deleteItemClient(${x.id}, 'tbodyClients')" type="button"
-                           data-caret="false" style="margin: 0 auto;">
-                            <i class="fas fa-trash iconX" title="Eliminar Cliente"></i>
-                        </a>
-                    </td>
-                </tr>
-            `);
-            i++;
+            if (x.isActive) {
+                $("#" + idTBody).append(`
+                    <tr>
+                        <td>${x.name} ${x.lastName} ${x.secondLastName}</td>
+                        <td>
+                            <a class="nav-link btn-flush" onclick="setDataClient(${x.id}, ${i})" type="button"
+                               data-caret="false" style="margin: 0 auto;">
+                                <i class="fas fa-edit iconX" title="Editar Cliente"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a id="btnDeleteClient${i}" class="nav-link btn-flush" onclick="deleteItemClient(${x.id}, 'tbodyClients')" type="button"
+                               data-caret="false" style="margin: 0 auto;">
+                                <i class="fas fa-trash iconX" title="Eliminar Cliente"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `);
+                i++;
+            }
         });
     }
 
@@ -319,9 +333,23 @@
             confirmButtonText: 'Aceptar'
         }).then(response => {
             if (response.value) {
-                var itemFound = __listClients.find(x => x.id == id);
-                var index = __listClients.indexOf(itemFound);
-                __listClients.splice(index, 1);
+                var item = __listClients.find(x => x.id == id);
+                var index = __listClients.indexOf(item);
+                __listClients.splice(index, 1, {
+                    id: item.id,
+                    name: item.name,
+                    lastName: item.lastName,
+                    secondLastName: item.secondLastName,
+                    rfc: item.rfc,
+                    ine: item.ine,
+                    curp: item.curp,
+                    eMail: item.eMail,
+                    taxRegime: item.taxRegime,
+                    isMale: item.isMale,
+                    typeUser: item.typeUser,
+                    isActive: false,
+                    agreementId: item.agreementId,
+                });
                 fillTableClients(tbody);
             }
         });
@@ -334,9 +362,9 @@
         document.getElementById("btnAddClient").style.display = "none";
         document.getElementById("btnEditClient").style.display = "block";
         for (var i = 0; i < __listClients.length; i++) {
-            document.getElementById("btnDeleteClient" + i).classList.remove("disabled");
+            document.getElementById("btnDeleteClient" + i).classList.add("disabled");
         }
-        document.getElementById("btnDeleteClient" + index).classList.add("disabled");
+        //ocument.getElementById("btnDeleteClient" + index).classList.add("disabled");
 
         document.getElementById("idClient").value = itemFound.id;
         document.getElementById("isMoral").checked = itemFound.taxRegime;
@@ -384,7 +412,9 @@
             eMail,
             taxRegime,
             isMale,
-            typeUser
+            typeUser,
+            isActive: true,
+            agreementId: itemFound.agreementId
         });
 
         fillTableClients("tbodyClients");
@@ -393,7 +423,10 @@
         }
         document.getElementById("btnAddClient").style.display = "block";
         document.getElementById("btnEditClient").style.display = "none";
-        document.getElementById("btnDeleteClient" + index).classList.remove("disabled");
+        for (var i = 0; i < __listClients.length; i++) {
+            document.getElementById("btnDeleteClient" + i).classList.remove("disabled");
+        }
+        //document.getElementById("btnDeleteClient" + index).classList.remove("disabled");
     }
 
     function UpdateClient() {
@@ -405,7 +438,7 @@
             var contact = new ContactVM(x);
             listPhoneNumers.push(contact);
         });
-
+        debugger
         __listClients.forEach(x => {
             var c = new ClientVM(x);
             c.agreementId = @IDAgreement;
