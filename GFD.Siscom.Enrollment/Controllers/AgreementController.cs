@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using GFD.Siscom.Enrollment.Models;
 using GFD.Siscom.Enrollment.Utilities;
 using GFD.Siscom.Enrollment.Utilities.Auth;
+using GFD.Siscom.Enrollment.Utilities.GeneraPDF;
 using GFD.Siscom.Enrollment.Utilities.Parameters;
 using GFD.Siscom.Enrollment.Utilities.Services;
 using Microsoft.AspNetCore.Http;
@@ -393,6 +395,25 @@ namespace GFD.Siscom.Enrollment.Controllers
         {
             ViewData["Title"] = "PDF";
             return View("~/Views/Agreements/EstadoDeCuentaPDF.cshtml");
+        }
+
+        [HttpGet("Agreement/DownloadPDF")]
+        public async Task<IActionResult> PrintPDF()
+        {
+            try
+            {
+                var memory = new MemoryStream();
+                using (var stream = new FileStream("test", FileMode.Open))
+                {
+                    await stream.CopyToAsync(memory);
+                }
+                memory.Position = 0;
+                return File(memory, "application/pdf", "test");
+            }
+            catch (Exception e)
+            {
+                return Conflict("Error al descargar el archivo");
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -8,10 +9,13 @@ using GFD.Siscom.Enrollment.Middleware;
 using GFD.Siscom.Enrollment.Models;
 using GFD.Siscom.Enrollment.Utilities;
 using GFD.Siscom.Enrollment.Utilities.Auth;
+using GFD.Siscom.Enrollment.Utilities.GeneraPDF;
 using GFD.Siscom.Enrollment.Utilities.Parameters;
 using GFD.Siscom.Enrollment.Utilities.Services;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
@@ -22,10 +26,13 @@ namespace GFD.Siscom.Enrollment.Controllers
     {
         private readonly IOptions<BaseModel> appSettings;
         private RequestApi RequestsApi { get; set; }
-        public DebtsController(IOptions<BaseModel> app)
+        private readonly IHostEnvironment _hostingEnvironment;
+        public Controller OtherController = null;
+        public DebtsController(IOptions<BaseModel> app, IHostEnvironment hostingEnvironmen)
         {
             appSettings = app;
             RequestsApi = new RequestApi(appSettings.Value.WebApiBaseUrl);
+            this._hostingEnvironment = hostingEnvironmen;
         }
         // GET: DebtsController
         public ActionResult Index()
@@ -83,27 +90,43 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
-        [HttpGet("Debt/EstadoDeCuenta/{agreementId}")]
-        public async Task<IActionResult> GetDebtsEstadoDeCuenta([FromRoute] int agreementId)
+        [HttpGet("Debt/GeneraPDF/{agreementId}")]
+        public async Task<IActionResult> GeneraPDF([FromRoute] int agreementId)
         {
             try
             {
                 var resultDebt = await RequestsApi.SendURIAsync("/api/Debts/" + agreementId, HttpMethod.Get, Auth.Login.Token);
                 var resultAgreement = await RequestsApi.SendURIAsync("/api/Agreements/" + agreementId, HttpMethod.Get, Auth.Login.Token);
-                var resultADetails = await RequestsApi.SendURIAsync("/api/AgreementDetails/" + agreementId, HttpMethod.Get, Auth.Login.Token);
-                //if (resultDebt.Contains("error") || resultADetails.Contains("error") || resultAgreement.Contains("error"))
-                //{
-                //    return Conflict(resultDebt);
-                //}
+                
                 var debts = JsonConvert.DeserializeObject<List<DebtVM>>(resultDebt);
                 var agreements = JsonConvert.DeserializeObject<Agreement>(resultAgreement);
-                var agreementDetails = JsonConvert.DeserializeObject<AgreementDetailVM>(resultADetails);
-                return View("~/Views/Agreements/EstadoDeCuenta.cshtml", new { debt = debts, agreement = agreements, agreementDetail = agreementDetails });
-
+                PDFGenerator pdf = new PDFGenerator(_hostingEnvironment, OtherController??this);
+                var filename = await pdf.GerneraEstadoDeCuenta(new { agreement = agreements, debt = debts});
+                return Ok(filename);
             }
             catch (Exception e)
             {
                 return null;
+            }
+        }
+
+        [HttpGet("Debt/DownloadPDF/{fileName}")]
+        public async Task<IActionResult> PrintPDF([FromRoute] string fileName)
+        {
+            try
+            {
+                var memory = new MemoryStream();
+                using (var stream = new FileStream(Path.Combine(_hostingEnvironment.ContentRootPath, fileName), FileMode.Open))
+                {
+                    await stream.CopyToAsync(memory);
+                }
+                memory.Position = 0;
+                System.IO.File.Delete(Path.Combine(_hostingEnvironment.ContentRootPath, fileName));
+                return File(memory, "application/pdf", fileName);
+            }
+            catch (Exception ex)
+            {
+                return Conflict("Error al descargar el archivo. " + ex.Message);
             }
         }
     }

@@ -13,9 +13,7 @@
             </div>
             <div class="card-body">
                 <form id="FormClient" onsubmit="addClientsToTable(event)">
-
                     <div class="row">
-
                         <div class="col-md-12" style="margin-bottom: 10px;">
                             <label>Persona Moral:</label>
                             <input type="checkbox" class="form-check" id="isMoral" name="isMoral" onchange="checkedIsMoral()" />
@@ -31,6 +29,7 @@
                                 <div class="col-md-2">
                                     <button type="button" class="btn btn-GFD margin-top-btns" onclick="SearchTaxUser(document.getElementById('nameClient').value)"
                                             data-toggle="modal" data-target="#modalSearchTaxUser">
+                                        <i class="fas fa-search"></i>
                                         Buscar
                                     </button>
                                 </div>
@@ -128,20 +127,25 @@
                 <p>Télefonos de Contacto</p>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <label>Télefono:</label>
-                        <input type="text" class="form-control form-control-sm" id="phone" name="phone" pattern="[0-9]{10}" maxlength="10" />
+                <form id="FormContacts" onsubmit="addNumberPhoneToTable(event)">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Télefono:</label>
+                            <input type="text" class="form-control form-control-sm" id="phone" name="phone" pattern="[0-9]{10}" maxlength="10" required/>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Tipo de Contacto:</label>
+                            <select class="form-control form-control-sm" id="typeContact" name="typeContact"></select>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label>Tipo de Contacto:</label>
-                        <select class="form-control form-control-sm" id="typeContact" name="typeContact"></select>
-                    </div>
-                </div>
+                </form>
                 <br />
                 <div class="row">
                     <div class="col-md-12">
-                        <button type="button" class="btn btn-GFD float-right" onclick="addNumberPhoneToTable()">Agregar Número</button>
+                        <button type="submit" class="btn btn-GFD float-right">
+                            <i class="fas fa-plus-circle"></i>
+                            Agregar Número
+                        </button>
                     </div>
                 </div>
                 <br />
@@ -195,6 +199,25 @@
             taxRegime = document.getElementById("isMoral").checked,
             isMale = document.getElementById("isMale").value == "true" ? true : false,
             typeUser = document.getElementById("typeClient").value;
+        if (__listClients.length == 0 && typeUser == "CLI02") {
+            Swal.fire({
+                title: "Disculpa",
+                text: "El primer contribuyente agregado debe ser propietario, posteriormente podrás agregar un usuario",
+                type: 'info',
+                showConfirmButton: true,
+            });
+            return false;
+        }
+        var foundPropietario = __listClients.find(x => x.typeUser == "CLI01");
+        if ((foundPropietario != undefined || foundPropietario != null) && typeUser == "CLI01") {
+            Swal.fire({
+                title: "Disculpa",
+                text: "Ya se registró un cliente propietario, no puede haber más de dos",
+                type: 'info',
+                showConfirmButton: true,
+            });
+            return false;
+        }
 
         if (@IDAgreement != 0) {
             idClients = 0
@@ -221,7 +244,8 @@
         checkedIsMoral();
     }
 
-    function addNumberPhoneToTable() {
+    function addNumberPhoneToTable(event) {
+        event.preventDefault();
         var number = GetValue("phone", false),
             type = document.getElementById("typeContact").value,
             clientId = 0;
@@ -253,7 +277,7 @@
                             </a>
                         </td>
                         <td>
-                            <a id="btnDeleteClient${i}" class="nav-link btn-flush" onclick="deleteItemClient(${x.id}, 'tbodyClients')" type="button"
+                            <a id="btnDeleteClient${i}" class="nav-link btn-flush ${x.typeUser == 'CLI01' ? 'disabled' : ''}" onclick="deleteItemClient(${x.id}, 'tbodyClients')" type="button"
                                data-caret="false" style="margin: 0 auto;">
                                 <i class="fas fa-trash iconX" title="Eliminar Cliente"></i>
                             </a>
@@ -417,7 +441,6 @@
             agreementId: itemFound.agreementId
         });
 
-        fillTableClients("tbodyClients");
         if (@IDAgreement != 0) {
             document.getElementById("btnUpdateClient").disabled = false;
         }
@@ -426,7 +449,7 @@
         for (var i = 0; i < __listClients.length; i++) {
             document.getElementById("btnDeleteClient" + i).classList.remove("disabled");
         }
-        //document.getElementById("btnDeleteClient" + index).classList.remove("disabled");
+        fillTableClients("tbodyClients");
     }
 
     function UpdateClient() {

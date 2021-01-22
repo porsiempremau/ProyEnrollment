@@ -72,7 +72,10 @@
                     <div class="col-md-12">
                         @if (idAgreement == 0)
                         {
-                            <button type="submit" id="btnSaveData" class="btn btn-success float-right" onclick="SaveData()" disabled>Guardar Datos</button>
+                            <button type="submit" id="btnSaveData" class="btn btn-success float-right btn-save-gral-agrement" onclick="SaveData()" disabled>
+                                <i class="fas fa-save"></i>
+                                Guardar Contrato
+                            </button>
                             <button type="button" id="btnAddDebt" style="display: none;" data-toggle="modal" data-target="#modalAddDebtAgreement"></button>
                         }
 
@@ -148,19 +151,23 @@
                 }
             }
 
-            //form = document.getElementById("FormData");
-            //form.route.addEventListener("keypress", onlyNumbers, false);
-            //form.phone.addEventListener("keypress", onlyNumbers, false);
-            //form.ine.addEventListener("keypress", onlyNumbers, false);
-            //form.zip.addEventListener("keypress", onlyNumbers, false);
+            FormAgreement = document.getElementById("FormAgreement");
+            FormAgreement.route.addEventListener("keypress", onlyNumbers, false);
+            FormContacts = document.getElementById("FormContacts");
+            FormContacts.phone.addEventListener("keypress", onlyNumbers, false);
+            FormClient = document.getElementById("FormClient");
+            FormClient.ine.addEventListener("keypress", onlyNumbers, false);
+            FormAddress = document.getElementById("FormAddress");
+            FormAddress.zip.addEventListener("keypress", onlyNumbers, false);
 
             if ('@Plataform.IsAyuntamiento' == 'True')
             {
-                //form.folio.addEventListener("keypress", onlyNumbers, false);
-                //form.register.addEventListener("keypress", onlyNumbers, false);
-                //form.taxableBase.addEventListener("keypress", onlyNumbers, false);
-                //form.ground.addEventListener("keypress", onlyNumbers, false);
-                //form.build.addEventListener("keypress", onlyNumbers, false);
+                formAgreementDetail = document.getElementById("FormAgreementDetails");
+                formAgreementDetail.folio.addEventListener("keypress", onlyNumbers, false);
+                formAgreementDetail.register.addEventListener("keypress", onlyNumbers, false);
+                formAgreementDetail.taxableBase.addEventListener("keypress", onlyNumbers, false);
+                formAgreementDetail.ground.addEventListener("keypress", onlyNumbers, false);
+                formAgreementDetail.build.addEventListener("keypress", onlyNumbers, false);
                 var dateCurrently = new Date();
                 $("#agreementDetailDate").val(getFormateDate(dateCurrently, true));
             }
@@ -566,25 +573,26 @@
                         else if (tipo == "Recibos") {
                             var cuerpoTabla = "";
                             data.forEach(x => {
-                                var FromDate = getFormateDate(x.fromDate);
-                                var UntilDate = getFormateDate(x.untilDate);
-                                var DebitDate = getFormateDate(x.debitDate);
-                                if (isAyuntamiento) {
-                                    var type = getDescriptionType(x.type, TYPES_AYUNTAMIENTO);
-                                } else {
-                                    var type = getDescriptionType(x.type, TYPES_AGUA);
-                                }
+                                if (x.status == "ED001" || x.status == "ED004" || x.status == "ED005" || x.status == "ED007" || x.status == "ED011") {
+                                    var FromDate = getFormateDate(x.fromDate);
+                                    var UntilDate = getFormateDate(x.untilDate);
+                                    var DebitDate = getFormateDate(x.debitDate);
+                                    if (isAyuntamiento) {
+                                        var type = getDescriptionType(x.type, TYPES_AYUNTAMIENTO);
+                                    } else {
+                                        var type = getDescriptionType(x.type, TYPES_AGUA);
+                                    }
 
-                                cuerpoTabla += `<tr>
-                                <td>${FromDate} - ${UntilDate}</td>
-                                <td>${x.typeIntake}</td>
-                                <td>${x.typeService}</td>
-                                <td>${FormatoPeso.format(x.amount - x.onAccount)}</td>
-                                <td>${type}</td>
-                                <td></td>
-                                <td>${DebitDate}</td>
-                                <td>${x.descriptionStatus}</td>
-                            </tr>`;
+                                    cuerpoTabla += `<tr>
+                                        <td>${FromDate} - ${UntilDate}</td>
+                                        <td>${x.typeIntake}</td>
+                                        <td>${x.typeService}</td>
+                                        <td>${FormatoPeso.format(x.amount - x.onAccount)}</td>
+                                        <td>${type}</td>
+                                        <td>${DebitDate}</td>
+                                        <td>${x.descriptionStatus}</td>
+                                    </tr>`;
+                                }
                             });
 
                             document.getElementById("tablaRecord").innerHTML = `<table style="width: 100%;" id="Table" class="table table-hover table-striped table-bordered">
@@ -595,7 +603,6 @@
                                     <th width="10%">Servicio</th>
                                     <th width="10%">Monto</th>
                                     <th width="10%">Tipo</th>
-                                    <th width="10%">Total a pagar</th>
                                     <th width="10%">Emisión</th>
                                     <th width="20%">Descrición del estado</th>
                                 </tr>

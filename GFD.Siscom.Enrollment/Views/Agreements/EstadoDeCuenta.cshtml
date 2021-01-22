@@ -5,7 +5,6 @@
 
     List<DebtVM> debts = JsonConvert.DeserializeObject<List<DebtVM>>(JsonConvert.SerializeObject(data["debt"]));
     Agreement agreement = JsonConvert.DeserializeObject<Agreement>(JsonConvert.SerializeObject(data["agreement"]));
-    AgreementDetailVM agreementDetails = JsonConvert.DeserializeObject<AgreementDetailVM>(JsonConvert.SerializeObject(data["agreementDetail"]));
     ViewData["Title"] = "Estado de Cuenta";
     decimal contPred = 0;
     decimal contLim = 0;

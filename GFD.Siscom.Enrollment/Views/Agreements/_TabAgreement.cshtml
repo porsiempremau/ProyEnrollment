@@ -169,11 +169,13 @@
                 <p>Ruta</p>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <input type="text" class="form-control form-control-sm" id="route" name="route" maxlength="3" value="1" />
+                <form id="FormAgreement">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input type="text" class="form-control form-control-sm" id="route" name="route" maxlength="3" value="1" />
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -188,51 +190,53 @@
                     <p>Deltalles del Predio</p>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label>Folio de Inscripción:</label>
-                            <input type="hidden" id="idAgreementDetail" name="idAgreementDetail" value="0" />
-                            <input type="text" id="folio" name="folio" class="form-control form-control-sm" />
-                        </div>
-                        <div class="col-md-6">
-                            <label>Registro:</label>
-                            <input type="text" id="register" name="register" class="form-control form-control-sm" />
-                        </div>
+                    <form id="FormAgreementDetails">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Folio de Inscripción:</label>
+                                <input type="hidden" id="idAgreementDetail" name="idAgreementDetail" value="0" />
+                                <input type="text" id="folio" name="folio" class="form-control form-control-sm" />
+                            </div>
+                            <div class="col-md-6">
+                                <label>Registro:</label>
+                                <input type="text" id="register" name="register" class="form-control form-control-sm" />
+                            </div>
 
-                        <div class="col-md-6">
-                            <label>Base Grabable:</label>
-                            <input type="text" id="taxableBase" name="taxableBase" class="form-control form-control-sm" />
-                        </div>
-                        <div class="col-md-6">
-                            <label>Terreno (m2):</label>
-                            <input type="text" id="ground" name="ground" class="form-control form-control-sm" />
-                        </div>
+                            <div class="col-md-6">
+                                <label>Base Grabable:</label>
+                                <input type="text" id="taxableBase" name="taxableBase" class="form-control form-control-sm" />
+                            </div>
+                            <div class="col-md-6">
+                                <label>Terreno (m2):</label>
+                                <input type="text" id="ground" name="ground" class="form-control form-control-sm" />
+                            </div>
 
-                        <div class="col-md-4">
-                            <label>Construcción:</label>
-                            <input type="text" id="build" name="build" class="form-control form-control-sm" />
-                        </div>
-                        <div class="col-md-4">
-                            <label>Fecha Avaluo:</label>
-                            <input type="date" id="lastUpdate" name="lastUpdate" class="form-control form-control-sm" />
-                        </div>
-                        <div class="col-md-4">
-                            <label>Fecha Alta Predio:</label>
-                            <input type="date" id="agreementDetailDate" name="agreementDetailDate" class="form-control form-control-sm" />
-                        </div>
+                            <div class="col-md-4">
+                                <label>Construcción:</label>
+                                <input type="text" id="build" name="build" class="form-control form-control-sm" />
+                            </div>
+                            <div class="col-md-4">
+                                <label>Fecha Avaluo:</label>
+                                <input type="date" id="lastUpdate" name="lastUpdate" class="form-control form-control-sm" />
+                            </div>
+                            <div class="col-md-4">
+                                <label>Fecha Alta Predio:</label>
+                                <input type="date" id="agreementDetailDate" name="agreementDetailDate" class="form-control form-control-sm" />
+                            </div>
 
-                        <div class="col-md-6">
-                            <label>Manifiesto:</label>
-                            <select id="manifest" name="manifest" class="form-control form-control-sm">
-                                <option value="true">Si</option>
-                                <option value="false">No</option>
-                            </select>
+                            <div class="col-md-6">
+                                <label>Manifiesto:</label>
+                                <select id="manifest" name="manifest" class="form-control form-control-sm">
+                                    <option value="true">Si</option>
+                                    <option value="false">No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Clave Catastral:</label>
+                                <input type="text" id="catastralKey" name="catastralKey" class="form-control form-control-sm" value="N/A" />
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label>Clave Catastral:</label>
-                            <input type="text" id="catastralKey" name="catastralKey" class="form-control form-control-sm" value="N/A" />
-                        </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>

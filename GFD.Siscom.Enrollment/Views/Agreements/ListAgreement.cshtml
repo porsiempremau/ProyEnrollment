@@ -21,29 +21,32 @@
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-3">
-        <label>Nombre:</label>
-        <input type="text" id="name" name="name" class="form-control" onblur="LimpiarCampos('name')" />
+<form id="FormSearchByParameter" onsubmit="getAgreement(event)">
+    <div class="row">
+        <div class="col-md-3">
+            <label>Nombre:</label>
+            <input type="text" id="name" name="name" class="form-control" onblur="LimpiarCampos('name')" />
+        </div>
+        <div class="col-md-2">
+            <label>Cuenta:</label>
+            <input type="text" id="account" name="account" class="form-control" onblur="LimpiarCampos('account')"/>
+        </div>
+        <div class="col-md-2">
+            <label>RFC:</label>
+            <input type="text" id="rfc" name="rfc" class="form-control" onblur="LimpiarCampos('rfc')" />
+        </div>
+        <div class="col-md-3">
+            <label>Dirección:</label>
+            <input type="text" id="address" name="address" class="form-control" onblur="LimpiarCampos('address')" />
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-GFD margin-top-btns">
+                <i class="fas fa-search"></i>
+                Buscar
+            </button>
+        </div>
     </div>
-    <div class="col-md-2">
-        <label>Cuenta:</label>
-        <input type="text" id="account" name="account" class="form-control" onblur="LimpiarCampos('account')" />
-    </div>
-    <div class="col-md-2">
-        <label>RFC:</label>
-        <input type="text" id="rfc" name="rfc" class="form-control" onblur="LimpiarCampos('rfc')" />
-    </div>
-    <div class="col-md-3">
-        <label>Dirección:</label>
-        <input type="text" id="address" name="address" class="form-control" onblur="LimpiarCampos('address')" />
-    </div>
-    <div class="col-md-2">
-        <button type="button" class="btn btn-GFD margin-top-btns" data-toggle="modal" onclick="getAgreement()">
-            Buscar
-        </button>
-    </div>
-</div>
+</form>
 <br />
 <br />
 <div class="row">
@@ -80,13 +83,13 @@
                                 <th>Dirección</th>
                             }
                             <th>Status</th>
-                            <th>Tipo Contrato</th>
+                            <th>Contrato</th>
                             @if (typePage == "agreements")
                             {
                                 <th>Folio</th>
                             }
                             <th>Descuento</th>
-                            <th>Tipo Descuento</th>
+                            <th>Descuento</th>
                             @if (typePage == "discounts")
                             {
                                 <th>Vigencia</th>
@@ -157,7 +160,8 @@
             }
         }
 
-        function getAgreement() {
+        function getAgreement(event) {
+            event.preventDefault();
             Block();
             ClearDataTable("TableAgreement");
             var name = document.getElementById("name").value,
@@ -208,8 +212,8 @@
                                             </a>
                                         </td>
                                         <td>
-                                            <a class="nav-link btn-flush" href="/Debt/EstadoDeCuenta/${x.agreementId}" onclick="Block()" data-caret="false" style="margin: 0 auto;">
-                                                <i class="fas fa-print iconX" title="Ver Estado de Cuenta"></i>
+                                            <a class="nav-link btn-flush" onclick="printEstadoDeCuenta(${x.agreementId})" data-caret="false" style="margin: 0 auto;">
+                                                <i class="fas fa-print iconX" title="Descargar Estado de Cuenta"></i>
                                             </a>
                                         </td>
                                     </tr>
@@ -389,6 +393,48 @@
                     });
                 }
             });
+        }
+
+        async function printEstadoDeCuenta(agreementId) {
+            Block();
+            await axios.get('/Debt/GeneraPDF/' + agreementId).then(response => {
+                setTimeout(function () {
+                    DownloadPDF(response.data);
+                }, 500);
+            })
+        }
+
+        function DownloadPDF(fileName) {
+            fetch(location.protocol + "//" + location.host + "/Debt/DownloadPDF/" + fileName)
+                .then((response) => {
+                    if (response.status != 200) {
+                        let errorMessage = "Error al procesar la solicitud... (" + response.status + " " + response.statusText + ")";
+                        throw new Error(errorMessage);
+                    } else {
+                        return response.blob();
+                    }
+                })
+                .then((blob) => {
+                    // !!! see next code block !!!
+                    proccessBLOB(fileName, blob);
+                    //window.location.reload();
+                    UnBlock();
+                })
+                .catch(error => {
+                    UnBlock();
+                    console.error(error);
+                });
+        }
+
+        function proccessBLOB(filenameForDownload, data) {
+            var textUrl = URL.createObjectURL(data);
+            var element = document.createElement('a');
+            element.setAttribute('href', textUrl);
+            element.setAttribute('download', filenameForDownload);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
         }
     </script>
 }

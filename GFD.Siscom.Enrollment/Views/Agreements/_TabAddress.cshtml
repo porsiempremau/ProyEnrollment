@@ -16,53 +16,56 @@
                 <p>Localización</p>
             </div>
             <div class="card-body">
-                <div class="row">
+                <form id="FormAddress" onsubmit="AddAddressToTable(event)">
+                    <div class="row">
 
-                    <div class="col-md-12">
-                        <label>Estado:</label>
-                        <input type="hidden" id="idAddress" name="idAddress" />
-                        <select class="form-control form-control-sm" id="stateId" name="stateId" onchange="SearchTownByIdState(this.value, 'townId')"></select>
-                    </div>
+                        <div class="col-md-12">
+                            <label>Estado:</label>
+                            <input type="hidden" id="idAddress" name="idAddress" />
+                            <select class="form-control form-control-sm" id="stateId" name="stateId" onchange="SearchTownByIdState(this.value, 'townId')"></select>
+                        </div>
 
-                    <div class="col-md-12">
-                        <label>Municipio:</label>
-                        <select class="form-control form-control-sm" id="townId" name="townId" onchange="SearchSuburbByIdTown(this.value, 'suburbId');"></select>
-                    </div>
+                        <div class="col-md-12">
+                            <label>Municipio:</label>
+                            <select class="form-control form-control-sm" id="townId" name="townId" onchange="SearchSuburbByIdTown(this.value, 'suburbId');"></select>
+                        </div>
 
-                    <div class="col-md-12">
-                        <label>Colonia:</label>
-                        <select class="form-control form-control-sm" id="suburbId" name="suburbId"></select>
-                    </div>
+                        <div class="col-md-12">
+                            <label>Colonia:</label>
+                            <select class="form-control form-control-sm" id="suburbId" name="suburbId"></select>
+                        </div>
 
-                    <div class="col-md-12">
-                        <label>Calle:</label>
-                        <input type="text" class="form-control form-control-sm" id="street" name="street" maxlength="15" />
-                    </div>
+                        <div class="col-md-12">
+                            <label>Calle:</label>
+                            <input type="text" class="form-control form-control-sm" id="street" name="street" maxlength="15" required />
+                        </div>
 
-                    <div class="col-md-6">
-                        <label>Número Ext:</label>
-                        <input type="text" class="form-control form-control-sm" id="numExt" name="numExt" maxlength="10" />
-                    </div>
-                    <div class="col-md-6">
-                        <label>Número Int:</label>
-                        <input type="text" class="form-control form-control-sm" id="numInt" name="numInt" maxlength="5" />
-                    </div>
+                        <div class="col-md-6">
+                            <label>Número Ext:</label>
+                            <input type="text" class="form-control form-control-sm" id="numExt" name="numExt" maxlength="10" />
+                        </div>
+                        <div class="col-md-6">
+                            <label>Número Int:</label>
+                            <input type="text" class="form-control form-control-sm" id="numInt" name="numInt" maxlength="5" />
+                        </div>
 
-                    <div class="col-md-12">
-                        <label>Código Postal:</label>
-                        <input type="text" class="form-control form-control-sm" id="zip" name="zip" maxlength="5" />
-                    </div>
+                        <div class="col-md-12">
+                            <label>Código Postal:</label>
+                            <input type="text" class="form-control form-control-sm" id="zip" name="zip" maxlength="5" required />
+                        </div>
 
-                    <div class="col-md-12">
-                        <label>Referencias:</label>
-                        <input type="text" class="form-control form-control-sm" id="references" name="references" maxlength="20" />
-                    </div>
+                        <div class="col-md-12">
+                            <label>Referencias:</label>
+                            <input type="text" class="form-control form-control-sm" id="references" name="references" maxlength="20" />
+                        </div>
 
-                    <div class="col-md-12">
-                        <label>Tipo de Dirección:</label>
-                        <select class="form-control form-control-sm" id="typeAddress" name="typeAddress"></select>
+                        <div class="col-md-12">
+                            <label>Tipo de Dirección:</label>
+                            <select class="form-control form-control-sm" id="typeAddress" name="typeAddress"></select>
+                        </div>
+
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -105,14 +108,14 @@
                     </div>
                     <div class="col-md-4">
                         <label>Latitud:</label>
-                        <input class="form-control form-control-sm" id="lat" name="lat" readonly />
+                        <input class="form-control form-control-sm" id="lat" name="lat" readonly/>
                     </div>
                     <div class="col-md-4">
                         <label>Longitud:</label>
-                        <input class="form-control form-control-sm" id="lon" name="lon" readonly />
+                        <input class="form-control form-control-sm" id="lon" name="lon" readonly/>
                     </div>
                     <div class="col-md-4">
-                        <button type="button" id="btnAddAddress" class="btn btn-GFD margin-top-btns" onclick="AddAddressToTable()">
+                        <button type="submit" id="btnAddAddress" class="btn btn-GFD margin-top-btns" form="FormAddress">
                             <i class="fas fa-plus-circle"></i>
                             Agregar Dirección
                         </button>
@@ -148,11 +151,17 @@
         SearchSuburbByIdTown(2, "suburbId");
         RenderSelectOption("", "typeAddress", __typeAddresses);
         setTimeout(() => {
-            loadMap(19.0894637, -98.2733105);
+            var addressFound = __listaAddress.find(x => x.typeAddress == "DIR01");
+            if (@IDAgree != 0 && (addressFound.lat == "0" && addressFound.lon == "0")) {
+                loadMap(19.0894637, -98.2733105);
+            } else {
+                loadMap(parseFloat(addressFound.lat), parseFloat(addressFound.lon));
+            }
         }, 1000)
     }
 
-    function AddAddressToTable() {
+    function AddAddressToTable(event) {
+        event.preventDefault();
         var stateId = GetValue("stateId", true),
             townId = GetValue("townId", true),
             suburbsId = GetValue("suburbId", true),
