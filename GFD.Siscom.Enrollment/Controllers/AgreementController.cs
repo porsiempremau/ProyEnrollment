@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using GFD.Siscom.Enrollment.Middleware;
 using GFD.Siscom.Enrollment.Models;
 using GFD.Siscom.Enrollment.Utilities;
 using GFD.Siscom.Enrollment.Utilities.Auth;
@@ -18,6 +19,7 @@ using Newtonsoft.Json;
 
 namespace GFD.Siscom.Enrollment.Controllers
 {
+    [Auth()]
     public class AgreementController : Controller
     {
         private readonly IOptions<BaseModel> appSettings; 
@@ -27,6 +29,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             appSettings = app;
             RequestsApi = new RequestApi(appSettings.Value.WebApiBaseUrl);
         }
+        
         [HttpGet("Agreement/List")]
         public IActionResult Index([FromQuery] string page = "agreements")
         {
@@ -41,7 +44,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             
             return View("~/Views/Agreements/ListAgreement.cshtml", new { page = page });
         }
-
+        
         [HttpGet("Agreement/Get/List")]
         public async Task<IActionResult> GetAgreementList([FromQuery] string name = "", [FromQuery] string account = "",
             [FromQuery] string rfc = "", [FromQuery] string address = "")
@@ -94,6 +97,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             return View("~/Views/Agreements/AgreementCreateEdit.cshtml", new { id = idAgreement });
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpGet("Agreement/GetData")]
         public async Task<IActionResult> GetData()
         {
@@ -112,6 +116,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpPost("Agreement/CreateEdit/{id}")]
         public async Task<IActionResult> CreateEditAgreement([FromBody] AgreementVM agreement, [FromRoute] int id = 0)
         {
@@ -151,6 +156,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpGet("FoundAgreement/{agreementId}")]
         public async Task<IActionResult> FoundAgreement([FromRoute] int agreementId)
         {
@@ -162,6 +168,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             return Ok(response);
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpGet("Agreement/SearchTaxUserByName/{name}")]
         public async Task<IActionResult> SearchTaxUserByName([FromRoute] string name)
         {
@@ -180,7 +187,8 @@ namespace GFD.Siscom.Enrollment.Controllers
                 return null;
             }
         }
-        
+
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpGet("Agreement/ComparateAccount/{account}/{idTypeConsume}")]
         public async Task<IActionResult> ComparateAccount([FromRoute] string account, [FromRoute] int idTypeConsume)
         {
@@ -200,6 +208,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpGet("Agreement/GetSelected/{id}")]
         public async Task<IActionResult> GetSelected([FromRoute] int id)
         {
@@ -219,6 +228,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpPost("Agreement/CreateEditAgreementDetail/{AgreementId}/{idAgreeDetail}")]
         public async Task<IActionResult> CreateEditAgreementDetail([FromBody] AgreementDetailVM agreementDetail, [FromRoute] int AgreementId, [FromRoute] int idAgreeDetail = 0)
         {
@@ -252,6 +262,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpPut("Agreement/CreateEditClient/{AgreementId}")]
         public async Task<IActionResult> CreateEditAgreementDetail([FromBody] object client, [FromRoute] int AgreementId)
         {
@@ -272,6 +283,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpPut("Agreement/CreateEditAddress/{AgreementId}")]
         public async Task<IActionResult> CreateEditAddress([FromBody] object addresses, [FromRoute] int AgreementId)
         {
@@ -292,6 +304,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpPost("Agreement/SearchByNameClient")]
         public async Task<IActionResult> SearchByNameClient([FromBody] object nombre)
         {
@@ -313,6 +326,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpGet("Agreement/record")]
         public async Task<IActionResult> getRecord([FromQuery] int idAgreement, [FromQuery] string tipo = "Pagos")
         {
@@ -369,6 +383,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpPost("Agreement/RunAccountSimulation/{account}")]
         public async Task<IActionResult> RunAccountSimulation([FromRoute] string account)
         {
@@ -386,10 +401,11 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
             catch (Exception e)
             {
-                return null;
+                return Conflict(e.Message);
             }
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpGet("pdf")]
         public IActionResult PDF()
         {
@@ -397,6 +413,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             return View("~/Views/Agreements/EstadoDeCuentaPDF.cshtml");
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpGet("Agreement/DownloadPDF")]
         public async Task<IActionResult> PrintPDF()
         {

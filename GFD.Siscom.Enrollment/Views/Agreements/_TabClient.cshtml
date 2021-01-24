@@ -1,4 +1,5 @@
 ﻿@using GFD.Siscom.Enrollment.Utilities;
+@using GFD.Siscom.Enrollment.Utilities.Auth;
 @using Newtonsoft.Json;
 @{
     dynamic m = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(Model));
@@ -24,7 +25,7 @@
                                 <div class="col-md-10">
                                     <label>Nombre:</label>
                                     <input type="hidden" id="idClient" name="idClient" />
-                                    <input type="text" class="form-control form-control-sm" id="nameClient" name="nameClient" required/>
+                                    <input type="text" class="form-control form-control-sm" id="nameClient" name="nameClient" required />
                                 </div>
                                 <div class="col-md-2">
                                     <button type="button" class="btn btn-GFD margin-top-btns" onclick="SearchTaxUser(document.getElementById('nameClient').value)"
@@ -131,7 +132,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <label>Télefono:</label>
-                            <input type="text" class="form-control form-control-sm" id="phone" name="phone" pattern="[0-9]{10}" maxlength="10" required/>
+                            <input type="text" class="form-control form-control-sm" id="phone" name="phone" pattern="[0-9]{10}" maxlength="10" required />
                         </div>
                         <div class="col-md-6">
                             <label>Tipo de Contacto:</label>
@@ -142,7 +143,7 @@
                 <br />
                 <div class="row">
                     <div class="col-md-12">
-                        <button type="submit" class="btn btn-GFD float-right">
+                        <button type="submit" class="btn btn-GFD float-right" form="FormContacts">
                             <i class="fas fa-plus-circle"></i>
                             Agregar Número
                         </button>
@@ -167,7 +168,7 @@
         </div>
     </div>
 </div>
-@if (IDAgreement != 0)
+@if (IDAgreement != 0 && Auth.Login.HasRoles("Admin|Supervisor|Super|Isabi"))
 {
     <div class="row">
         <div class="col-md-12">
@@ -377,7 +378,7 @@
                 fillTableClients(tbody);
             }
         });
-        
+
     }
 
     function setDataClient(id, index) {
@@ -386,9 +387,10 @@
         document.getElementById("btnAddClient").style.display = "none";
         document.getElementById("btnEditClient").style.display = "block";
         for (var i = 0; i < __listClients.length; i++) {
-            document.getElementById("btnDeleteClient" + i).classList.add("disabled");
+            if (__listClients[i].isActive) {
+                document.getElementById("btnDeleteClient" + i).classList.add("disabled");
+            }
         }
-        //ocument.getElementById("btnDeleteClient" + index).classList.add("disabled");
 
         document.getElementById("idClient").value = itemFound.id;
         document.getElementById("isMoral").checked = itemFound.taxRegime;
@@ -404,6 +406,9 @@
         $("#isMale").val(itemFound.isMale ? "true" : "false");
 
         checkedIsMoral();
+        if (@IDAgreement == 0) {
+            document.getElementById("btnSaveData").disabled = true;
+        }
         if (@IDAgreement != 0) {
             document.getElementById("btnUpdateClient").disabled = true;
         }
@@ -444,10 +449,15 @@
         if (@IDAgreement != 0) {
             document.getElementById("btnUpdateClient").disabled = false;
         }
+        if (@IDAgreement == 0) {
+            document.getElementById("btnSaveData").disabled = false;
+        }
         document.getElementById("btnAddClient").style.display = "block";
         document.getElementById("btnEditClient").style.display = "none";
         for (var i = 0; i < __listClients.length; i++) {
-            document.getElementById("btnDeleteClient" + i).classList.remove("disabled");
+            if (__listClients[i].isActive) {
+                document.getElementById("btnDeleteClient" + i).classList.remove("disabled");
+            }
         }
         fillTableClients("tbodyClients");
     }

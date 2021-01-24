@@ -8,6 +8,11 @@
     Agreement agreement = JsonConvert.DeserializeObject<Agreement>(JsonConvert.SerializeObject(data["agreement"]));
     decimal contPred = 0;
     decimal contLim = 0;
+
+    DateTime d = DateTime.Now;
+    //var date = new DateTime(d.Year, d.Month, d.Day);
+    DateTime date = d.AddMonths(2);
+    var fechaLimite = (date.Day < 10 ? "0" + date.Day.ToString() : date.Day.ToString()) + "/" + (date.Month < 10 ? "0" + date.Month.ToString() : date.Month.ToString()) + "/" + date.Year.ToString();
 }
 <div class="app-page-title">
     <div class="page-title-wrapper">
@@ -20,19 +25,22 @@
     </div>
 </div>
 <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
-<div style="        margin-left: auto;
+<div style="margin-left: auto;
         margin-right: auto;
-        width: 700px;
-        font-size: 10px;
+        /*width: 700px;*/
+        font-size: 16px;
         font-family: 'Montserrat';
         background: white;
-        padding: 22px;
-        margin-bottom: 40px;
+        /*padding: 22px;
+        margin-bottom: 40px;*/
 ">
 
     <div style="margin-bottom: 150px;"></div>
 
-    <div style="margin-left: 27px; margin-right: 27px; margin-bottom: 0;">
+    <div style="
+        margin-left: 57px;
+        margin-right: 33px;
+        margin-bottom: 0;">
 
         <div style="width: 100%; margin-bottom: 7px; margin-top: 7px;">
             <div style="width: 100%; display: inline-block; margin-top: 0px; padding-left: 7px; ">
@@ -42,7 +50,7 @@
 
                 <div style="width: 19%; display: inline-block; ">
                     <p style="display: inline-block; margin-bottom: 0px;">Cue   nta: @agreement.account</p><br />
-                    <p style="display: inline-block; margin-top: 4px;">Fecha Límite:</p>
+                    <p style="display: inline-block; margin-top: 4px;">Fecha Límite: @fechaLimite</p>
                 </div>
 
             </div>
@@ -71,15 +79,15 @@
         </div>
     </div>
 
-    <div style="margin-bottom: 90px;"></div>
+    <div style="margin-bottom: 150px;"></div>
 
-    <div style="margin-left: 10px; margin-right: 0px; margin-bottom: 0; height: 107px;">
+    <div style=" margin-right: 0px; margin-bottom: 0; height: 140px;">
         <div style="width: 100%; margin-bottom: 7px; margin-top: 7px;">
-            <div style="width: 100%; display: inline-block; margin-top: 0px; padding-left: 7px; ">
+            <div style="width: 100%; display: inline-block; margin-top: 0px;">
 
                 <div style="width: 50%; display: inline-block;">
-                    <table style="float: left;">
-                        <tbody style="font-size: 9px;">
+                    <table style="float: left; margin-left: 45px;">
+                        <tbody @*style="font-size: 9px;"*@>
                             @foreach (var debt in debts)
                             {
                                 if (debt.Type == "TIP01")
@@ -100,8 +108,8 @@
                 </div>
 
                 <div style="width: 49%; display: inline-block;">
-                    <table style="float: right;">
-                        <tbody style="font-size: 9px;">
+                    <table style="float: right; margin-right: 25px">
+                        <tbody @*style="font-size: 9px;"*@>
                             @foreach (var debt in debts)
                             {
                                 if (debt.Type == "TIP04")
@@ -140,9 +148,9 @@
         </div>
     </div>
 
-    <div style="margin-bottom: 90px;"></div>
+    <div style="margin-bottom: 400px;"></div>
 
-    <div style="margin-left: 10px; margin-right: 0px; margin-bottom: 0; height:100px;">
+    <div style="margin-left: 20px; margin-right: 0px; margin-bottom: 0; height:100px;">
         <div style="width: 100%; margin-bottom: 7px; margin-top: 7px;">
             <div style="width: 100%; display: inline-block; margin-top: 0px; padding-left: 7px; ">
 

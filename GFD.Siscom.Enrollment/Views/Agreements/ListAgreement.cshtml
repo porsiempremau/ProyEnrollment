@@ -1,12 +1,13 @@
 ﻿@model object
 @using Newtonsoft.Json;
+@using GFD.Siscom.Enrollment.Utilities.Auth;
 @{
     dynamic data = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(Model));
     var typePage = data["page"];
 }
 
 <style>
-    .swal2-container {
+    .container-sweetAlert-DebtDetails {
         zoom: 1.0 !important;
     }
 </style>
@@ -51,21 +52,22 @@
 <br />
 <div class="row">
     <div class="col-md-12">
-        @if (typePage == "agreements")
-        {
-        <a type="button" class="btn btn-GFD float-right style-btn-agregar-nuevo" href="/Agreement/EditCreateView">
-            <i class="fas fa-plus-circle" title="Agregar Nuevo"></i>
-            Agregar Nuevo
-        </a>
+        @if(Auth.Login.HasRoles("Admin|Supervisor|Super|Isabi")){
+            @if (typePage == "agreements")
+            {
+                <a type="button" class="btn btn-GFD float-right style-btn-agregar-nuevo" href="/Agreement/EditCreateView">
+                    <i class="fas fa-plus-circle" title="Agregar Nuevo"></i>
+                    Agregar Nuevo
+                </a>
+            }
+            else
+            {
+                <a type="button" class="btn btn-GFD float-right style-btn-agregar-nuevo" href="/Discounts/ViewDiscountVulnerable">
+                    <i class="fas fa-plus-circle" title="Agregar Nuevo"></i>
+                    Agregar Descuento
+                </a>
+            }
         }
-        else
-        {
-            <a type="button" class="btn btn-GFD float-right style-btn-agregar-nuevo" href="/Discounts/ViewDiscountVulnerable">
-                <i class="fas fa-plus-circle" title="Agregar Nuevo"></i>
-                Agregar Descuento
-            </a>
-        }
-
     </div>
 </div>
 <br />
@@ -302,15 +304,17 @@
                         `);
                     });
                 } else {
+                    $("#btnModalDebts").click();
                     $("#tbodyDebtsFromAgreement").append(`
                         <tr>
-                            <td colspan="8" style="text-align: center; font-size: 23px;">Sin Datos</td>
+                            <td colspan="8" style="text-align: center; font-size: 23px;">Sin Deuda</td>
                         </tr>
                     `);
                 }
 
             }).catch(error => {
                 UnBlock();
+                $("#btnModalDebts").click();
                 $("#tbodyDebtsFromAgreement").append(`
                     <tr>
                         <td colspan="8" style="text-align: center; font-size: 23px;">No se encontrarón datos</td>
@@ -320,8 +324,10 @@
         }
 
         function GetDebtDetails(idDebt) {
-            //$("#btnDebtDetails").click();
             Swal.fire({
+                customClass: {
+                    container: 'container-sweetAlert-DebtDetails',
+                },
                 title: '<p style="font-size: 19px; font-weight: 400;">DETALLES</p>',
                 html:
                     `<div class="row">

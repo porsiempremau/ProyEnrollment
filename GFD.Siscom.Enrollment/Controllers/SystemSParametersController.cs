@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using GFD.Siscom.Enrollment.Middleware;
 using GFD.Siscom.Enrollment.Models;
 using GFD.Siscom.Enrollment.Utilities.Auth;
 using GFD.Siscom.Enrollment.Utilities.Parameters;
@@ -14,6 +15,7 @@ using Newtonsoft.Json;
 
 namespace GFD.Siscom.Enrollment.Controllers
 {
+    [Auth()]
     public class SystemSParametersController : Controller
     {
         private readonly IOptions<BaseModel> appSettings;

@@ -24,6 +24,7 @@
                 <br />
                 <div class="row" style="margin-left: 10px; margin-right: 10px;">
                     <div class="col-md-6">
+                        <input id="SimulationAgreementId" type="hidden"/>
                         <label id="SimulationCuenta"></label>
                     </div>
                     <div class="col-md-6">
@@ -56,7 +57,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-GFD" onclick="BeginDebtAyuntamiento(__AgreementIdFound)">Aceptar</button>
+                <button type="button" id="btnModalSimulationGeneraDeuda" class="btn btn-GFD" onclick="BeginDebtAyuntamiento(document.getElementById('SimulationAgreementId').value)">Generar Deuda</button>
                 @*<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>*@
             </div>
         </div>

@@ -26,9 +26,9 @@ namespace GFD.Siscom.Enrollment.Controllers
     {
         private readonly IOptions<BaseModel> appSettings;
         private RequestApi RequestsApi { get; set; }
-        private readonly IHostEnvironment _hostingEnvironment;
+        private readonly Microsoft.AspNetCore.Hosting.IHostingEnvironment _hostingEnvironment;
         public Controller OtherController = null;
-        public DebtsController(IOptions<BaseModel> app, IHostEnvironment hostingEnvironmen)
+        public DebtsController(IOptions<BaseModel> app, Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnvironmen)
         {
             appSettings = app;
             RequestsApi = new RequestApi(appSettings.Value.WebApiBaseUrl);
@@ -40,6 +40,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             return View();
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpGet("Debt/DebtsAgreement/{idAgreement}")]
         public async Task<IActionResult> SearchByNameClient([FromRoute] int idAgreement)
         {
@@ -60,6 +61,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpPost("Debt/AddDebtToAgreement")]
         public async Task<IActionResult> AddDebtToAgreement([FromQuery] int AgreementId = 0, [FromQuery] int month = 0, [FromQuery] int year = 0)
         {
@@ -90,6 +92,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpGet("Debt/GeneraPDF/{agreementId}")]
         public async Task<IActionResult> GeneraPDF([FromRoute] int agreementId)
         {
@@ -110,18 +113,19 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpGet("Debt/DownloadPDF/{fileName}")]
         public async Task<IActionResult> PrintPDF([FromRoute] string fileName)
         {
             try
             {
                 var memory = new MemoryStream();
-                using (var stream = new FileStream(Path.Combine(_hostingEnvironment.ContentRootPath, fileName), FileMode.Open))
+                using (var stream = new FileStream(Path.Combine(_hostingEnvironment.WebRootPath, fileName), FileMode.Open))
                 {
                     await stream.CopyToAsync(memory);
                 }
                 memory.Position = 0;
-                System.IO.File.Delete(Path.Combine(_hostingEnvironment.ContentRootPath, fileName));
+                System.IO.File.Delete(Path.Combine(_hostingEnvironment.WebRootPath, fileName));
                 return File(memory, "application/pdf", fileName);
             }
             catch (Exception ex)

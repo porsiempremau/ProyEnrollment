@@ -15,11 +15,11 @@ namespace GFD.Siscom.Enrollment.Utilities.GeneraPDF
 {
     public class PDFGenerator
     {
-        private readonly IHostEnvironment _hostingEnvironment;
+        private readonly Microsoft.AspNetCore.Hosting.IHostingEnvironment _hostingEnvironment;
         private Controller controller;
         //private object data { get; set; }
 
-        public PDFGenerator(IHostEnvironment __hostingEnvironment, Controller _controller)
+        public PDFGenerator(Microsoft.AspNetCore.Hosting.IHostingEnvironment __hostingEnvironment, Controller _controller)
         {
             this._hostingEnvironment = __hostingEnvironment;
             this.controller = _controller;
@@ -43,7 +43,7 @@ namespace GFD.Siscom.Enrollment.Utilities.GeneraPDF
                 stream.Position = 0;
                 document.Close(true);
                 string Filename = "Estado_De_Cuenta_" + ag.account + ".pdf";
-                System.IO.File.WriteAllBytes(Path.Combine(_hostingEnvironment.ContentRootPath, Filename), stream.ToArray());
+                System.IO.File.WriteAllBytes(Path.Combine(_hostingEnvironment.WebRootPath, Filename), stream.ToArray());
                 return Filename;
             }
             catch (Exception e)

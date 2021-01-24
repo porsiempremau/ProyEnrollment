@@ -1,11 +1,12 @@
 ﻿@using GFD.Siscom.Enrollment.Utilities;
+@using GFD.Siscom.Enrollment.Utilities.Auth;
 @using Newtonsoft.Json;
 @{
     dynamic mo = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(Model));
     var IDAgree = mo["id"];
 }
 <style>
-    #MapAgreement{
+    #MapAgreement {
         height: 307px;
     }
 </style>
@@ -108,11 +109,11 @@
                     </div>
                     <div class="col-md-4">
                         <label>Latitud:</label>
-                        <input class="form-control form-control-sm" id="lat" name="lat" readonly/>
+                        <input class="form-control form-control-sm" id="lat" name="lat" readonly />
                     </div>
                     <div class="col-md-4">
                         <label>Longitud:</label>
-                        <input class="form-control form-control-sm" id="lon" name="lon" readonly/>
+                        <input class="form-control form-control-sm" id="lon" name="lon" readonly />
                     </div>
                     <div class="col-md-4">
                         <button type="submit" id="btnAddAddress" class="btn btn-GFD margin-top-btns" form="FormAddress">
@@ -129,7 +130,7 @@
         </div>
     </div>
 </div>
-@if (IDAgree != 0)
+@if (IDAgree != 0 && Auth.Login.HasRoles("Admin|Supervisor|Super|Isabi"))
 {
     <div class="row">
         <div class="col-md-12">
@@ -152,7 +153,10 @@
         RenderSelectOption("", "typeAddress", __typeAddresses);
         setTimeout(() => {
             var addressFound = __listaAddress.find(x => x.typeAddress == "DIR01");
-            if (@IDAgree != 0 && (addressFound.lat == "0" && addressFound.lon == "0")) {
+            if ((@IDAgree != 0 && ((addressFound.lat == "0" || addressFound.lat == "") && (addressFound.lon == "0" || addressFound.lon == "")))
+                || addressFound == undefined
+                || addressFound.lat == ""
+                || addressFound.lon == "") {
                 loadMap(19.0894637, -98.2733105);
             } else {
                 loadMap(parseFloat(addressFound.lat), parseFloat(addressFound.lon));
@@ -219,7 +223,7 @@
         CleanFieldAddress();
         let i = 0;
         if (__listaAddress.length > 0) {
-            __listaAddress.forEach(x => {               
+            __listaAddress.forEach(x => {
                 if (x.isActive) {
                     var nameTypeAddress = getDescriptionType(x.typeAddress, __typeAddresses);
                     $("#" + idTBody).append(`
@@ -315,9 +319,10 @@
             document.getElementById("btnSaveData").disabled = true;
         }
         for (var i = 0; i < __listaAddress.length; i++) {
-            document.getElementById("IconDeleteAddress" + i).classList.add("disabled");
+            if (__listaAddress[i].isActive) {
+                document.getElementById("IconDeleteAddress" + i).classList.add("disabled");
+            }
         }
-        //document.getElementById("IconDeleteAddress" + index).classList.add("disabled");
 
         SearchSuburbByIdTown(item.townId, "suburbId").then(response => {
             $("#idAddress").val(item.id);

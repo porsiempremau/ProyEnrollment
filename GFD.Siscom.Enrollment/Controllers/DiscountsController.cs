@@ -41,6 +41,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             return View("~/Views/Discounts/DiscountVulnerable.cshtml");
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpPost("Discounts/AddDiscountToAgreement/{AgreementId}")]
         public async Task<IActionResult> AddDiscount(IFormCollection data, [FromRoute] int AgreementId)
         {
@@ -108,6 +109,7 @@ namespace GFD.Siscom.Enrollment.Controllers
 
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpPost("Discounts/AddDiscountToDebt/{idAgreement}")]
         public async Task<IActionResult> AddDiscountToDebt([FromRoute] int idAgreement)
         {
@@ -128,6 +130,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpPost("Discounts/ReverseVulnerable/{idAgreement}")]
         public async Task<IActionResult> ReverseVulnerable([FromRoute] int idAgreement)
         {

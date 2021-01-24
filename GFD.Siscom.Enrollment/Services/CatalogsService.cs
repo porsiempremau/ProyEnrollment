@@ -1,4 +1,5 @@
-﻿using GFD.Siscom.Enrollment.Models;
+﻿using GFD.Siscom.Enrollment.Middleware;
+using GFD.Siscom.Enrollment.Models;
 using GFD.Siscom.Enrollment.Utilities.Auth;
 using GFD.Siscom.Enrollment.Utilities.Parameters;
 using GFD.Siscom.Enrollment.Utilities.Services;
@@ -74,6 +75,7 @@ namespace GFD.Siscom.Enrollment.Services
             }
         }
 
+        [Role("Admin")]
         [HttpPost("CreateAndEditCatalog")]
         public async Task<IActionResult> CreateAndEdit(IFormCollection data, [FromQuery] string type)
         {
@@ -144,6 +146,7 @@ namespace GFD.Siscom.Enrollment.Services
             }
         }
 
+        [Role("Admin")]
         [HttpPost("Services/Post")]
         public async Task<IActionResult> CreateEditService(IFormCollection data)
         {
@@ -223,6 +226,7 @@ namespace GFD.Siscom.Enrollment.Services
             }
         }
 
+        [Role("Admin")]
         [HttpPost("Discounts/Post")]
         public async Task<IActionResult> CreateEditDiscount(IFormCollection data)
         {
@@ -305,6 +309,7 @@ namespace GFD.Siscom.Enrollment.Services
             }
         }
 
+        [Role("Admin")]
         [HttpPost("Regions/Post")]
         public async Task<IActionResult> CreateEditRegion(IFormCollection data)
         {
@@ -381,6 +386,7 @@ namespace GFD.Siscom.Enrollment.Services
             }
         }
 
+        [Role("Admin")]
         [HttpPost("States/Post")]
         public async Task<IActionResult> CreateEditState(IFormCollection data)
         {
@@ -457,6 +463,7 @@ namespace GFD.Siscom.Enrollment.Services
             }
         }
 
+        [Role("Admin")]
         [HttpPost("Clasifications/Post")]
         public async Task<IActionResult> CreateEditClasification(IFormCollection data)
         {
@@ -534,6 +541,7 @@ namespace GFD.Siscom.Enrollment.Services
             }
         }
 
+        [Role("Admin")]
         [HttpPost("Towns/Post/{idState}")]
         public async Task<IActionResult> CreateEditTowns(IFormCollection data, [FromRoute] int idState)
         {
@@ -611,6 +619,7 @@ namespace GFD.Siscom.Enrollment.Services
             }
         }
 
+        [Role("Admin")]
         [HttpPost("Suburbs/Post/{idTown}")]
         public async Task<IActionResult> CreateEditSuburb(IFormCollection data, [FromRoute] int idTown)
         {
