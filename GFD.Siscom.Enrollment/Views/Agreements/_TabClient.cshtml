@@ -190,6 +190,7 @@
 
     function addClientsToTable(event) {
         event.preventDefault();
+        //SE OBTIENE EL VALOR DE LOS INPUTS
         var name = GetValue("nameClient", false),
             lastName = GetValue("lastName", false),
             secondLastName = GetValue("secondLastName", false),
@@ -200,6 +201,8 @@
             taxRegime = document.getElementById("isMoral").checked,
             isMale = document.getElementById("isMale").value == "true" ? true : false,
             typeUser = document.getElementById("typeClient").value;
+
+        //VERIFICAMOS QUE EL PRIMER OBJETO GUARDADO EN EL ARREGLO SEA UN CONTRIBUYENTE PROPIETARIO
         if (__listClients.length == 0 && typeUser == "CLI02") {
             Swal.fire({
                 title: "Disculpa",
@@ -209,6 +212,8 @@
             });
             return false;
         }
+
+        //SI YA HAY UN CONTRIBUYENTE PROPIETARIO, YA NO SE PUEDE REGISTRAR OTRO IGUAL, EL SIGUIENTE TIENE QUE SER CONTRIBUYENTE USUARIO
         var foundPropietario = __listClients.find(x => x.typeUser == "CLI01");
         if ((foundPropietario != undefined || foundPropietario != null) && typeUser == "CLI01") {
             Swal.fire({
@@ -220,11 +225,14 @@
             return false;
         }
 
+        //CUANDO SE CREA UN CONTRATO NUEVO Y SE AGREGA UN CONTRIBUYENTE, SE LE AGREGA UN ID TEMPORAL, 
+        //PARA CUANDO SE QUIERAN ELIMINAR O MODIFICAR DEL ARREGLO DONDE YA SE GUARDARON
         if (@IDAgreement != 0) {
             idClients = 0
         } else {
             idClients++;
         }
+
         __listClients.push({
             id: idClients,
             name,
@@ -464,7 +472,7 @@
             document.getElementById("TabRecord").classList.remove("disabled");
             document.getElementById("TabRecord").classList.remove("disabled-tabs");
         }
-        if (@IDAgreement == 0) {
+        if (@IDAgreement == 0 && __listaAddress.length > 0) {
             document.getElementById("btnSaveData").disabled = false;
         }
         document.getElementById("btnAddClient").style.display = "block";

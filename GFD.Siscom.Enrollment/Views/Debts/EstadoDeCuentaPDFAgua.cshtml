@@ -4,22 +4,28 @@
 @{
     dynamic data = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(Model));
     List<DebtVM> debts = JsonConvert.DeserializeObject<List<DebtVM>>(JsonConvert.SerializeObject(data["debt"]));
-    AgreementVM agreement = JsonConvert.DeserializeObject<AgreementVM>(JsonConvert.SerializeObject(data["agreement"]));
+    Agreement agreement = JsonConvert.DeserializeObject<Agreement>(JsonConvert.SerializeObject(data["agreement"]));
+
     //decimal contPred = 0;
     //decimal contLim = 0;
-    var NumExt = " No. Ext. " + agreement.Adresses.FirstOrDefault().Outdoor;
-    var NumInt = " No. Int. " + agreement.Adresses.FirstOrDefault().Indoor;
-    var nameClient = agreement.Clients.FirstOrDefault().Name + " " + agreement.Clients.FirstOrDefault().LastName + " " + agreement.Clients.FirstOrDefault().SecondLastName;
-    var Address = agreement.Adresses.FirstOrDefault().Street + "," +
-        (agreement.Adresses.FirstOrDefault().Outdoor != "" ? NumExt : "") +
-        (agreement.Adresses.FirstOrDefault().Indoor != "" ? NumInt : "") +
-        " Col. " + agreement.Adresses.FirstOrDefault().suburbs.Name + ", " +
-        agreement.Adresses.FirstOrDefault().suburbs.Towns.Name + ", " +
-        agreement.Adresses.FirstOrDefault().suburbs.Towns.States.Name;
+    var NumExt = " No. Ext. " + agreement.addresses.FirstOrDefault().Outdoor;
+    var NumInt = " No. Int. " + agreement.addresses.FirstOrDefault().Indoor;
 
-    DateTime d = DateTime.Now;
-    DateTime date = d.AddMonths(2);
-    var fechaLimite = (date.Day < 10 ? "0" + date.Day.ToString() : date.Day.ToString()) + "/" + (date.Month < 10 ? "0" + date.Month.ToString() : date.Month.ToString()) + "/" + date.Year.ToString();
+    var NameClient = agreement.clients.FirstOrDefault().Name + " " + agreement.clients.FirstOrDefault().LastName + " " + agreement.clients.FirstOrDefault().SecondLastName;
+
+    var Address = agreement.addresses.FirstOrDefault().Street + "," +
+        (agreement.addresses.FirstOrDefault().Outdoor != "" ? NumExt : "") +
+        (agreement.addresses.FirstOrDefault().Indoor != "" ? NumInt : "") +
+        " Col. " + agreement.addresses.FirstOrDefault().suburbs.Name + ", " +
+        agreement.addresses.FirstOrDefault().suburbs.Towns.Name + ", " +
+        agreement.addresses.FirstOrDefault().suburbs.Towns.States.Name;
+
+    DateTime dateNow = DateTime.Now;
+
+    decimal total = 0;
+    decimal iva = 0;
+    //DateTime date = d.AddMonths(2);
+    //var fechaLimite = (date.Day < 10 ? "0" + date.Day.ToString() : date.Day.ToString()) + "/" + (date.Month < 10 ? "0" + date.Month.ToString() : date.Month.ToString()) + "/" + date.Year.ToString();
 
     //string situacionSocial = "";
     //if (agreement.agreementDiscounts.Count() == 0)
@@ -48,7 +54,7 @@
             </div>
 
             <div style="width: 19%; text-align: center; display: inline-block;">
-                <p>@date.ToString("dd/MM/yyyy")</p>
+                <p>@dateNow.ToString("dd/MM/yyyy")</p>
             </div>
 
         </div>
@@ -70,16 +76,16 @@
             <div style="width: 24%; text-align: center; display: inline-block;">
                 <div style="width: 100%;">
                     <div style="float: right; margin-bottom: -25px">
-                        <p style="font-size: 32px;">Cuenta: </p><p>@agreement.Account</p>
+                        <p style="font-size: 30px;">Cuenta: <b>@agreement.account</b></p>
                     </div>
                     <div style="float: right; margin-bottom: -25px">
-                        <p>Tipo Servicio: <b style="color: #e70000;">@agreement.TypeServiceId</b></p>
+                        <p>Tipo Servicio: <b>@agreement.typeService.Name</b></p>
                     </div>
                     <div style="float: right; margin-bottom: -25px">
-                        <p>Tipo Toma: <b style="color: #e70000;">@agreement.TypeIntakeId</b></p>
+                        <p>Tipo Toma: <b>@agreement.typeIntake.Name</b></p>
                     </div>
                     <div style="float: right; margin-bottom: -25px">
-                        <p>Ruta: <b style="color: #e70000;">@agreement.Route</b></p>
+                        <p>Ruta: <b>@agreement.route</b></p>
                     </div>
                 </div>
             </div>
@@ -92,7 +98,7 @@
                 <div style="width: 100%; display: inline-block;">
                     <p style="width: 17%; display: inline-block;">CONTRIBUYENTE:</p>
                     <div style="position: relative; bottom: 0px; background-color: #f2f2f2; height:20px; width: 82%; border-bottom: 1px solid #c0c0c0; display: inline-block;">
-                        <p style="text-align: center; margin-top: 2px;">@nameClient</p>
+                        <p style="text-align: center; margin-top: 2px;">@NameClient</p>
                     </div>
                 </div>
 
@@ -127,25 +133,30 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @*@foreach (var item in debts)
+                    @foreach (var item in debts)
+                    {
+                        foreach (var itemDetail in item.DebtDetails)
                         {
                             <tr>
-                                <td style="border: 1px solid #ddd; padding: 7px;">@item.de</td>
-                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@item.CodeConcept</td>
+                                <td style="border: 1px solid #ddd; padding: 7px;">@itemDetail.NameConcept</td>
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@item.FromDate.ToString("dd/MM/yyyy") - @item.UntilDate.ToString("dd/MM/yyyy")</td>
                                 <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@item.Status</td>
-                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@(string.Format(new CultureInfo("es-MX"), "{0:C2}", item.Amount))</td>
-                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@(string.Format(new CultureInfo("es-MX"), "{0:C2}", item.OnAccount))</td>
-                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@(string.Format(new CultureInfo("es-MX"), "{0:C2}", item.Total))</td>
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@(string.Format(new CultureInfo("es-MX"), "{0:C2}", itemDetail.Amount))</td>
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@(string.Format(new CultureInfo("es-MX"), "{0:C2}", itemDetail.OnAccount))</td>
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@(string.Format(new CultureInfo("es-MX"), "{0:C2}", itemDetail.Amount - itemDetail.OnAccount))</td>
                             </tr>
+                            iva = iva + itemDetail.Tax;
+                        }
 
-                        }*@
+                        total = total + item.Amount;
+                    }
                     <tr>
                         <td colspan="5" style="border: 1px solid #ddd; padding: 7px; text-align:right; font-size: 24px;">I.V.A.</td>
-                        @*<td style="border: 1px solid #ddd; padding: 7px; text-align: center; font-size: 17px;">@(string.Format(new CultureInfo("es-MX"), "{0:C2}", De))</td>*@
+                        <td style="border: 1px solid #ddd; padding: 7px; text-align: center; font-size: 17px;">@(string.Format(new CultureInfo("es-MX"), "{0:C2}", iva))</td>
                     </tr>
                     <tr>
                         <td colspan="5" style="border: 1px solid #ddd; padding: 7px; text-align:right; font-size: 24px;">Total</td>
-                        @*<td style="border: 1px solid #ddd; padding: 7px; text-align: center; font-size: 17px;">@(string.Format(new CultureInfo("es-MX"), "{0:C2}", Model.Amount))</td>*@
+                        <td style="border: 1px solid #ddd; padding: 7px; text-align: center; font-size: 17px;">@(string.Format(new CultureInfo("es-MX"), "{0:C2}", total + iva))</td>
                     </tr>
                 </tbody>
             </table>

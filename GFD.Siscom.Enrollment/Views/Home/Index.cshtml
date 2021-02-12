@@ -1,21 +1,25 @@
-﻿@{
+﻿@using GFD.Siscom.Enrollment.Utilities.Auth;
+@{
     ViewData["Title"] = "Inicio";
     Layout = "/Views/Shared/_Layout.cshtml";
 }
 
 <div class="row">
-    <div class="col-md-6 offset-md-3">
-        @*<div class="card login-logout-tab">
-            <div class="card-header">
-                <ul class="nav nav-tabs card-header-tabs">
-                    <li class="nav-item">
-                        <a class="nav-link" href='/Login'>Acceder</a>
-                    </li>
-                </ul>
+    <div class="col-md-12">
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12" style="text-align:center; margin: 0 auto">
+                        @*<div class="logo-gfdsiscom" style="height: 117px; background-size: inherit;"></div>*@
+                        <img src="~/img/Login/siscom-logo.png" style="width: 107px; height: inherit;"/>
+                    </div>
+                    <div class="col-md-12" style="text-align:center; margin: 0 auto">
+                        <p style="font-size: 37px;">BIENVENIDO <b style="color:#074472; font-size: 46px;">A GFDSISCOM</b></p>
+                        <p style="font-size: 26px; margin-top: -31px;">@Auth.Login.FullName</p>
+                        <p style=" font-size: 19px; margin-top: -23px;">@Auth.Login.RolName.FirstOrDefault()</p>
+                    </div>
+                </div>
             </div>
-            <div class="card-content">
-
-            </div>
-        </div>*@
+        </div>
     </div>
 </div>

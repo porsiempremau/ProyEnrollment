@@ -91,6 +91,24 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+        [HttpGet("Agreement/AgreementByAccount/{account}")]
+        public async Task<IActionResult> GetAgreementByAccount([FromRoute] string account)
+        {
+            try
+            {
+                var result = await RequestsApi.SendURIAsync("/api/Agreements/AgreementByAccount/" + account, HttpMethod.Get, Auth.Login.Token);
+                if (result.Contains("error"))
+                {
+                    return Conflict(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
         [HttpGet("Agreement/EditCreateView")]
         public IActionResult EditCreateView([FromQuery] int idAgreement = 0)
         {

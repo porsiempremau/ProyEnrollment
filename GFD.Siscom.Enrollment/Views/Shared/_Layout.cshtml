@@ -65,32 +65,6 @@
             currency: 'MXN'
         });
 
-    </script>
-    <script type="text/javascript" src="~/assets/scripts/main.cba69814a806ecc7945a.js"></script>
-    <script src="~/js/DataTables.js"></script>
-    <script src="~/js/SerializerForm.js"></script>
-    <script src="~/js/Models/Agreement.js"></script>
-    <script src="~/js/Models/PaymentOrders.js"></script>
-    <script src="~/js/JavaScriptGeneral.js"></script>
-    <script src="~/js/DownLoadPDF.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>*@
-    @* DataTable *@
-    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
-    @* BlockUI *@
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.min.js" integrity="sha512-eYSzo+20ajZMRsjxB6L7eyqo5kuXuS2+wEbbOkpaur+sA2shQameiJiWEzCIDwJqaB0a4a6tCuEvCOBHUg3Skg==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.js" integrity="sha512-QSb5le+VXUEVEQbfljCv8vPnfSbVoBF/iE+c6MqDDqvmzqnr4KL04qdQMCm0fJvC3gCWMpoYhmvKBFqm1Z4c9A==" crossorigin="anonymous"></script>
-
-    @RenderSection("Scripts", required: false)
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> <!-- PARA EL DRAGGABLE DE LOS MODALES -->
-    <script>
-        $(".modal-dialog").draggable({
-            handle: ".modalHeader"
-        });
-
         function openLogout() {
             var DropDown = document.getElementById("DropDown").classList;
             var found = false;
@@ -114,7 +88,37 @@
                 $("#divContentDivision").html(`<b>División:</b> ${division}`);
             });
         });
-        
+
+        $("#divgfdsiscom").click(function () {
+            window.location.href = "/Home";
+        });
+
+    </script>
+    <script type="text/javascript" src="~/assets/scripts/main.cba69814a806ecc7945a.js"></script>
+    <script src="~/js/DataTables.js"></script>
+    <script src="~/js/SerializerForm.js"></script>
+    <script src="~/js/Models/Agreement.js"></script>
+    <script src="~/js/Models/PaymentOrders.js"></script>
+    <script src="~/js/JavaScriptGeneral.js"></script>
+    <script src="~/js/DownLoadPDF.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>*@
+
+    @* DataTable *@
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+    @* BlockUI *@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.min.js" integrity="sha512-eYSzo+20ajZMRsjxB6L7eyqo5kuXuS2+wEbbOkpaur+sA2shQameiJiWEzCIDwJqaB0a4a6tCuEvCOBHUg3Skg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.js" integrity="sha512-QSb5le+VXUEVEQbfljCv8vPnfSbVoBF/iE+c6MqDDqvmzqnr4KL04qdQMCm0fJvC3gCWMpoYhmvKBFqm1Z4c9A==" crossorigin="anonymous"></script>
+
+    @RenderSection("Scripts", required: false)
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> <!-- PARA EL DRAGGABLE DE LOS MODALES -->
+    <script>
+        $(".modal-dialog").draggable({
+            handle: ".modalHeader"
+        });      
     </script>
 
     <div id="loader" class="sk-chase" style="display: none;">

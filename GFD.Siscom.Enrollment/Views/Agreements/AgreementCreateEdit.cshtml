@@ -41,7 +41,14 @@
             </div>
         </div>
         <div class="col-md-6">
-            <label id="accountMain" style="float: right; font-size: 24px;"></label>
+            <div class="row">
+                <div class="col-md-12">
+                    <label id="accountMain" style="float: right; font-size: 27px;"></label>
+                </div>
+                <div class="col-md-12" style="margin-top: -11px;">
+                    <label id="token" style="float: right; font-size: 20px;"></label>
+                </div>
+            </div>
         </div>
 
         <div class="col-md-12">
@@ -68,39 +75,36 @@
         </ul>
     </div>
     <div class="card-body">
-        @*<form id="FormData" onsubmit="SaveData(event)">*@
-            <div class="tab-content">
-                <div class="tab-pane active" id="agreementTab" role="tabpanel">
-                    <partial name="~/Views/Agreements/_TabAgreement.cshtml" />
-                </div>
-                <div class="tab-pane" id="clientTab" role="tabpanel">
-                    <partial name="~/Views/Agreements/_TabClient.cshtml" />
-                </div>
-                <div class="tab-pane" id="addressTab" role="tabpanel">
-                    <partial name="~/Views/Agreements/_TabAddress.cshtml" />
-                </div>
-                <div class="tab-pane" id="recordTab" role="tabpanel">
-                    <partial name="~/Views/Agreements/_TabRecord.cshtml" />
-                </div>
+        <div class="tab-content">
+            <div class="tab-pane active" id="agreementTab" role="tabpanel">
+                <partial name="~/Views/Agreements/_TabAgreement.cshtml" />
             </div>
-            <div>
-                <div class="row">
-                    <div class="col-md-12">
-                        @if (idAgreement == 0)
-                        {
-                            <button type="submit" id="btnSaveData" class="btn btn-success float-right btn-save-gral-agrement" onclick="SaveData()" disabled>
-                                <i class="fas fa-save"></i>
-                                Guardar Contrato
-                            </button>
-                            <button type="button" id="btnAddDebt" style="display: none;" data-toggle="modal" data-target="#modalAddDebtAgreement"></button>
-                        }
+            <div class="tab-pane" id="clientTab" role="tabpanel">
+                <partial name="~/Views/Agreements/_TabClient.cshtml" />
+            </div>
+            <div class="tab-pane" id="addressTab" role="tabpanel">
+                <partial name="~/Views/Agreements/_TabAddress.cshtml" />
+            </div>
+            <div class="tab-pane" id="recordTab" role="tabpanel">
+                <partial name="~/Views/Agreements/_TabRecord.cshtml" />
+            </div>
+        </div>
+        <div>
+            <div class="row">
+                <div class="col-md-12">
+                    @if (idAgreement == 0)
+                    {
+                        <button type="submit" id="btnSaveData" class="btn btn-success float-right btn-save-gral-agrement" onclick="SaveData()" disabled>
+                            <i class="fas fa-save"></i>
+                            Guardar Contrato
+                        </button>
+                        <button type="button" id="btnAddDebt" style="display: none;" data-toggle="modal" data-target="#modalAddDebtAgreement"></button>
+                    }
 
-                        <button type="button" id="btnSimulation" style="display: none;" data-toggle="modal" data-target="#modalSimulation"></button>
-                       @*<button type="button" onclick="Simulation('M9995')" >Simulation</button>*@
-                    </div>
+                    @*<button type="button" id="btnSimulation" style="display: none;" data-toggle="modal" data-target="#modalSimulation"></button>*@
                 </div>
             </div>
-        @*</form>*@
+        </div>
     </div>
 </div>
 
@@ -115,6 +119,8 @@
 
         var isAyuntamiento = '@Plataform.IsAyuntamiento' == 'True' ? true : false,
             __date = new Date(),
+            __IdAgreementPrincipal = 0,
+            __checkIsDerivative = document.getElementById("isDerivative"),
             __AccountAyuntamiento = "",
             __YearBefore = false,
             __DataGeneral,
@@ -153,12 +159,14 @@
             __Addresses,
             __ListDebts;
 
-        if ('@Plataform.IsAyuntamiento' == 'False')
+        @*if ('@Plataform.IsAyuntamiento' == 'False')
         {
+            
             __TypeAgreement = "AGR01";
+
         } else {
-            __TypeAgreement = "CAT01"
-        }
+            __TypeAgreement = "CAT01";
+        }*@
 
         window.onload = function () {
             Block();
@@ -169,6 +177,8 @@
                 } else {
                     getData("HA");
                 }
+            } else {
+                __checkIsDerivative.disabled = true;
             }
 
             FormAgreement = document.getElementById("FormAgreement");
@@ -218,10 +228,19 @@
                 __Client = Clients;
                 __Addresses = Addresses;
 
+                //MANDAMOS LOS DATOS A LOS INPUTS DE AGREEMENT
                 getData(data.typeIntake.acronym).then(response => {
+                    if (isAyuntamiento) {
+                        document.getElementById("isDerivative").checked = data.typeAgreement == "CAT01" ? false : true;
+                    } else {
+                        document.getElementById("isDerivative").checked = data.typeAgreement == "AGR01" ? false : true;
+                    }
+                    
+                    document.getElementById("isDerivative").disabled = true;
                     $("#typeConsume").val(data.typeConsumeId);
                     $("#account").val(data.account);
                     $("#accountMain").html(`<b>Cuenta: </b>${data.account}`);
+                    $("#token").html(`<b>Folio: </b>${data.token}`);
                     $("#typeIntake").val(data.typeIntakeId);
                     $("#typeRegime").val(data.typeRegimeId);
                     $("#typeUse").val(data.typeUseId);
@@ -336,9 +355,17 @@
         async function SaveData() {
             Block();
             var _continue = true;
-
+            //SI EL CHECK DE DERIVADIO ESTÁ EN TRUE, ES DERIVADO
+            if (isAyuntamiento) {
+                __TypeAgreement = __checkIsDerivative.checked == true ? "CAT02" : "CAT01"
+            } else {
+                __TypeAgreement = __checkIsDerivative.checked == true ? "AGR02" : "AGR01"
+            }
+            //VERIFICAMOS SI SE CAMBIA EL ESTADO DEL CONTRATO, SI ES INHABIL O CANCELADO
             if (@idAgreement > 0 && (GetValue("typeStateService", true) == 2 || GetValue("typeStateService", true) == 4)) {
+                //SE VERIFICA SI TIENE DEUDA
                 await SearchDebts(@idAgreement).then(response => {
+                    //SI TIENE DEUDA ENTRA AL IF
                     if (response > 0) {
                         UnBlock();
                         Swal.fire({
@@ -365,11 +392,13 @@
                     $("#secondLastName").val("");
                 }
 
+                //OBTENEMOS EL ID DE LOS SERVICIOS SELECCIONADOS
                 var x = servicesSelect.selectedOptions;
                 for (var i = 0; i < x.length; i++) {
                     servicesList.push(parseInt(x[i].value));
                 }
 
+                //GUARDAMOS LOS DATOS DEL ARREGLO DE CONTACTOS
                 __listaNumbers.forEach(x => {
                     var contact = new ContactVM(x);
                     contactsList.push(contact);
@@ -397,16 +426,24 @@
                 agreement.typeRegimeId = GetValue("typeRegime", true);
                 agreement.typePeriodId = GetValue("typePeriod", true);
                 agreement.typeCommertialBusinessId = GetValue("typeCommertialBusiness", true);
+                //ESTE CAMPO SOLO APARECE CUANDO MODIFICAMOS
                 if (document.getElementById("typeStateService")) {
+                    //SI ESTÁ ES PORQUE ESTAMOS MODIFICANDO Y ASIGNAMOS EL VALOR DEL INPUT
                     agreement.typeStateServiceId = GetValue("typeStateService", true);
                 } else {
+                    //SINO, POR DEFAULT MANDAMOS 1 COMO VALOR
                     agreement.typeStateServiceId = 1;
+                }
+                //SI EL CHECK DE DERIVADO ESTÁ EN TRUE, SI ES CONTRATO DERIVADO
+                if (@idAgreement == 0 && __IdAgreementPrincipal > 0) {
+                    agreement.agreementPrincipalId = __IdAgreementPrincipal;
+                } else {
+                    agreement.agreementPrincipalId = 0;
                 }
                 agreement.typeIntakeId = GetValue("typeIntake", true);
                 agreement.typeClasificationId = GetValue("typeClassification", true);
                 agreement.diameterId = '@Plataform.IsAyuntamiento' == 'True' ? 1 : GetValue("diameter", true);
                 agreement.typeAgreement = __TypeAgreement;
-                agreement.agreementPrincipalId = 0;
                 agreement.userId = __userId;
                 agreement.observations = GetValue("observations", false) != "" ? GetValue("observations", false) : "N/A";
                 agreement.servicesId = servicesList;
@@ -414,13 +451,15 @@
                 agreement.clients = clientsList;
                 agreement.agreementDetails = [];
 
-                if ('@Plataform.IsAyuntamiento' == 'True' && agreement.typeIntakeId == 2 && @idAgreement == 0) { //Si es Rustico, a la cuenta se le agrega una R al final
+                //SI ES RUSTICO, AL NÚMERO DE CUENTA SE LE AGREGA UNA "R" AL FINAL
+                if ('@Plataform.IsAyuntamiento' == 'True' && agreement.typeIntakeId == 2 && @idAgreement == 0) {
                     agreement.account = agreement.account + "R";
                 }
 
                 __AccountAyuntamiento = agreement.account;
                 await axios.post('/Agreement/CreateEdit/' + agreement.id, agreement).then(response => {
                     UnBlock();
+                    //CUANDO SE MODIFICAR AGREEMENT
                     if (@idAgreement != 0) {
                         __AgreementIdFound = @idAgreement;
                         Swal.fire({
@@ -429,21 +468,25 @@
                             type: 'success',
                             showConfirmButton: true,
                         }).then(response => {
+                            //SI ES AYUNTAMIENTO
                             if (isAyuntamiento) {
+                                //AGREGAMOS LOS DETALLES DEL AGREEMENT
                                 AddEditAgreementDetail(__AgreementIdFound).then(response => {
+                                    //HACEMOS LA SIMULACIÓN DEL CÁLCULO DEL MONTO DE PREDIAL Y LIMPIA
                                     Simulation(__AccountAyuntamiento);
                                 });
-                            } else {
+                            } else { //SI ES AGUA
                                 var dateCurrently = new Date();
                                 var year = dateCurrently.getFullYear();
                                 var month = dateCurrently.getMonth() + 1;
                                 const url = "/Debt/AddDebtToAgreement?AgreementId=";
+                                //GENERAMOS NUEVO ADEUDO
                                 axios.post(url + @idAgreement + "&month=" + month + "&year=" + year).then(response => {
                                     window.location.href = "/Agreement/EditCreateView?idAgreement=" + @idAgreement;
                                 });
                             }
                         });
-                    } else {
+                    } else { //PARA CUANDO SE CREA AGREEMENT
                         Block();
                         axios.get('/FoundAgreement/' + response.data.id).then(response => {
                             UnBlock();
@@ -741,7 +784,7 @@
             var selectYear = document.getElementById('year');
             var indexSelectedYear = selectYear.options.selectedIndex;
             var yearSelected = parseInt(selectYear.options[indexSelectedYear].textContent);
-            
+
             if (yearSelected > __date.getFullYear()) {
                 Swal.fire({
                     type: 'info',
@@ -839,7 +882,8 @@
                 var data = response.data;
                 console.log(data);
                 if (data.length > 0) {
-                    $("#btnSimulation").click();
+                    //$("#btnSimulation").click();
+                    $("#modalSimulation").modal({ backdoor: true });
                     data.forEach(x => {
                         $("#SimulationAgreementId").val(x.id_agreement);
                         $("#SimulationCuenta").html(`<b>Cuenta: </b>${x.cuenta}`);
@@ -907,6 +951,8 @@
                 }).then(response => {
                     if (@idAgreement == 0) {
                         window.location.href = "/Agreement/List";
+                    } else {
+                        $("#modalSimulation").modal('hide');
                     }
                 });
             }).catch(error => {

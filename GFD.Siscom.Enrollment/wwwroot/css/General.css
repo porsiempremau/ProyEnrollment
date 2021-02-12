@@ -1,4 +1,13 @@
-﻿.subtitle {
+﻿#divgfdsiscom {
+    cursor: pointer;
+}
+
+/*.logo-gfdsiscom {
+    background-image: url(../img/Login/siscom-logo.png);
+    background-repeat: no-repeat;   
+}*/
+
+.subtitle {
     font-size: 20px;
 }
 

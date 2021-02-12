@@ -12,17 +12,44 @@
                 <p>Características del Contrato</p>
             </div>
             <div class="card-body">
-                @*<div class="row">
-                        <div class="col-md-6">
-                            <label>Contrato Principal:</label>
-                            <input class="form-control form-control-sm" id="agreementPrincipal" name="agreementPrincipal" />
-                        </div>
-                        <div class="col-md-6">
-                            <button class="btn btn-GFD margin-top-btns">Buscar</button>
+                <div class="row">
+                    <div class="col-md-12">
+                        <input type="checkbox" id="isDerivative" onchange="CheckedDerivative(this.checked)" />
+                        <label>Derivado</label>
+                    </div>
+                </div>
+
+                <div id="divContentInputIsDerivative" class="row" style="display:none;">
+                    <div class="col-md-6">
+                        <form id="FromDataIsDerivative" onsubmit="SearchAgreementPrincipal(event, document.getElementById('agreementPrincipal').value)">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Contrato Principal:</label>
+                                    <input class="form-control form-control-sm" id="agreementPrincipal" name="agreementPrincipal" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-GFD margin-top-btns" form="FromDataIsDerivative">Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="divContentCardWithData" class="col-md-6" style="display:none;">
+                        <div class="main-card mb-3 card">
+                            <div class="card-body" style="background-color: #e8e8e8;">
+                                <div style="display: flex;">
+                                    <i class="fas fa-user" style="margin-top: 3px;"></i><p id="AccountName" style="margin-bottom: 0px; margin-left: 7px;"></p>
+                                </div>
+                                <div style="display: flex;">
+                                    <i class="fas fa-map-marked-alt" style="margin-top: 3px;"></i><p id="AccountAddress" style="margin-bottom: 0px; margin-left: 7px;"></p>
+                                </div>
+                                <div style="display: flex;">
+                                    <i class="fas fa-file-contract" style="margin-top: 3px;"></i><p id="AccountStatus" style="margin-bottom: 0px; margin-left: 7px;"></p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <br />
-                    <br />*@
+                </div>
+                <br />
                 @if (Plataform.IsAyuntamiento)
                 {
                     <div class="row">
@@ -265,6 +292,50 @@
 
 
 <script>
+    function CheckedDerivative(value) {
+        if (value) {
+            document.getElementById("divContentInputIsDerivative").style.display = "flex";
+        } else {
+            document.getElementById("divContentInputIsDerivative").style.display = "none";
+            document.getElementById("divContentCardWithData").style.display = "none";
+        }
+    }
+
+    function SearchAgreementPrincipal(event, account) {
+        event.preventDefault();
+        Block();
+        axios.get("/Agreement/Get/List?account=" + account).then(response => {
+            UnBlock();
+            var data = response.data;
+            if (data.length > 0) {
+                console.log("Agreement principal: ", data);
+                document.getElementById("divContentCardWithData").style.display = "flex";
+                __IdAgreementPrincipal = data[0].agreementId;
+                console.log("__IdAgreementPrincipal: ", __IdAgreementPrincipal);
+                $("#AccountName").html(`<b>Nombre: </b> ${data[0].nombre}`);
+                $("#AccountAddress").html(`<b>Dirección: </b> ${data[0].address}`);
+                $("#AccountStatus").html(`<b>Status: </b> ${data[0].status}`);
+                Swal.fire({
+                    title: "Bien",
+                    text: 'Datos encontrados',
+                    type: 'success',
+                    showConfirmButton: true,
+                });
+            } else {
+                __IdAgreementPrincipal = 0;
+            }
+        }).catch(error => {
+            UnBlock();
+            Swal.fire({
+                title: "Disculpa",
+                text: error.response.request.response,
+                type: 'info',
+                showConfirmButton: true,
+            });
+            console.log("Error: ", error.response);
+        });
+    }
+
     function ChangeTypeIntake(value) {
         var a = __typeIntake.find(x => x.id == value);
         var acronym = a.acronym;
