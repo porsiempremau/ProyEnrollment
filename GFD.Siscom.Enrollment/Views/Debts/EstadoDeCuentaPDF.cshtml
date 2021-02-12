@@ -1,6 +1,4 @@
-﻿
-
-@model object;
+﻿@model object;
 @using Newtonsoft.Json;
 @{
     dynamic data = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(Model));
@@ -10,20 +8,21 @@
     decimal contLim = 0;
 
     DateTime d = DateTime.Now;
-    //var date = new DateTime(d.Year, d.Month, d.Day);
     DateTime date = d.AddMonths(2);
     var fechaLimite = (date.Day < 10 ? "0" + date.Day.ToString() : date.Day.ToString()) + "/" + (date.Month < 10 ? "0" + date.Month.ToString() : date.Month.ToString()) + "/" + date.Year.ToString();
+
+    string situacionSocial = "";
+    if (agreement.agreementDiscounts.Count() == 0)
+    {
+        situacionSocial = "NINGUNO";
+    }
+    else
+    {
+        situacionSocial = agreement.agreementDiscounts.Where(x => x.isActive == true).First().discount.Name;
+    }
+
 }
-<div class="app-page-title">
-    <div class="page-title-wrapper">
-        <div class="page-title-heading">
-            <div class="page-title-icon">
-                <i class="fas fa-file-invoice"></i>
-            </div>
-            <h1 class="style-main-title">@ViewData["Title"]</h1>
-        </div>
-    </div>
-</div>
+
 <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
 <div style="margin-left: auto;
         margin-right: auto;
@@ -62,8 +61,8 @@
                 <div style="width: 50%; display: inline-block; ">
                     <p style="display: inline-block; margin-bottom: 0px;">NOMBRE: @agreement.clients[0].Name @agreement.clients[0].LastName @agreement.clients[0].SecondLastName</p><br />
                     <p style="display: inline-block; margin-bottom: 0px; margin-top: 4px;">DIRECCIÓN: @agreement.addresses[0].Street, @agreement.addresses[0].Outdoor @agreement.addresses.First().suburbs.Name</p><br />
-                    <p style="display: inline-block; margin-bottom: 0px; margin-top: 4px;">SITUACIÓN SOCIAL: </p><br />
-                    <p style="display: inline-block; margin-bottom: 0px; margin-top: 4px;">TIPO PREDIO: @(agreement.typeAgreement == "CLI01")</p><br />
+                    <p style="display: inline-block; margin-bottom: 0px; margin-top: 4px;">SITUACIÓN SOCIAL: @situacionSocial</p><br />
+                    <p style="display: inline-block; margin-bottom: 0px; margin-top: 4px;">TIPO PREDIO: @agreement.typeIntake.Name</p><br />
                     <p style="display: inline-block; margin-bottom: 0px; margin-top: 4px;">TERRENO: @agreement.agreementDetails.First().Ground</p><br />
                 </div>
 

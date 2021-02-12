@@ -16,5 +16,10 @@ namespace GFD.Siscom.Enrollment.Models
         public List<ClientVM> clients { get; set; }
         public List<AddressVM> addresses { get; set; }
         public List<AgreementDetailVM> agreementDetails { get; set; }
+        public int typeIntakeId { get; set; }
+        public TypeIntakeVM typeIntake { get; set; }
+        public int typeConsumeId { get; set; }
+        public TypeConsumeVM typeConsume { get; set; }
+        public List<AgreementDiscountVM> agreementDiscounts { get; set; }
     }
 }

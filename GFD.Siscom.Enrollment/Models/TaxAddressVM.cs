@@ -15,5 +15,7 @@ namespace GFD.Siscom.Enrollment.Models
         public string Suburb { get; set; }
         public string Town { get; set; }
         public string State { get; set; }
+        public int TaxUserId { get; set; }
+        public TaxUserVM TaxUser { get; set; }
     }
 }

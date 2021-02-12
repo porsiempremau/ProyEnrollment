@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 
 namespace GFD.Siscom.Enrollment.Services
 {
+    [Auth()]
     public class CatalogsService : Controller
     {
         private readonly IOptions<BaseModel> appSettings;

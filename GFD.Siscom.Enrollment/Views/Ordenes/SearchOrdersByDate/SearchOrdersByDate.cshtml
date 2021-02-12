@@ -1,0 +1,335 @@
+﻿@using GFD.Siscom.Enrollment.Utilities.Auth;
+
+<div class="app-page-title">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div class="page-title-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h1 class="style-main-title">@ViewData["Title"]</h1>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <input type="checkbox" id="isCheck" name="isCheck" onchange="Check(this)" />
+        <label>Buscar por folio:</label>
+    </div>
+</div>
+<form id="FormDataDate" onsubmit="SearchOrdersByDate(event)">
+    <div class="row">
+        <div class="col-md-3">
+            <label>Fecha: </label>
+            <input type="date" id="date" name="date" class="form-control form-control-sm" required />
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-GFD float-left margin-top-btns">
+                <i class="fas fa-search" title="Buscar"></i> Buscar
+            </button>
+        </div>
+    </div>
+</form>
+
+<form id="FormDataFolio" onsubmit="SearchOrdersByDate(event)" style="display: none;">
+    <div class="row">
+        <div class="col-md-3">
+            <label>Folio: </label>
+            <input type="text" id="folio" name="folio" class="form-control form-control-sm" required />
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-GFD float-left margin-top-btns">
+                <i class="fas fa-search" title="Buscar"></i> Buscar
+            </button>
+        </div>
+    </div>
+</form>
+
+<br />
+<div class="row">
+    <div class="col-md-12">
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <table style="width: 100%;" id="TableOrders" class="table table-hover table-striped table-bordered">
+                    <thead class="style-theads">
+                        <tr>
+                            <th>Folio</th>
+                            <th>Contribuyente</th>
+                            <th>Tipo</th>
+                            <th>Status</th>
+                            <th>Monto</th>
+                            <th>Expedición</th>
+                            <th>Expiración</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyOrders"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <partial name="~/Views/Ordenes/_ModalCreateEditTaxUser.cshtml" />
+    <script>
+        var __CurrentlyDate = new Date();
+        var __Rol = '@Auth.Login.RolName[0]';
+        //var __taxUser = [], __taxAddress = [];
+
+        window.onload = function () {
+            var FormPhone = document.getElementById("FormPhone");
+            FormPhone.phoneTaxUser.addEventListener("keypress", onlyNumbers, false);
+            SearchOrdersByDate(event);
+        }
+
+        function Check(element) {
+            if (element.checked) {
+                document.getElementById("FormDataDate").style.display = "none";
+                document.getElementById("FormDataFolio").style.display = "block";
+            } else {
+                document.getElementById("FormDataDate").style.display = "block";
+                document.getElementById("FormDataFolio").style.display = "none";
+            }
+        }
+
+        function SearchOrdersByDate(event) {
+            event.preventDefault();
+            Block();
+            var check = document.getElementById("isCheck");
+            var url = "/Ordenes/SearchOrderByDate/";
+            var value = "";
+            if (check.checked) {
+                url = "/Ordenes/SearchOrderByFolio/";
+                value = document.getElementById("folio").value;
+            } else {
+                if (document.getElementById('date').value != "") {
+                    value = document.getElementById('date').value;
+                } else {
+                    value = getFormateDate(__CurrentlyDate, true);
+                }
+            }
+            ClearDataTable("TableOrders");
+
+            $("#tbodyOrders").html("");
+            axios.get(url + value).then(response => {
+                UnBlock();
+                var data = response.data;
+                console.log("ORDENES: ", data);
+                if (data.length > 0) {
+                    data.forEach(x => {
+                        var dateOrder = getFormateDate(x.dateOrder);
+                        var expirationDate = getFormateDate(x.expirationDate);
+                        var type = getDescriptionType(x.type, TYPES_AYUNTAMIENTO);
+                        var status = getDescriptionType(x.status, STATUS);
+                        $("#tbodyOrders").append(`
+                           <tr>
+                               <td>${x.folio}</td>
+                               <td>${x.taxUser.name}</td>
+                               <td>${type}</td>
+                               <td>${status}</td>
+                               <td>${FormatoPeso.format(x.amount)}</td>
+                               <td>${dateOrder}</td>
+                               <td>${expirationDate}</td>
+                               <td>
+                                    <a class="nav-link btn-flush ${__Rol == 'Admin' ? "" : "disabled"}" onclick="LoadModalEditTaxUser(${x.taxUser.id})" data-caret="false" style="margin: 0 auto;">
+                                        <i class="fas fa-edit iconX" title="Editar datos del cliente"></i>
+                                    </a>
+                               </td>
+                               <td>
+                                    <a class="nav-link btn-flush" onclick="DowloadOrder(${x.id})" data-caret="false" style="margin: 0 auto;">
+                                        <i class="fas fa-download iconX" title="Descargar Orden de Cobro"></i>
+                                    </a>
+                               </td>
+                           </tr>
+                        `);
+                    });
+                } else if (typeof data == "object" && data != {}) {
+                    var dateOrder = getFormateDate(data.dateOrder);
+                    var expirationDate = getFormateDate(data.expirationDate);
+                    var type = getDescriptionType(data.type, TYPES_AYUNTAMIENTO);
+                    var status = getDescriptionType(data.status, STATUS);
+                    $("#tbodyOrders").append(`
+                       <tr>
+                           <td>${data.folio}</td>
+                           <td>${data.taxUser.name}</td>
+                           <td>${type}</td>
+                           <td>${status}</td>
+                           <td>${FormatoPeso.format(data.amount)}</td>
+                           <td>${dateOrder}</td>
+                           <td>${expirationDate}</td>
+                           <td>
+                                <a class="nav-link btn-flush ${__Rol == 'Admin' ? "" : "disabled"}" onclick="LoadModalEditTaxUser(${data.taxUser.id})" data-caret="false" style="margin: 0 auto;">
+                                    <i class="fas fa-edit iconX" title="Editar datos del cliente"></i>
+                                </a>
+                           </td>
+                           <td>
+                                <a class="nav-link btn-flush" onclick="DowloadOrder(${data.id})" data-caret="false" style="margin: 0 auto;">
+                                    <i class="fas fa-download iconX" title="Descargar Orden de Cobro"></i>
+                                </a>
+                           </td>
+                       </tr>
+                    `);
+                } else {
+                    $("#tbodyOrders").html(`
+                       <tr>
+                           <td colspan="9" style="font-size: 14px; text-align: center">No se encontraron ordenes</td>
+                       </tr>
+                    `);
+                }
+                if (data.length > 10) {
+                    loadDataTable("TableOrders");
+                }
+            }).catch(error => {
+                UnBlock();
+                $("#tbodyOrders").html(`
+                       <tr>
+                           <td colspan="9" style="font-size: 14px; text-align: center">No se pudieron obtener los datos</td>
+                       </tr>
+                    `);
+            });
+        }
+
+        function DowloadOrder(id) {
+            Block();
+            axios.get("/Ordenes/GetOrderSaleById/" + id).then(response => {
+                var data = response.data;
+                axios.post('/Ordenes/GeneraPDF/TaxUser', data).then(response => {
+                    setTimeout(function () {
+                        DownloadPDF(response.data);
+                    }, 500);
+                });
+            }).catch(error => {
+                UnBlock();
+            });
+        }
+
+        function LoadModalEditTaxUser(idTaxUser) {
+            Block();
+            axios.get("/TaxUser/GetTaxUser/" + idTaxUser).then(response => {
+                UnBlock();
+                var taxUser = new TaxUserVM(response.data);
+                var taxAddresses = new TaxAddressVM(taxUser.taxAddresses[0]);
+
+                $("#modalDataTaxUser").modal({ backdoor: true });
+                $("#TitleModal").html(`<i class="fas fa-address-card"></i> Modificar Contribuyente`);
+                var divContentRFC = document.getElementById("divContentRFC");
+                divContentRFC.classList.remove("col-md-10");
+                divContentRFC.classList.add("col-md-12");
+                var divContentBtnSearchByRFC = document.getElementById("divContentBtnSearchByRFC");
+                divContentBtnSearchByRFC.classList.remove("col-md-2");
+                divContentBtnSearchByRFC.classList.add("col-md-12");
+                divContentBtnSearchByRFC.innerHTML = "";
+                $("#divContentState").html(`<label>Estado:</label><input class="form-control form-control-sm" id="stateId" name="stateId"/>`);
+                $("#divContentTown").html(`<label>Municipio:</label><input class="form-control form-control-sm" id="townId" name="townId"/>`);
+                $("#divContentSuburb").html(`<label>Colonia:</label><input class="form-control form-control-sm" id="suburbId" name="suburbId"/>`);
+                $("#divContentBtnGenerarOrden").html(`
+                        <button class="btn-shadow btn-wide btn btn-success btn-lg" onclick="EditTaxUser()">Salvar Cambios</button>
+                    `);
+                $("#divContentObservations").html("");
+
+                $("#idTaxUser").val(taxUser.id);
+                $("#nameTaxUser").val(taxUser.name);
+                if (taxUser.isProvider) {
+                    document.getElementById("isProvider").checked = true;
+                } else {
+                    document.getElementById("isProvider").checked = false;
+                }
+                $("#rfcTaxUser").val(taxUser.rfc);
+                $("#curpTaxUser").val(taxUser.curp);
+                $("#phoneTaxUser").val(taxUser.phoneNumber);
+                $("#emailTaxUser").val(taxUser.eMail);
+
+                $("#idTaxAddress").val(taxAddresses.id);
+                $("#street").val(taxAddresses.street);
+                $("#numExt").val(taxAddresses.outdoor);
+                $("#numInt").val(taxAddresses.indoor);
+                $("#zip").val(taxAddresses.zip);
+                $("#stateId").val(taxAddresses.state);
+                $("#townId").val(taxAddresses.town);
+                $("#suburbId").val(taxAddresses.suburb);
+
+            }).catch(error => {
+                UnBlock();
+                Swal.fire({
+                    type: 'info',
+                    title: 'Disculpa',
+                    text: 'Ocurrió un problema para obtener los datos del cliente.',
+                    showConfirmButton: true,
+                });
+            });
+        }
+
+        async function EditTaxUser() {
+            var taxAddress = new TaxAddressVM({});
+            taxAddress.id = parseInt($("#idTaxAddress").val());
+            taxAddress.street = $("#street").val();
+            taxAddress.outdoor = $("#numExt").val();
+            taxAddress.indoor = $("#numInt").val();
+            taxAddress.zip = $("#zip").val();
+            taxAddress.state = $("#stateId").val();
+            taxAddress.town = $("#townId").val();
+            taxAddress.suburb = $("#suburbId").val();
+            taxAddress.taxUserId = parseInt($("#idTaxUser").val());
+
+            var taxUser = new TaxUserVM({});
+            taxUser.id = parseInt($("#idTaxUser").val());
+            taxUser.name = $("#nameTaxUser").val();
+            taxUser.isProvider = document.getElementById("isProvider").checked;
+            taxUser.rfc = $("#rfcTaxUser").val() == "" ? "XAXX010101000" : $("#rfcTaxUser").val();
+            taxUser.curp = $("#curpTaxUser").val();
+            taxUser.phoneNumber = $("#phoneTaxUser").val();
+            taxUser.eMail = $("#emailTaxUser").val();
+
+            $("#modalDataTaxUser").modal('hide');
+
+            await Block();
+            await axios.put("/TaxUser/EditTaxUser/" + taxUser.id, taxUser).then(response => {
+                UnBlock();
+                console.log("PUT TaxUser correcto");
+            }).catch(error => {
+                UnBlock();
+                Swal.fire({
+                    type: 'info',
+                    title: 'Disculpa',
+                    text: 'Ocurrió un problema para actualizar los datos del cliente. ' + error.response.data,
+                    showConfirmButton: true,
+                });
+            });
+
+            await Block();
+            await axios.put("/TaxAddress/EditTaxAddress/" + taxAddress.id, taxAddress).then(response => {
+                UnBlock();
+                console.log("PUT TaxAddress correcto");
+                Swal.fire({
+                    type: 'success',
+                    title: 'Correcto',
+                    text: 'Se actualizaron los datos de Dirección',
+                    showConfirmButton: true,
+                });
+            }).catch(error => {
+                UnBlock();
+                Swal.fire({
+                    type: 'info',
+                    title: 'Disculpa',
+                    text: 'Ocurrió un problema para actualizar los datos de dirección. ' + error.response.data,
+                    showConfirmButton: true,
+                });
+                console.error(error.response.data);
+            });
+
+            Swal.fire({
+                type: 'success',
+                title: 'Correcto',
+                text: 'Se actualizaron los datos del Cliente',
+                showConfirmButton: true,
+            }).then(response => {
+                window.location.href = "/Ordenes/SearchOrderByDate/Index";
+            });
+        }
+    </script>
+}
+
+

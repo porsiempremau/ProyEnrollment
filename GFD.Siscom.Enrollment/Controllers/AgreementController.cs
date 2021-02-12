@@ -116,7 +116,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
-        [Role("Admin|Supervisor|Super|Isabi")]
+        //[Role("Admin|Supervisor|Super|Isabi")]
         [HttpPost("Agreement/CreateEdit/{id}")]
         public async Task<IActionResult> CreateEditAgreement([FromBody] AgreementVM agreement, [FromRoute] int id = 0)
         {
@@ -129,13 +129,13 @@ namespace GFD.Siscom.Enrollment.Controllers
                 if (id != 0)
                 {
                     method = HttpMethod.Put;
-                    url = "/api/Agreements/" + idAgreement;
                     idAgreement = id.ToString();
+                    url = "/api/Agreements/" + idAgreement;
                     messagge = Plataform.IsAyuntamiento ? "Predio actualizado correctamente" : "Contrato actualizado correctamente";
                 }
                 var body = new StringContent(JsonConvert.SerializeObject(agreement), Encoding.UTF8, "application/json");
                 var result = await RequestsApi.SendURIAsync(url, method, Auth.Login.Token, body);
-                if (result.Contains("error"))
+                if (result.Contains("error") || result.Contains("field is required"))
                 {
                     return Conflict(result);
                 }
@@ -228,7 +228,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
-        [Role("Admin|Supervisor|Super|Isabi")]
+        //[Role("Admin|Supervisor|Super|Isabi")]
         [HttpPost("Agreement/CreateEditAgreementDetail/{AgreementId}/{idAgreeDetail}")]
         public async Task<IActionResult> CreateEditAgreementDetail([FromBody] AgreementDetailVM agreementDetail, [FromRoute] int AgreementId, [FromRoute] int idAgreeDetail = 0)
         {
@@ -432,5 +432,49 @@ namespace GFD.Siscom.Enrollment.Controllers
                 return Conflict("Error al descargar el archivo");
             }
         }
+
+        [HttpPost("GenerateFolioProofNoDebt")]
+        public async Task<IActionResult> GenerateFolioProofNoDebt([FromBody] ProofNoDebtVM proof)
+        {
+            try
+            {
+                DateTime date = DateTime.Now;
+                DateTime expiration_date = date.AddMonths(2);
+                proof.Expedition_date = date;
+                proof.Expiration_date = expiration_date;
+                var body = new StringContent(JsonConvert.SerializeObject(proof), Encoding.UTF8, "application/json");
+                var result = await RequestsApi.SendURIAsync("/api/Agreements/GenerateFolioProofNoDebt", HttpMethod.Post, Auth.Login.Token, body);
+                if (result.Contains("error"))
+                {
+                    return Conflict(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return Conflict(e.Message + " " + e.InnerException);
+            }
+        }
+
+        [HttpGet("GetProof/{id}")]
+        public async Task<IActionResult> GetProof([FromRoute] int id)
+        {
+            try
+            {
+                var result = await RequestsApi.SendURIAsync("/api/Agreements/GetProof/" + id, HttpMethod.Get, Auth.Login.Token);
+                if (result.Contains("error"))
+                {
+                    return Conflict(result);
+                }
+                var data = JsonConvert.DeserializeObject<ProofNoDebtVM>(result);
+                return Ok(data);
+            }
+            catch (Exception e)
+            {
+                return Conflict(e.Message + " " + e.InnerException);
+            }
+        }
+
+
     }
 }

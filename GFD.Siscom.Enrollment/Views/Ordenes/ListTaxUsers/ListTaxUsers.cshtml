@@ -1,0 +1,250 @@
+﻿@using GFD.Siscom.Enrollment.Utilities.Auth;
+
+<div class="app-page-title">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div class="page-title-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h1 class="style-main-title">@ViewData["Title"]</h1>
+        </div>
+    </div>
+</div>
+<form id="FormData" onsubmit="GetTaxUsers(event)">
+    <div class="row">
+        <div class="col-md-3">
+            <label>Nombre: </label>
+            <input type="text" id="name" name="name" class="form-control form-control-sm" onblur="LimpiarCampos('name')"/>
+        </div>
+        <div class="col-md-3">
+            <label>RFC: </label>
+            <input type="text" id="rfc" name="rfc" class="form-control form-control-sm" onblur="LimpiarCampos('rfc')"/>
+        </div>
+        <div class="col-md-2">
+            <input type="checkbox" id="isProvider" name="isProvider" class="margin-top-btns"/>
+            <label>Es Proveerdor: </label>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-GFD float-left margin-top-btns">
+                <i class="fas fa-search" title="Buscar"></i> Buscar
+            </button>
+        </div>
+    </div>
+</form>
+<br />
+<div class="row">
+    <div class="col-md-12">
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <table style="width: 100%;" id="TableTaxUsers" class="table table-hover table-striped table-bordered">
+                    <thead class="style-theads">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>CURP</th>
+                            <th>RFC</th>
+                            <th>Teléfono</th>
+                            <th>Correo</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyTaxUsers">
+                        <tr>
+                            <td colspan="6" style="text-align:center; font-size: 14px;">Sin Datos</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <partial name="~/Views/Ordenes/_ModalCreateEditTaxUser.cshtml" />
+    <script>
+        var __Rol = '@Auth.Login.RolName[0]';
+        //PARA UTILIZAR SOLO UN INPUT DE LOS FILTROS, SOLO PUEDE HACER LA BÚSQUEDA CON UN SOLO INPUT LLENO, PARA EVITAR AMBIGUEDAD
+        function LimpiarCampos(element) {
+            var name = document.getElementById("name"),
+                rfc = document.getElementById("rfc");
+            if (element == "name") {
+                rfc.value = "";
+            }
+            if (element == "rfc") {
+                name.value = "";
+            }
+        }
+
+        //PARA LLENAR LA TABLA DE REGISTROS DE TAXUSERS
+        function GetTaxUsers(event) {
+            event.preventDefault();
+            Block();
+            ClearDataTable("TableTaxUsers");
+            $("#tbodyTaxUsers").html("");
+            var name = $("#name").val();
+            var rfc = $("#rfc").val();
+            var isProvider = document.getElementById("isProvider").checked;
+            var url = "value=" + name + "&isProvider=" + isProvider + "&isName=true";
+            if (rfc != "" && name == "") {
+                url = "value=" + rfc + "&isProvider=" + isProvider + "&isName=false";
+            }
+            
+            axios.get("/TaxUser/GetTaxUserByParameters?" + url).then(response => {
+                UnBlock();
+                var data = response.data;
+                //console.log("TAXUSERS: ", data);
+                if (data.length > 0) {
+                    data.forEach(x => {
+                        var taxUser = new TaxUserVM(x);
+                        $("#tbodyTaxUsers").append(`
+                           <tr>
+                               <td>${taxUser.name}</td>
+                               <td>${taxUser.curp}</td>
+                               <td>${taxUser.rfc}</td>
+                               <td>${taxUser.phoneNumber}</td>
+                               <td>${taxUser.eMail}</td>
+                               <td>
+                                    <a class="nav-link btn-flush ${__Rol == 'Admin' ? "" : "disabled"}" onclick="LoadModalEditTaxUser(${taxUser.id})" data-caret="false" style="margin: 0 auto;">
+                                        <i class="fas fa-edit iconX" title="Editar Cliente"></i>
+                                    </a>
+                               </td>
+                           </tr>
+                        `);
+                    });
+                } else {
+                    $("#tbodyTaxUsers").html(`
+                       <tr>
+                           <td colspan="6" style="font-size: 14px; text-align: center">No se encontraron registros</td>
+                       </tr>
+                    `);
+                }
+                if (data.length > 10) {
+                    loadDataTable("TableTaxUsers");
+                }
+            }).catch(error => {
+                UnBlock();
+                $("#tbodyTaxUsers").html(`
+                   <tr>
+                       <td colspan="6" style="font-size: 14px; text-align: center">No se pudieron obtener los datos</td>
+                   </tr>
+                `);
+            });
+        }
+
+        //ABRE EL MODAL DE EDITAR TAXUSER, SE UTILIZA EL MISMO PARA ORDENES, SOLO SE IMPLEMENTA UN CONTENIDO DE TAXUSER, Y SE OMITE EL TAXADDRESS
+        function LoadModalEditTaxUser(idTaxUser) {
+            Block();
+            axios.get("/TaxUser/GetTaxUser/" + idTaxUser).then(response => {
+                UnBlock();
+                var taxUser = new TaxUserVM(response.data);
+
+                $("#modalDataTaxUser").modal({ backdoor: true });
+                $("#TitleModal").html(`<i class="fas fa-address-card"></i> Modificar Contribuyente`);
+                $("#divContentWizard").html(`
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label>Nombres:</label>
+                                <input type="hidden" id="idTaxUser" name="idTaxUser" />
+                                <input type="text" id="nameTaxUser" name="nameTaxUser" class="form-control form-control-sm" required />
+                            </div>
+                            <div class="col-md-4" style="margin-top: 30px;">
+                                <input type="checkbox" id="isProviderTaxUser" name="isProviderTaxUser" />
+                                <label>Es Proveedor:</label>
+                            </div>
+
+                            <div id="divContentRFC" class="col-md-12">
+                                <label>RFC:</label>
+                                <form id="FromRFCTaxUser" onsubmit="SearchByRFC(event, document.getElementById('rfcTaxUser').value)">
+                                    <input type="text" class="form-control form-control-sm" id="rfcTaxUser" name="rfcTaxUser" maxlength="13"
+                                           onkeyup="this.value = this.value.toUpperCase();" oninput="validarCampo(this, 'resultadoRFC', 'RFC')" required />
+                                    <pre id="resultadoRFC" style="padding-left: 7px;"></pre>
+                                </form>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>CURP:</label>
+                                <input type="text" class="form-control form-control-sm" id="curpTaxUser" name="curpTaxUser" maxlength="18"
+                                       onkeyup="this.value = this.value.toUpperCase();" oninput="validarCurp(this, 'resultadoCURP')" />
+                                <pre id="resultadoCURP" style="padding-left: 7px;"></pre>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Teléfono:</label>
+                                <form id="FormPhone">
+                                    <input type="text" class="form-control form-control-sm" id="phoneTaxUser" name="phoneTaxUser" pattern="[0-9]{10}" maxlength="10" />
+                                </form>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label>Correo:</label>
+                                <input type="email" class="form-control form-control-sm" id="emailTaxUser" name="emailTaxUser" />
+                            </div>
+                        </div>
+                        <br />
+                        <div class="divider"></div>
+                        <div class="clearfix">
+                            <button type="button" class="btn btn-GFD float-right" onclick="EditTaxUserRegister()">Salvar Cambios</button>
+                            <button type="button" class="btn btn-secondary float-right" data-dismiss="modal" style="margin-right: 10px;">Cancelar</button>
+                        </div>
+                    </div>
+                `);
+
+                $("#idTaxUser").val(taxUser.id);
+                $("#nameTaxUser").val(taxUser.name);
+                if (taxUser.isProvider) {
+                    document.getElementById("isProviderTaxUser").checked = true;
+                } else {
+                    document.getElementById("isProviderTaxUser").checked = false;
+                }
+                $("#rfcTaxUser").val(taxUser.rfc);
+                $("#curpTaxUser").val(taxUser.curp);
+                $("#phoneTaxUser").val(taxUser.phoneNumber);
+                $("#emailTaxUser").val(taxUser.eMail);
+
+            }).catch(error => {
+                UnBlock();
+                Swal.fire({
+                    type: 'info',
+                    title: 'Disculpa',
+                    text: 'Ocurrió un problema para obtener los datos del cliente.',
+                    showConfirmButton: true,
+                });
+            });
+        }
+
+        function EditTaxUserRegister() {
+            Block();
+            var taxUser = new TaxUserVM({});
+            taxUser.id = parseInt($("#idTaxUser").val());
+            taxUser.name = $("#nameTaxUser").val();
+            taxUser.isProvider = document.getElementById("isProviderTaxUser").checked;
+            taxUser.rfc = $("#rfcTaxUser").val() == "" ? "XAXX010101000" : $("#rfcTaxUser").val();
+            taxUser.curp = $("#curpTaxUser").val();
+            taxUser.phoneNumber = $("#phoneTaxUser").val();
+            taxUser.eMail = $("#emailTaxUser").val();
+
+            $("#modalDataTaxUser").modal('hide');
+
+            axios.put("/TaxUser/EditTaxUser/" + taxUser.id, taxUser).then(response => {
+                UnBlock();
+                Swal.fire({
+                    type: 'success',
+                    title: 'Correcto',
+                    text: 'Se actualizaron los datos del Cliente',
+                    showConfirmButton: true,
+                }).then(response => {
+                    GetTaxUsers(event);
+                });
+            }).catch(error => {
+                UnBlock();
+                Swal.fire({
+                    type: 'info',
+                    title: 'Disculpa',
+                    text: 'Ocurrió un problema para actualizar los datos del cliente. ' + error.response.data,
+                    showConfirmButton: true,
+                });
+            });
+        }
+    </script>
+}
+
+

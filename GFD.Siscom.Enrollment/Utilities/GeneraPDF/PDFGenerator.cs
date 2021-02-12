@@ -34,7 +34,7 @@ namespace GFD.Siscom.Enrollment.Utilities.GeneraPDF
             {
                 dynamic d = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(data));
                 Agreement ag = JsonConvert.DeserializeObject<Agreement>(JsonConvert.SerializeObject(d["agreement"]));
-                string template = await ConvertViewsToHTML.RenderViewAsync(controller, "EstadoDeCuentaPDF", data, true);
+                string template = await ConvertViewsToHTML.RenderViewAsync(controller, Plataform.IsAyuntamiento ? "EstadoDeCuentaPDF" : "EstadoDeCuentaPDFAgua", data, true);
                 settings.WebKitPath = Path.Combine(_hostingEnvironment.ContentRootPath, "QtBinariesWindows");
                 htmlConverter.ConverterSettings = settings;
                 PdfDocument document = htmlConverter.Convert(template, "");
@@ -51,6 +51,80 @@ namespace GFD.Siscom.Enrollment.Utilities.GeneraPDF
                 return e.Message;
             }
             
+        }
+
+        public async Task<string> GerneraOrderPayment(OrderSaleVM data)
+        {
+            HtmlToPdfConverter htmlConverter = new HtmlToPdfConverter();
+            WebKitConverterSettings settings = new WebKitConverterSettings();
+            try
+            {
+                string template = await ConvertViewsToHTML.RenderViewAsync(controller, "OrdenDeCobroPDF", data, true);
+                settings.WebKitPath = Path.Combine(_hostingEnvironment.ContentRootPath, "QtBinariesWindows");
+                htmlConverter.ConverterSettings = settings;
+                PdfDocument document = htmlConverter.Convert(template, "");
+                MemoryStream stream = new MemoryStream();
+                document.Save(stream);
+                stream.Position = 0;
+                document.Close(true);
+                string Filename = "Orden-De-Cobro-" + data.Folio + ".pdf";
+                System.IO.File.WriteAllBytes(Path.Combine(_hostingEnvironment.WebRootPath, Filename), stream.ToArray());
+                return Filename;
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+        }
+
+        public async Task<string> GerneraOrderPaymentWithAccount(DebtVM debts)
+        {
+            HtmlToPdfConverter htmlConverter = new HtmlToPdfConverter();
+            WebKitConverterSettings settings = new WebKitConverterSettings();
+            try
+            {
+                string template = await ConvertViewsToHTML.RenderViewAsync(controller, "OrdenDeCobroConCuentaPDF", debts, true);
+                settings.WebKitPath = Path.Combine(_hostingEnvironment.ContentRootPath, "QtBinariesWindows");
+                htmlConverter.ConverterSettings = settings;
+                PdfDocument document = htmlConverter.Convert(template, "");
+                MemoryStream stream = new MemoryStream();
+                document.Save(stream);
+                stream.Position = 0;
+                document.Close(true);
+                string Filename = "Orden-De-Cobro-" + debts.Agreement.Account + ".pdf";
+                System.IO.File.WriteAllBytes(Path.Combine(_hostingEnvironment.WebRootPath, Filename), stream.ToArray());
+                return Filename;
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+        }
+
+        public async Task<string> GerneraProofNoDebt(object data)
+        {
+            HtmlToPdfConverter htmlConverter = new HtmlToPdfConverter();
+            WebKitConverterSettings settings = new WebKitConverterSettings();
+            try
+            {
+                dynamic agr = JsonConvert.DeserializeObject<object>(data.ToString());
+                AgreementVM agreement = JsonConvert.DeserializeObject<AgreementVM>(JsonConvert.SerializeObject(agr["agreement"]));
+                string template = await ConvertViewsToHTML.RenderViewAsync(controller, "ProofNoDebtPDF", data, true);
+                settings.WebKitPath = Path.Combine(_hostingEnvironment.ContentRootPath, "QtBinariesWindows");
+                htmlConverter.ConverterSettings = settings;
+                PdfDocument document = htmlConverter.Convert(template, "");
+                MemoryStream stream = new MemoryStream();
+                document.Save(stream);
+                stream.Position = 0;
+                document.Close(true);
+                string Filename = "Constancia-No-Adeudo-" + agreement.Account + ".pdf";
+                System.IO.File.WriteAllBytes(Path.Combine(_hostingEnvironment.WebRootPath, Filename), stream.ToArray());
+                return Filename;
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
         }
     }
 }

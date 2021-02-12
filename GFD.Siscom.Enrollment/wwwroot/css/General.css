@@ -117,3 +117,38 @@ th{
     margin-bottom: 17px;
     font-size: 17px;
 }
+
+.payment-order-results {
+    margin-bottom: 0px;
+    font-size: 20px;
+    text-align: right;
+}
+
+.payment-order-results-total {
+    margin-bottom: -9px;
+    font-size: 27px;
+    text-align: right;
+    margin-top: -11px;
+}
+
+.width-modal-tax-user {
+    max-width: 100%;
+    width: 50%;
+}
+
+@media screen and (max-width: 1880px) {
+    .step-1-div {
+        margin-top: 57px;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .width-modal-tax-user {
+        max-width: 100%;
+        width: 93%;
+    }
+}
+
+.disabled-tabs {
+    color: #d5d5d5 !important;
+}

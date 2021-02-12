@@ -97,10 +97,19 @@
                                         </a>
                                     </li>
                                     <li class="@(ViewData["Title"].ToString() == "Tipo de Toma" ? "mm-active active-GFD" : "")">
-                                        <a href="/CatalogTypes/Get?type=TypeIntakes&name=Tipo de Toma&isToSelect=false">
-                                            <i class="metismenu-icon">
-                                            </i>Tipo de Toma
-                                        </a>
+                                        @if (Plataform.IsAyuntamiento)
+                                        {
+                                            <a href="/CatalogTypes/Get?type=TypeIntakes&name=Tipo de Toma&isToSelect=false">
+                                                <i class="metismenu-icon"></i>Tipo Predio
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a href="/CatalogTypes/Get?type=TypeIntakes&name=Tipo de Toma&isToSelect=false">
+                                                <i class="metismenu-icon"></i>Tipo de Toma
+                                            </a>
+                                        }
+
                                     </li>
                                     <li class="@(ViewData["Title"].ToString() == "Tipo de Uso" ? "mm-active active-GFD" : "")">
                                         <a href="/CatalogTypes/Get?type=TypeUses&name=Tipo de Uso&isToSelect=false">
@@ -138,12 +147,15 @@
                                             </i>Periodo
                                         </a>
                                     </li>
-                                    <li class="@(ViewData["Title"].ToString() == "Diametro" ? "mm-active active-GFD" : "")">
-                                        <a href="/CatalogTypes/Get?type=Diameters&name=Diametro&isToSelect=false">
-                                            <i class="metismenu-icon">
-                                            </i>Diametro
-                                        </a>
-                                    </li>
+                                    @if (!Plataform.IsAyuntamiento)
+                                    {
+                                        <li class="@(ViewData["Title"].ToString() == "Diametro" ? "mm-active active-GFD" : "")">
+                                            <a href="/CatalogTypes/Get?type=Diameters&name=Diametro&isToSelect=false">
+                                                <i class="metismenu-icon">
+                                                </i>Diametro
+                                            </a>
+                                        </li>
+                                    }
                                     <li class="@(ViewData["Title"].ToString() == "Tipo Transacción" ? "mm-active active-GFD" : "")">
                                         <a href="/CatalogTypes/Get?type=TypeTransaction&name=Tipo Transacción&isToSelect=false">
                                             <i class="metismenu-icon">
@@ -193,7 +205,7 @@
                     </li>
                 }
 
-                @if (Auth.Login.HasRoles("Admin|Supervisor|Super|Isabi"))
+                @if (Auth.Login.HasRoles("Admin|Supervisor|Super"))
                 {
                     <li>
                         <a href="#">
@@ -206,6 +218,37 @@
                                 <a href="/Discounts/AgreementList">
                                     <i class="metismenu-icon">
                                     </i>Población Vulnerable
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                }
+
+                @if (Auth.Login.HasRoles("Admin|Supervisor|Super|Ordenes|User|Isabi"))
+                {
+                    <li>
+                        <a href="#">
+                            <i class="metismenu-icon fas fa-file-alt"></i>
+                            Ordenes
+                            <i class="metismenu-state-icon fa fa-angle-down caret-left"></i>
+                        </a>
+                        <ul>
+                            <li class="@(url == "Ordenes-Index" ? "mm-active active-GFD" : "")">
+                                <a href="/Ordenes/Index">
+                                    <i class="metismenu-icon">
+                                    </i>Ordenes de Pago
+                                </a>
+                            </li>
+                            <li class="@(url == "Ordenes-SearchOrderByDateIndex" ? "mm-active active-GFD" : "")">
+                                <a href="/Ordenes/SearchOrderByDate/Index">
+                                    <i class="metismenu-icon">
+                                    </i>Búsqueda de Ordenes
+                                </a>
+                            </li>
+                            <li class="@(url == "TaxUsers-GetListTaxUsersIndex" ? "mm-active active-GFD" : "")">
+                                <a href="/TaxUser/GetListTaxUsers/Index">
+                                    <i class="metismenu-icon">
+                                    </i>Registro de Contribuyentes
                                 </a>
                             </li>
                         </ul>

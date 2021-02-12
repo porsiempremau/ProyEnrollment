@@ -5,11 +5,10 @@ using System.Threading.Tasks;
 
 namespace GFD.Siscom.Enrollment.Models
 {
-    public class TownVM
+    public class CountrieVM
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public int StateId { get; set; }
-        public StatesVM States { get; set; }
+        public string Abbreviation { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿@model Object
 @using Newtonsoft.Json;
+@using GFD.Siscom.Enrollment.Utilities.Auth;
 @{
     dynamic data = JsonConvert.DeserializeObject(JsonConvert.SerializeObject(Model));
     var typeServices = JsonConvert.DeserializeObject<List<TypeServicesGralVM>>(JsonConvert.SerializeObject(data["data"]));
@@ -19,14 +20,17 @@
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12">
-        <button type="button" class="btn btn-GFD float-right" data-toggle="modal" data-target="#modalCreateEdit" onclick="openModalToCreate('@data["type"]')">
-            Agregar Nuevo
-            <i class="fas fa-plus" title="Agregar Nuevo"></i>
-        </button>
+@if (Auth.Login.HasRole("Admin"))
+{
+    <div class="row">
+        <div class="col-md-12">
+            <button type="button" class="btn btn-GFD float-right" data-toggle="modal" data-target="#modalCreateEdit" onclick="openModalToCreate('@data["type"]')">
+                Agregar Nuevo
+                <i class="fas fa-plus" title="Agregar Nuevo"></i>
+            </button>
+        </div>
     </div>
-</div>
+}
 <br />
 <div class="row">
     <div class="col-md-12">
@@ -37,7 +41,11 @@
                         <tr>
                             <th width="45%">Descripción</th>
                             <th width="45%">Status</th>
-                            <th width="10%"></th>
+                            @if (Auth.Login.HasRole("Admin"))
+                            {
+                                <th width="10%"></th>
+                            }
+                                
                         </tr>
                     </thead>
                     <tbody id="tbody">
@@ -47,12 +55,16 @@
                                 <tr>
                                     <td>@item.Name</td>
                                     <td>@(item.IsActive.ToString() == "True" ? "Activo" : "Inactivo")</td>
-                                    <td>
-                                        <a class="nav-link btn-flush" onclick="openModalEdit('@data["type"]', @item.Id)" data-toggle="modal" data-target="#modalCreateEdit" type="button"
-                                           data-caret="false" style="margin: 0 auto;">
-                                            <i class="fas fa-edit iconX" title="Editar"></i>
-                                        </a>
-                                    </td>
+                                    @if (Auth.Login.HasRole("Admin"))
+                                    {
+                                        <td>
+                                            <a class="nav-link btn-flush" onclick="openModalEdit('@data["type"]', @item.Id)" data-toggle="modal" data-target="#modalCreateEdit" type="button"
+                                               data-caret="false" style="margin: 0 auto;">
+                                                <i class="fas fa-edit iconX" title="Editar"></i>
+                                            </a>
+                                        </td>
+                                    }
+                                    
                                 </tr>
                             }
                         }
@@ -291,8 +303,7 @@
                     type: 'success',
                     showConfirmButton: true,
                 }).then(response => {
-                    $("#modalCreateEdit").hide();
-                    $(".modal-backdrop").hide();
+                    $("#modalCreateEdit").modal('hide');
                     window.location.href = "/CatalogTypes/Get?type=" + type + "&name=" + '@ViewData["Title"]' + "&isToSelect=false"
                 });
             }).catch(error => {

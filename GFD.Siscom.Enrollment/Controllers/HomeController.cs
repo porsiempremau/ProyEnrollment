@@ -11,6 +11,8 @@ using Microsoft.Extensions.Options;
 using GFD.Siscom.Enrollment.Utilities.Parameters;
 using GFD.Siscom.Enrollment.Utilities.Services;
 using GFD.Siscom.Enrollment.Middleware;
+using System.Net.Http;
+using GFD.Siscom.Enrollment.Utilities.Auth;
 
 namespace GFD.Siscom.Enrollment.Controllers
 {   
@@ -32,6 +34,24 @@ namespace GFD.Siscom.Enrollment.Controllers
         public IActionResult Index()
         {
             return View("~/Views/Home/Index.cshtml");
+        }
+
+        [HttpGet("Home/GetDivision")]
+        public async Task<IActionResult> GetDivision ()
+        {
+            try
+            {
+                var result = await RequestsApi.SendURIAsync("/api/Division", HttpMethod.Get, Auth.Login.Token);
+                if (result.Contains("error"))
+                {
+                    return Conflict(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return Conflict(e.Message);
+            }
         }
 
         public IActionResult Privacy()

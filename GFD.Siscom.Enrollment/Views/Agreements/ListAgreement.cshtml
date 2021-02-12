@@ -52,15 +52,20 @@
 <br />
 <div class="row">
     <div class="col-md-12">
-        @if(Auth.Login.HasRoles("Admin|Supervisor|Super|Isabi")){
-            @if (typePage == "agreements")
+        
+        @if (typePage == "agreements")
+        {
+            if (Auth.Login.HasRoles("Admin|Supervisor|Super|Isabi"))
             {
                 <a type="button" class="btn btn-GFD float-right style-btn-agregar-nuevo" href="/Agreement/EditCreateView">
                     <i class="fas fa-plus-circle" title="Agregar Nuevo"></i>
                     Agregar Nuevo
                 </a>
             }
-            else
+        }
+        else
+        {
+            if (Auth.Login.HasRoles("Admin|Supervisor|Super"))
             {
                 <a type="button" class="btn btn-GFD float-right style-btn-agregar-nuevo" href="/Discounts/ViewDiscountVulnerable">
                     <i class="fas fa-plus-circle" title="Agregar Nuevo"></i>
@@ -68,6 +73,7 @@
                 </a>
             }
         }
+        
     </div>
 </div>
 <br />
@@ -90,7 +96,7 @@
                             {
                                 <th>Folio</th>
                             }
-                            <th>Descuento</th>
+                            <th>Status Desc.</th>
                             <th>Descuento</th>
                             @if (typePage == "discounts")
                             {
@@ -130,6 +136,7 @@
     <partial name="~/Views/Agreements/_ModalDebtsFromAgreement.cshtml" />
     <script>
         var __ListDebts = [];
+        var __Rol = '@Auth.Login.RolName[0]';
 
         window.onload = function () {
 
@@ -188,64 +195,178 @@
             $("#tbody").html("");
             axios.get("/Agreement/Get/List" + query).then(response => {
                 var data = response.data;
-                console.log("Data: ", data);
+                console.log("List Agreement: ", data);
+
                 if (data.length > 0) {
-                    data.forEach(x => {
-                        if ('@typePage' == "agreements") {
-                            if ((!x.isActiveDiscount && x.nameDiscount == "") || (x.isActiveDiscount && x.nameDiscount != "")) {
-                                $("#tbody").append(`
-                                    <tr>
-                                        <td>${x.account}</td>
-                                        <td>${x.nombre}</td>
-                                        <td>${x.address}</td>
-                                        <td>${x.status}</td>
-                                        <td>${x.type}</td>
-                                        <td>${x.token}</td>
-                                        <td>${x.isActiveDiscount ? "Activo" : "Inactivo"}</td>
-                                        <td>${x.nameDiscount != "" ? x.nameDiscount : "N/A"}</td>
-                                        <td>
-                                            <a class="nav-link btn-flush" href="/Agreement/EditCreateView?idAgreement=${x.agreementId}" data-caret="false" style="margin: 0 auto;">
-                                                <i class="fas fa-edit iconX" title="Editar"></i>
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <a class="nav-link btn-flush" onclick="GetDebts(${x.agreementId})" data-caret="false" style="margin: 0 auto;">
-                                                <i class="fas fa-eye iconX" title="Ver Adeudo"></i>
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <a class="nav-link btn-flush" onclick="printEstadoDeCuenta(${x.agreementId})" data-caret="false" style="margin: 0 auto;">
-                                                <i class="fas fa-print iconX" title="Descargar Estado de Cuenta"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                `);
+
+                    //var distinct = Array.from(new Set(data.map(s => s))).map(s => {
+                    //    var dataAgreement = data.find(x => x.agreementId == s.idAgreement);
+                    //    return dataAgreement;
+                    //});
+
+                    if (account != "" && '@typePage' == "agreements") {
+                        var a = [], b = [], c = [];
+                        data.forEach(x => {
+                            if (x.isActiveDiscount == true && x.nameDiscount != "") {
+                                a.push(x);
                             }
-                        } else {
-                            colspan = 9;
-                            if (x.isActiveDiscount) {
-                                $("#tbody").append(`
-                                    <tr>
-                                        <td>${x.account}</td>
-                                        <td>${x.nombre}</td>
-                                        <td>${x.status}</td>
-                                        <td>${x.type}</td>
-                                        <td>${x.isActiveDiscount ? "Activo" : "Inactivo"}</td>
-                                        <td>${x.nameDiscount != "" ? x.nameDiscount : "N/A"}</td>
-                                        <td>${x.endDate.slice(0, 10)}</td>
-                                        <td>${x.withDiscount == true ? "CON DESCUENTO ACTIVO" : "SIN DESCUENTO ACTIVO"}</td>
-                                        <td>
-                                            <a class="nav-link btn-flush" onclick="ReverseVulnerable(${x.agreementId})" data-caret="false" style="margin: 0 auto;">
-                                                <i class="fas fa-trash iconX" title="Eliminar"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                `);
+                            if (x.isActiveDiscount == false && x.nameDiscount == "") {
+                                b.push(x);
                             }
+                            if (x.isActiveDiscount == false && x.nameDiscount != "") {
+                                c.push(x);
+                            }
+                        });
+
+                        if (data.length == c.length) {
+                            $("#tbody").html(`
+                                <tr>
+                                    <td>${c[(c.length - 1)].account}</td>
+                                    <td>${c[(c.length - 1)].nombre}</td>
+                                    <td>${c[(c.length - 1)].address}</td>
+                                    <td>${c[(c.length - 1)].status}</td>
+                                    <td>${c[(c.length - 1)].type}</td>
+                                    <td>${c[(c.length - 1)].token}</td>
+                                    <td>${c[(c.length - 1)].isActiveDiscount ? "Activo" : "Inactivo"}</td>
+                                    <td>${c[(c.length - 1)].nameDiscount != "" ? c[(c.length - 1)].nameDiscount : "N/A"}</td>
+                                    <td>
+                                        <a class="nav-link btn-flush" href="/Agreement/EditCreateView?idAgreement=${c[(c.length - 1)].agreementId}" data-caret="false" style="margin: 0 auto;">
+                                            <i class="fas fa-edit iconX" title="Editar"></i>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a class="nav-link btn-flush" onclick="GetDebts(${c[(c.length - 1)].agreementId})" data-caret="false" style="margin: 0 auto;">
+                                            <i class="fas fa-eye iconX" title="Ver Adeudo"></i>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a class="nav-link btn-flush ${__Rol == 'Admin' ? "" : "disabled"}" onclick="printEstadoDeCuenta(${c[(c.length - 1)].agreementId})" data-caret="false" style="margin: 0 auto;">
+                                            <i class="fas fa-download iconX" title="Descargar Estado de Cuenta"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            `);
+                        } else if (a.length > 0) {
+                            a.forEach(x => {
+                                $("#tbody").append(`
+                                <tr>
+                                    <td>${x.account}</td>
+                                    <td>${x.nombre}</td>
+                                    <td>${x.address}</td>
+                                    <td>${x.status}</td>
+                                    <td>${x.type}</td>
+                                    <td>${x.token}</td>
+                                    <td>${x.isActiveDiscount ? "Activo" : "Inactivo"}</td>
+                                    <td>${x.nameDiscount != "" ? x.nameDiscount : "N/A"}</td>
+                                    <td>
+                                        <a class="nav-link btn-flush" href="/Agreement/EditCreateView?idAgreement=${x.agreementId}" data-caret="false" style="margin: 0 auto;">
+                                            <i class="fas fa-edit iconX" title="Editar"></i>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a class="nav-link btn-flush" onclick="GetDebts(${x.agreementId})" data-caret="false" style="margin: 0 auto;">
+                                            <i class="fas fa-eye iconX" title="Ver Adeudo"></i>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a class="nav-link btn-flush ${__Rol == 'Admin' ? "" : "disabled"}" onclick="printEstadoDeCuenta(${x.agreementId})" data-caret="false" style="margin: 0 auto;">
+                                            <i class="fas fa-print iconX" title="Descargar Estado de Cuenta"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            `);
+                          });
+                        } else if (b.length > 0) {
+                            b.forEach(x => {
+                                $("#tbody").append(`
+                                <tr>
+                                    <td>${x.account}</td>
+                                    <td>${x.nombre}</td>
+                                    <td>${x.address}</td>
+                                    <td>${x.status}</td>
+                                    <td>${x.type}</td>
+                                    <td>${x.token}</td>
+                                    <td>${x.isActiveDiscount ? "Activo" : "Inactivo"}</td>
+                                    <td>${x.nameDiscount != "" ? x.nameDiscount : "N/A"}</td>
+                                    <td>
+                                        <a class="nav-link btn-flush" href="/Agreement/EditCreateView?idAgreement=${x.agreementId}" data-caret="false" style="margin: 0 auto;">
+                                            <i class="fas fa-edit iconX" title="Editar"></i>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a class="nav-link btn-flush" onclick="GetDebts(${x.agreementId})" data-caret="false" style="margin: 0 auto;">
+                                            <i class="fas fa-eye iconX" title="Ver Adeudo"></i>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a class="nav-link btn-flush ${__Rol == 'Admin' ? "" : "disabled"}" onclick="printEstadoDeCuenta(${x.agreementId})" data-caret="false" style="margin: 0 auto;">
+                                            <i class="fas fa-print iconX" title="Descargar Estado de Cuenta"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            `);
+                          });
                         }
-                    });
+                    } else {
+                        data.forEach(x => {
+                            if ('@typePage' == "agreements") {
+                                //if ((!x.isActiveDiscount && x.nameDiscount == "")
+                                //    || (x.isActiveDiscount && x.nameDiscount != "")) {
+                                    $("#tbody").append(`
+                                        <tr>
+                                            <td>${x.account}</td>
+                                            <td>${x.nombre}</td>
+                                            <td>${x.address}</td>
+                                            <td>${x.status}</td>
+                                            <td>${x.type}</td>
+                                            <td>${x.token}</td>
+                                            <td>${x.isActiveDiscount ? "Activo" : "Inactivo"}</td>
+                                            <td>${x.nameDiscount != "" ? x.nameDiscount : "N/A"}</td>
+                                            <td>
+                                                <a class="nav-link btn-flush" href="/Agreement/EditCreateView?idAgreement=${x.agreementId}" data-caret="false" style="margin: 0 auto;">
+                                                    <i class="fas fa-edit iconX" title="Editar"></i>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a class="nav-link btn-flush" onclick="GetDebts(${x.agreementId})" data-caret="false" style="margin: 0 auto;">
+                                                    <i class="fas fa-eye iconX" title="Ver Adeudo"></i>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a class="nav-link btn-flush ${__Rol == 'Admin' ? "" : "disabled"}" onclick="printEstadoDeCuenta(${x.agreementId})" data-caret="false" style="margin: 0 auto;">
+                                                    <i class="fas fa-print iconX" title="Descargar Estado de Cuenta"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    `);
+                                //}
+                            } else {
+                                colspan = 9;
+                                if (x.isActiveDiscount) {
+                                    $("#tbody").append(`
+                                        <tr>
+                                            <td>${x.account}</td>
+                                            <td>${x.nombre}</td>
+                                            <td>${x.status}</td>
+                                            <td>${x.type}</td>
+                                            <td>${x.isActiveDiscount ? "Activo" : "Inactivo"}</td>
+                                            <td>${x.nameDiscount != "" ? x.nameDiscount : "N/A"}</td>
+                                            <td>${x.endDate.slice(0, 10)}</td>
+                                            <td>${x.withDiscount == true ? "CON DESCUENTO ACTIVO" : "SIN DESCUENTO ACTIVO"}</td>
+                                            <td>
+                                                <a class="nav-link btn-flush" onclick="ReverseVulnerable(${x.agreementId})" data-caret="false" style="margin: 0 auto;">
+                                                    <i class="fas fa-trash iconX" title="Eliminar"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    `);
+                                }
+                            }
+                        });
+                    }
 
                     loadDataTable("TableAgreement");
+
                 } else {
                     $("#tbody").append(`
                         <tr>
@@ -273,7 +394,6 @@
                 UnBlock();
                 if (response.data.length > 0) {
                     __ListDebts = response.data;
-                    console.log("__ListDebts: ", __ListDebts);
                     $("#btnModalDebts").click();
                     __ListDebts.forEach(x => {
                         var fromDate = getFormateDate(x.fromDate),
@@ -387,11 +507,13 @@
                             text: response.data,
                             type: 'success',
                             showConfirmButton: true,
+                        }).then(response => {
+                            getAgreement(event);
                         });
                     }).catch(error => {
                         UnBlock();
                         Swal.fire({
-                            title: "Correcto",
+                            title: "Disculpa",
                             text: error.response.data.error,
                             type: 'info',
                             showConfirmButton: true,
@@ -408,39 +530,6 @@
                     DownloadPDF(response.data);
                 }, 500);
             })
-        }
-
-        function DownloadPDF(fileName) {
-            fetch(location.protocol + "//" + location.host + "/Debt/DownloadPDF/" + fileName)
-                .then((response) => {
-                    if (response.status != 200) {
-                        let errorMessage = "Error al procesar la solicitud... (" + response.status + " " + response.statusText + ")";
-                        throw new Error(errorMessage);
-                    } else {
-                        return response.blob();
-                    }
-                })
-                .then((blob) => {
-                    // !!! see next code block !!!
-                    proccessBLOB(fileName, blob);
-                    //window.location.reload();
-                    UnBlock();
-                })
-                .catch(error => {
-                    UnBlock();
-                    console.error(error);
-                });
-        }
-
-        function proccessBLOB(filenameForDownload, data) {
-            var textUrl = URL.createObjectURL(data);
-            var element = document.createElement('a');
-            element.setAttribute('href', textUrl);
-            element.setAttribute('download', filenameForDownload);
-            element.style.display = 'none';
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
         }
     </script>
 }

@@ -137,6 +137,7 @@ class AddressVM {
     lon;
     typeAddress;
     suburbsId;
+    suburbs;
     isActive;
     stateId
     stateName;
@@ -155,6 +156,7 @@ class AddressVM {
         this.lon = address.lon || "";
         this.typeAddress = address.typeAddress || "";
         this.suburbsId = address.suburbsId || 0;
+        this.suburbs = address.suburbs;
         this.isActive = address.isActive;
         this.stateId = address.stateId || 0;
         this.stateName = address.stateName || "";
@@ -192,29 +194,89 @@ class DebtVM {
     debtDetails;
     constructor(d) {
         this.id = d.id || 0;
-        this.debitDate = d.debitDate;
-        this.fromDate = d.fromDate;
-        this.untilDate = d.untilDate;
+        this.debitDate = d.debitDate || "0001-01-01T00:00:00";
+        this.fromDate = d.fromDate || "0001-01-01T00:00:00";
+        this.untilDate = d.untilDate || "0001-01-01T00:00:00";
         this.derivatives = d.derivatives || 0;
-        this.typeIntake = d.typeIntake || "";
-        this.typeService = d.typeService || "";
-        this.consumption = d.consumption || "";
+        this.typeIntake = d.typeIntake || "0";
+        this.typeService = d.typeService || "0";
+        this.consumption = d.consumption || "0";
         this.discount = d.discount || "";
         this.amount = d.amount || 0.0;
         this.onAccount = d.onAccount || 0.0;
         this.year = d.year || 0;
-        this.type = d.type || "";
+        this.type = d.type || "TIP02";
         this.descriptionType = d.descriptionType || "";
-        this.status = d.status || "";
+        this.status = d.status || "ED001";
         this.descriptionStatus = d.descriptionStatus || "";
         this.newStatus = d.newStatus || "";
         this.debtPeriodId = d.debtPeriodId || 0;
-        this.expirationDate = d.expirationDate;
-        this.rechargesDate = d.rechargesDate;
-        this.observations = d.observation || "";
+        this.expirationDate = d.expirationDate || "0001-01-01T00:00:00";
+        this.rechargesDate = d.rechargesDate || "0001-01-01T00:00:00";
+        this.observations = d.observations || "N/A";
         this.agreementId = d.agreementId || 0;
-        this.agreement = d.agreement;
+        this.agreement = d.agreement || null;
         this.debtDetails = d.debtDetails || [];
     }
 }
+
+class AgreementListVM {
+    account;
+    address;
+    agreementId;
+    debit;
+    endDate;
+    idClient;
+    idStatus;
+    isActiveDiscount;
+    nameDiscount;
+    nombre;
+    numDerivades;
+    rfc;
+    status;
+    taxableBase;
+    token;
+    type;
+    withDiscount;
+    constructor(a) {
+        this.account = a.account || "";
+        this.address = a.address || "";
+        this.agreementId = a.agreementId || 0;
+        this.debit = a.debit || 0;
+        this.endDate = a.endDate;
+        this.idClient = a.idClient || 0;
+        this.idStatus = a.idStatus || 0;
+        this.isActiveDiscount = a.isActiveDiscount;
+        this.nameDiscount = a.nameDiscount || "";
+        this.nombre = a.nombre || "";
+        this.numDerivades = a.numDerivades || 0;
+        this.rfc = a.rfc || "";
+        this.status = a.status || "";
+        this.taxableBase = a.taxableBase;
+        this.token = a.token || "";
+        this.type = a.type || ""
+        this.withDiscount = a.withDiscount;
+    }
+}
+
+
+class ProofNoDebtVM {
+    id;
+    folio;
+    expedition_date;
+    expiration_date;
+    userId;
+    agreementId;
+    agreement;
+    constructor(p) {
+        this.id = p.id || 0;
+        this.folio = p.folio || 0;
+        this.expedition_date = p.expedition_date;
+        this.expiration_date = p.expirationDate;
+        this.userId = p.userId || '';
+        this.agreementId = p.agreementId || 0;
+        this.agreement = p.agreement || null;
+    }
+}
+
 

@@ -9,6 +9,8 @@ namespace GFD.Siscom.Enrollment.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public int CountriesId { get; set; }
+        public CountrieVM Countries { get; set; }
         public string abbreviation { get; set; }
     }
 }

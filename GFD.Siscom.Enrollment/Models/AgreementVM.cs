@@ -33,7 +33,7 @@ namespace GFD.Siscom.Enrollment.Models
         //public OrderWork OrderWork { get; set; }
         public ICollection<AccountStatusInFileVM> AccountStatusInFiles { get; set; }
         public ICollection<DebtVM> Debts { get; set; }
-
+        public int Year { get; set; }
         //public ICollection<DerivativeVM> Derivatives { get; set; }
     }
 }

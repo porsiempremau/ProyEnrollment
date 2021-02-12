@@ -38,16 +38,16 @@
 
                         <div class="col-md-12">
                             <label>Calle:</label>
-                            <input type="text" class="form-control form-control-sm" id="street" name="street" maxlength="15" required />
+                            <input type="text" class="form-control form-control-sm" id="street" name="street" maxlength="150" required />
                         </div>
 
                         <div class="col-md-6">
                             <label>Número Ext:</label>
-                            <input type="text" class="form-control form-control-sm" id="numExt" name="numExt" maxlength="10" />
+                            <input type="text" class="form-control form-control-sm" id="numExt" name="numExt" maxlength="50" required/>
                         </div>
                         <div class="col-md-6">
                             <label>Número Int:</label>
-                            <input type="text" class="form-control form-control-sm" id="numInt" name="numInt" maxlength="5" />
+                            <input type="text" class="form-control form-control-sm" id="numInt" name="numInt" maxlength="50" />
                         </div>
 
                         <div class="col-md-12">
@@ -312,8 +312,16 @@
         var lat, lng;
         document.getElementById("btnAddAddress").style.display = "none";
         document.getElementById("btnEditAddress").style.display = "block";
+        //DESACTIVAMOS LOS TABS PARA QUE EL USUARIO NO PUEDA NAVEGAR HASTA QUE GUARDE LOS CAMBIOS EN EL ARREGLO DE DIRECCIÓN
+        document.getElementById("TabAgreement").classList.add("disabled");
+        document.getElementById("TabAgreement").classList.add("disabled-tabs");
+        document.getElementById("TabClient").classList.add("disabled");
+        document.getElementById("TabClient").classList.add("disabled-tabs");
         if (@IDAgree > 0) {
             document.getElementById("btnUpdateAddress").disabled = true;
+            //DESACTIVAMOS LOS TAB DE HISTORIAL PARA QUE EL USUARIO NO PUEDA NAVEGAR HASTA QUE GUARDE LOS CAMBIOS EN EL ARREGLO DE CLIENTES
+            document.getElementById("TabRecord").classList.add("disabled");
+            document.getElementById("TabRecord").classList.add("disabled-tabs");
         }
         if (@IDAgree == 0) {
             document.getElementById("btnSaveData").disabled = true;
@@ -394,8 +402,16 @@
         });
         document.getElementById("btnAddAddress").style.display = "block";
         document.getElementById("btnEditAddress").style.display = "none";
+        //PARA HABILITAR LOS TABS DESPUES DE QUE SE EDITARON LOS DATOS
+        document.getElementById("TabAgreement").classList.remove("disabled");
+        document.getElementById("TabAgreement").classList.remove("disabled-tabs");
+        document.getElementById("TabClient").classList.remove("disabled");
+        document.getElementById("TabClient").classList.remove("disabled-tabs");
         if (@IDAgree > 0) {
             document.getElementById("btnUpdateAddress").disabled = false;
+            //HABILITAMOD EL TAB DE HISTORIAL
+            document.getElementById("TabRecord").classList.remove("disabled");
+            document.getElementById("TabRecord").classList.remove("disabled-tabs");
         }
         if (@IDAgree == 0) {
             document.getElementById("btnSaveData").disabled = false;
@@ -416,16 +432,16 @@
         });
 
         axios.put(`/Agreement/CreateEditAddress/${@IDAgree}`, { addresses }).then(response => {
-            //console.log("Update Address: ", response.data);
             UnBlock();
             Swal.fire({
                 title: "Bien",
                 text: response.data,
                 type: 'success',
                 showConfirmButton: true,
-            }).then(response => {
-                window.location.href = "/Agreement/EditCreateView?idAgreement=" + @IDAgree;
             });
+                //.then(response => {
+                //window.location.href = "/Agreement/EditCreateView?idAgreement=" + @IDAgree;
+            //});
         }).catch(error => {
             UnBlock();
             Swal.fire({

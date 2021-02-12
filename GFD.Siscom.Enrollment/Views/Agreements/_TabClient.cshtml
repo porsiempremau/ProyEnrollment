@@ -386,6 +386,14 @@
 
         document.getElementById("btnAddClient").style.display = "none";
         document.getElementById("btnEditClient").style.display = "block";
+
+        //DESACTIVAMOS LOS TABS PARA QUE EL USUARIO NO PUEDA NAVEGAR HASTA QUE GUARDE LOS CAMBIOS EN EL ARREGLO DE CLIENTES
+        document.getElementById("TabAgreement").classList.add("disabled");
+        document.getElementById("TabAgreement").classList.add("disabled-tabs");
+        document.getElementById("TabAddress").classList.add("disabled");
+        document.getElementById("TabAddress").classList.add("disabled-tabs");
+
+
         for (var i = 0; i < __listClients.length; i++) {
             if (__listClients[i].isActive) {
                 document.getElementById("btnDeleteClient" + i).classList.add("disabled");
@@ -410,6 +418,10 @@
             document.getElementById("btnSaveData").disabled = true;
         }
         if (@IDAgreement != 0) {
+            //DESACTIVAMOS LOS TAB DE HISTORIAL PARA QUE EL USUARIO NO PUEDA NAVEGAR HASTA QUE GUARDE LOS CAMBIOS EN EL ARREGLO DE CLIENTES
+            document.getElementById("TabRecord").classList.add("disabled");
+            document.getElementById("TabRecord").classList.add("disabled-tabs");
+
             document.getElementById("btnUpdateClient").disabled = true;
         }
     }
@@ -448,12 +460,20 @@
 
         if (@IDAgreement != 0) {
             document.getElementById("btnUpdateClient").disabled = false;
+            //HABILITAMOD EL TAB DE HISTORIAL
+            document.getElementById("TabRecord").classList.remove("disabled");
+            document.getElementById("TabRecord").classList.remove("disabled-tabs");
         }
         if (@IDAgreement == 0) {
             document.getElementById("btnSaveData").disabled = false;
         }
         document.getElementById("btnAddClient").style.display = "block";
         document.getElementById("btnEditClient").style.display = "none";
+        //PARA HABILITAR LOS TABS
+        document.getElementById("TabAgreement").classList.remove("disabled");
+        document.getElementById("TabAgreement").classList.remove("disabled-tabs");
+        document.getElementById("TabAddress").classList.remove("disabled");
+        document.getElementById("TabAddress").classList.remove("disabled-tabs");
         for (var i = 0; i < __listClients.length; i++) {
             if (__listClients[i].isActive) {
                 document.getElementById("btnDeleteClient" + i).classList.remove("disabled");
@@ -486,9 +506,10 @@
                 text: response.data,
                 type: 'success',
                 showConfirmButton: true,
-            }).then(response => {
-                window.location.href = "/Agreement/EditCreateView?idAgreement=" + @IDAgreement;
             });
+            //.then(response => {
+            //window.location.href = "/Agreement/EditCreateView?idAgreement=" + @IDAgreement;
+            //});
         }).catch(error => {
             UnBlock();
             Swal.fire({

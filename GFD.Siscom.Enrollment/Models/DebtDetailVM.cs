@@ -11,6 +11,7 @@ namespace GFD.Siscom.Enrollment.Models
         public decimal Amount { get; set; }
         public decimal OnAccount { get; set; }
         public decimal OnPayment { get; set; }
+        public decimal UnitPrice { get; set; }
         public bool HaveTax { get; set; }
         public string CodeConcept { get; set; }
         public string NameConcept { get; set; }

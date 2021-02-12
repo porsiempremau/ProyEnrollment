@@ -1,4 +1,28 @@
-﻿function Block() {
+﻿//var __ListDivision = [];
+
+const GetDescriptionDivision = () => {
+    return new Promise((resolve, reject) => {
+        var ListDivision = [];
+        axios.get("/Home/GetDivision").then(response => {
+            if (response.data.length > 0) {
+                response.data.forEach(x => {
+                    if (x.isActive) {
+                        ListDivision.push({
+                            idType: x.id,
+                            description: x.name
+                        });
+                    }
+                });
+                resolve(ListDivision);
+            }
+        }).catch(error => {
+            reject(ListDivision = []);
+        });
+    });
+    
+}
+
+function Block() {
     $.blockUI({ message: null });
     document.getElementById("loader").style.display = "block";
     document.getElementsByClassName("blockOverlay")[0].style.zIndex = 10000;
@@ -347,6 +371,10 @@ function loadFileInput(idFileInput, accept = ['jpg', 'png', 'pdf', 'jpeg']) {
         uploadUrl: '#',
         allowedFileExtensions: accept
     });
+}
+
+function CathErrors(error) {
+
 }
 
 const YEAR = [
@@ -1324,6 +1352,10 @@ const TYPES_AYUNTAMIENTO = [
     {
         "idType": "TIP06",
         "description": "CUOTA DE CONVENIO",
+    },
+    {
+        "idType": "OA001",
+        "description": "PRODUCTOS",
     }
 ]
 
@@ -1351,6 +1383,10 @@ const TYPES_AGUA = [
     {
         "idType": "TIP06",
         "description": "CUOTA DE CONVENIO",
+    },
+    {
+        "idType": "OA001",
+        "description": "PRODUCTOS",
     }
 ]
 
@@ -1414,6 +1450,22 @@ const STATUS = [
     {
         "idType": "ED015",
         "description": "APOYO COVID",
+    },
+    {
+        "idType": "EOS01",
+        "description": "GENERADA",
+    },
+    {
+        "idType": "EOS02",
+        "description": "PAGADA",
+    },
+    {
+        "idType": "EOS03",
+        "description": "AJUSTADO",
+    },
+    {
+        "idType": "EOS04",
+        "description": "VENCIDO",
     }
 
 ]

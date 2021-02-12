@@ -11,6 +11,8 @@ namespace GFD.Siscom.Enrollment.Models
         public string account { get; set; }
         public string nombre { get; set; }
         public decimal taxableBase { get; set; }
+        //public decimal ground { get; set; }
+        //public decimal built { get; set; }
         public int idClient { get; set; }
         public string rfc { get; set; }
         public string address { get; set; }

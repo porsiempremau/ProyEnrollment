@@ -1,0 +1,841 @@
+﻿@using GFD.Siscom.Enrollment.Utilities.Auth;
+<link href="~/Tree/jqtree.css" rel="stylesheet" />
+
+<div class="app-page-title">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div class="page-title-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h1 class="style-main-title">@ViewData["Title"]</h1>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-7">
+        <form id="FromDataSearchAccount" onsubmit="SearchAccount(event, document.getElementById('accountSearch').value)">
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="checkbox" id="withAccount" name="withAccount" onchange="PaintInputAndCardDataAccount(this)">
+                    <label>Con Cuenta</label>
+                </div>
+                <div id="divContentInputAccount" style="display:none;" class="col-md-8">
+                    <label>Cuenta:</label>
+                    <input id="accountSearch" name="accountSearch" class="form-control form-control-sm" required />
+                </div>
+                <div id="divContentBtnSearchAccount" style="display:none;" class="col-md-4">
+                    <button type="submit" id="btnSearchAccount" class="btn btn-GFD margin-top-btns">
+                        <i class="fas fa-search" title="Buscar por Cuenta"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div id="divContentCardWithData" style="display:none;" class="col-md-5">
+        <div class="main-card mb-3 card">
+            <div class="card-body" style="background-color: #e8e8e8;">
+                <div style="display: flex;">
+                    <i class="fas fa-user" style="margin-top: 3px;"></i><p id="AccountName" style="margin-bottom: 0px; margin-left: 7px;">Nombre: </p>
+                </div>
+                <div style="display: flex;">
+                    <i class="fas fa-map-marked-alt" style="margin-top: 3px;"></i><p id="AccountAddress" style="margin-bottom: 0px; margin-left: 7px;">Dirección: </p>
+                </div>
+                <div style="display: flex;">
+                    <i class="fas fa-file-contract" style="margin-top: 3px;"></i><p id="AccountStatus" style="margin-bottom: 0px; margin-left: 7px;">Status: </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-5">
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Árbol de Productos</p>
+            </div>
+            <div class="card-body">
+                @*<div class="row">
+                        <div class="col-md-8">
+                            <label>Filtro:</label>
+                            <input id="filter" name="filter" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-GFD margin-top-btns" onclick="Filter(document.getElementById('filter').value)">Filtrar</button>
+                        </div>
+                    </div>*@
+                <div id="arbol" style="height:50vh; overflow:auto; background-color: #f3f3f3; padding:10px; border-radius: 5px;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Productos Seleccionados</p>
+            </div>
+            <div class="card-body">
+                <table style="width: 100%;" id="TableProducts" class="table table-hover table-striped table-bordered">
+                    <thead class="style-theads">
+                        <tr>
+                            <th>Concepto</th>
+                            <th>Precio Inicial</th>
+                            <th>Monto</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyProductst">
+                        <tr>
+                            <td colspan="4" style="font-size: 14px; text-align:center;">Sin Productos Seleccionados</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="divContentCardTotal" class="row" style="display: none;">
+            <div class="col-md-6"></div>
+            <div class="col-md-6">
+                <div class="main-card mb-3 card">
+                    <div class="card-body">
+                        <p id="Subtotal" class="payment-order-results"></p>
+                        <p id="IVA" class="payment-order-results"></p>
+                        <p id="AIM" class="payment-order-results"></p>
+                        <hr />
+                        <p id="Total" class="payment-order-results-total"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@if (Auth.Login.HasRoles("Admin|Supervisor|Super|Ordenes|User|Isabi"))
+{
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <button type="button" id="btnContinuar" class="btn btn-success float-right" onclick="AddAIM()" disabled>Continuar</button>
+        </div>
+    </div>
+    <br />
+}
+
+
+@section Scripts{
+    <script src="~/Tree/tree.jquery.js"></script>
+    <partial name="~/Views/Ordenes/_ModalQuantityProduct.cshtml" />
+    <partial name="~/Views/Ordenes/_ModalCreateEditTaxUser.cshtml" />
+    <partial name="~/Views/Ordenes/_ModalObservations.cshtml" />
+    <script>
+        var __idDivition = @Auth.Login.Divition, __idAgreement = 0;
+        var __data = [], __TREE = [], __TREE2 = [];
+        var __factor, __UMA, __AIM;
+        var __form;
+        let __ValueTree = new DebtDetailsVM({});
+        var __TableProducts = [];
+        let __AIMCalculado = 0, __IVA = 0, __suma = 0, __totalComplet = 0;
+        //var __desarrolloUrbano = false;
+        var __WithAccount = false;
+
+        window.onload = function () {
+            GetFactor("FACTOR");
+            GetFactor("UMA");
+            GetFactor("AIM");
+            GetProducts();
+            __form = document.getElementById("FormDataQuantity");
+            var FormPhone = document.getElementById("FormPhone");
+            FormPhone.phoneTaxUser.addEventListener("keypress", onlyNumbers, false);
+        }
+
+        function GetFactor(value) {
+            axios.get("/Ordenes/GetFactors?value=" + value).then(response => {
+                if (value == "FACTOR") {
+                    __factor = response.data.numberColumn;
+                }
+                if (value == "UMA") {
+                    __UMA = response.data.numberColumn;
+                }
+                if (value == "AIM") {
+                    __AIM = response.data.numberColumn;
+                }
+            }).catch(error => {
+                if (value == "FACTOR") {
+                    __factor = 0;
+                }
+                if (value == "UMA") {
+                    __UMA = 0;
+                }
+                if (value == "AIM") {
+                    __AIM = 0;
+                }
+            });
+        }
+
+        //PARA HACER BÚSQUEDA POR CUENTA*****************
+        function PaintInputAndCardDataAccount(value) {
+            if (value.checked) {
+                document.getElementById("divContentInputAccount").style.display = "block";
+                document.getElementById("divContentBtnSearchAccount").style.display = "block";
+            } else {
+                document.getElementById("divContentInputAccount").style.display = "none";
+                document.getElementById("divContentBtnSearchAccount").style.display = "none";
+                document.getElementById("divContentCardWithData").style.display = "none";
+                __WithAccount = false;
+            }
+        }
+
+        function SearchAccount(even, account) {
+            even.preventDefault();
+            Block();
+            axios.get("/Agreement/Get/List?account=" + account).then(response => {
+                UnBlock();
+                var data = response.data;
+                console.log("Datos de la cuenta: ", data);
+                $("#AccountName").html(`<b>Nombre: </b> ${data[0].nombre}`);
+                $("#AccountAddress").html(`<b>Dirección: </b> ${data[0].address}`);
+                $("#AccountStatus").html(`<b>Status: </b> ${data[0].status}`);
+                document.getElementById("divContentCardWithData").style.display = "block";
+                __WithAccount = true;
+                __idAgreement = data[0].agreementId;
+            }).catch(error => {
+                UnBlock();
+            });
+        }
+        //***********************************************
+
+        function GetProducts() {
+            Block();
+            axios.get("/Ordenes/GetPathers/" + __idDivition).then(response => {
+                UnBlock();
+                var data = response.data;
+                var res = response.data;
+
+                // TIPEO LOS ITEMS PARA AGREGARLES LOS ATRIBUTOS DE "LABEL" Y "CHILDREN", PORQUE ESTOS LOS BUSCA EL ÁRBOL
+                for (var a = 0; a < res.length; a++) {
+                    var object1 = new ProductsVM(res[a]);
+                    object1.label = res[a].name;
+
+                    for (var b = 0; b < data.length; b++) {
+                        var object2 = new ProductsVM(data[b]);
+                        object2.label = data[b].name;
+
+                        if (res[a].id == object2.parent) {
+                            object1.children.push(object2);
+                        }
+                    }
+
+                    __TREE.push(object1);
+                    __TREE2.push(object1);
+                }
+
+                //MANDO A LOS HIJOS A SUS CORRESPONDIENTES PADRES
+                for (var i = 0; i < __TREE.length; i++) {
+                    __TREE[i].children = [];
+                    for (var j = 0; j < __TREE2.length; j++) {
+                        if (__TREE[i].id == __TREE2[j].parent) {
+                            __TREE[i].children.push(__TREE2[j]);
+                        }
+                    }
+                    //TOMO LOS PADRES QUE YA TIENEN HIJOS Y LOS AÑADO AL NUEVO ARREGLO, PARA QUE CUANDO SE PINTE EL ÁRBOL, NO SE REPITAN LOS HIJOS
+                    if (__TREE[i].parent == 0) {
+                        __data.push(__TREE[i]);
+                    }
+                }
+
+                //console.log("__data: ", __data);
+
+                BuildTree(__data);
+
+            }).catch(error => {
+                UnBlock();
+                console.error(error.response);
+                Swal.fire({
+                    title: "Disculpa",
+                    text: error.response.data.error,
+                    type: 'info',
+                    showConfirmButton: true,
+                });
+            });
+        }
+
+        //function Filter(value) {
+        //    //var result = __TREE2.filter(function (entry) {
+        //    //    var found = entry.name === value;
+        //    //    console.log("Found: ", found);
+        //    //});
+        //    var array = [];
+        //    __TREE2.filter(x => {
+        //        if (x.name == value) {
+        //            array.push(x);
+        //            $('#arbol').html("");
+        //            BuildTree(array);
+        //        }
+        //    });
+        //}
+
+        function BuildTree(data) {
+            $('#arbol').tree({
+                data: data,
+                autoOpen: false,
+                dragAndDrop: false,
+                onCreateLi: function (node, $li, is_selected) {
+                    // Add 'icon' span before title
+                    $li.find('.jqTree-GFD').before('<i class="fa fa-minus" style="margin-top: 6px; font-size: 8px; color: #9f9f9f;"></i>');
+                },
+                onCanSelectNode: function (node) {
+                    if (node.children.length == 0) {
+                        //Nodos sin hijos pueden ser seleccionados
+                        GetTarriffProduct(node);
+                    }
+                    else {
+                        //Nodos padres no son seleccionados
+                        return false;
+                    }
+                }
+            });
+        }
+
+        function GetTarriffProduct(product) {
+            console.log("product: ", product);
+            var nameConcept = GetParentsFromProducts(product);
+            if (__idDivition == 2) {
+                if (FoundAIM()) {
+                    Swal.fire({
+                        type: 'info',
+                        title: 'Disculpa',
+                        text: 'Quita el concepto del 10% para agregar mas conceptos',
+                        showConfirmButton: true,
+                    });
+                    return false
+                }
+            }
+            Block();
+            let valueTree = new DebtDetailsVM({});
+            axios.get("/Ordenes/GetTarriff/" + product.id).then(response => {
+                UnBlock();
+                var tariffSelect = new TariffProductVM(response.data);
+                console.log("tariffSelect: ", tariffSelect);
+                valueTree.NameConcept = nameConcept;
+                valueTree.amount = tariffSelect.amount;
+                valueTree.type = tariffSelect.type;
+                valueTree.CodeConcept = product.id;
+                valueTree.percentage = tariffSelect.percentage;
+                valueTree.timesFactor = tariffSelect.timesFactor;
+                valueTree.haveTax = tariffSelect.haveTax;
+                valueTree.Description = product.name;
+                valueTree.CodeConcept = product.id;
+                valueTree.Unity = tariffSelect.product.productParams[0].unitMeasurement;
+                valueTree.UnitPrice = tariffSelect.amount;
+                valueTree.subtotal = tariffSelect.amount;
+                console.log("valueTree: ", valueTree)
+                __ValueTree = valueTree;
+                OpenModalQuantityProduct(valueTree);
+
+            }).catch(error => {
+                UnBlock();
+            });
+        }
+
+        function OpenModalQuantityProduct(value) {
+            $("#modalQuantityProduct").modal({ backdoor: true });
+
+            switch (value.type) {
+                case "TTP01":
+                    $("#TitleModal").html('Cantidad');
+                    $("#divNameConceptProduct").html("");
+                    var valueQuantity = document.getElementById("valueQuantity");
+                    valueQuantity.value = "";
+                    valueQuantity.setAttribute("type", "number");
+                    valueQuantity.setAttribute("min", "1");
+                    valueQuantity.value = 1;
+                    break;
+                case "TTP02":
+                    $("#TitleModal").html('Costo');
+                    $("#divNameConceptProduct").html("");
+                    break;
+                case "TTP03":
+                    $("#TitleModal").html('Unidad de Medida y Actualización (UMA)');
+                    $("#divNameConceptProduct").html("");
+                    break;
+                case "TTP04":
+                    $("#TitleModal").html('Importe Dictaminado');
+                    $("#divNameConceptProduct").html("");
+                    break;
+                case "TTP05":
+                    $("#TitleModal").html('Unidades (m2, m3, Hrs...)');
+                    $("#divNameConceptProduct").html("");
+                    break;
+                case "TTP06":
+                    $("#TitleModal").html('Importe Dictaminado');
+                    $("#divNameConceptProduct").html(`
+                        <label>Nombre del Concepto:</label>
+                        <textarea id="NameConceptModal" name="NameConceptModal" class="form-control form-control-sm" ></textarea>
+                    `);
+                    $("#NameConceptModal").val(value.NameConcept);
+                    break;
+            }
+
+            if (value.type != 'TTP01')  {
+                __form.valueQuantity.addEventListener("keypress", onlyNumbers, false);
+                var valueQuantity = document.getElementById("valueQuantity");
+                valueQuantity.value = "";
+                valueQuantity.setAttribute("type", "text");
+            }
+        }
+
+        function AddValue(quantity) {
+            let total = 0;
+            if (quantity < 1 || isNaN(quantity)) {
+                var mesagge = "No puedes agregar datos invalidos";
+                if (__ValueTree.type == "TTP01") {
+                    mesagge = "No puedes agregar importe invalido";
+                }
+                Swal.fire({
+                    type: 'info',
+                    title: 'Disculpa',
+                    text: mesagge,
+                    showConfirmButton: true,
+                });
+                return false;
+            }
+
+            if (__ValueTree.type == "TTP01") {
+                __ValueTree.quantity = quantity;
+            }
+
+            //ESTA FUNCIÓN ES PARA AGREGAR PRODUCTOS QUE SON IGUALES EN EL MISMO TR DE LA TABLA Y NO LO AGREGUE COMO PRODUCTO NUEVO
+            var quantityResult = SumarMontoDelMismoConcepto(__ValueTree);
+
+            switch (__ValueTree.type) {
+                case "TTP01":
+                    __ValueTree.subtotal = __ValueTree.amount * quantityResult;
+                    __ValueTree.quantity = quantityResult;
+                    break;
+                case "TTP02":
+                    __ValueTree.subtotal = (quantity * __ValueTree.percentage) / 100;
+                    __ValueTree.amount = __ValueTree.subtotal;
+                    __ValueTree.UnitPrice = __ValueTree.subtotal;
+                    break;
+                case "TTP03":
+                    __ValueTree.subtotal = quantity * __UMA;
+                    __ValueTree.amount = __ValueTree.subtotal;
+                    //__ValueTree.UnitPrice = __factor;
+                    __ValueTree.UnitPrice = __UMA;
+                    __ValueTree.quantity = quantity;
+                    break;
+                case "TTP04":
+                    __ValueTree.subtotal = quantity;
+                    __ValueTree.UnitPrice = quantity;
+                    __ValueTree.amount = quantity;
+                    break;
+                case "TTP05":
+                    __ValueTree.UnitPrice = __ValueTree.amount;
+                    __ValueTree.quantity = quantity;
+                    __ValueTree.subtotal = __ValueTree.UnitPrice * __ValueTree.quantity;
+                    __ValueTree.amount = __ValueTree.subtotal;
+                    break;
+                case "TTP06":
+                    __ValueTree.NameConcept = document.getElementById("NameConceptModal").value;
+                    __ValueTree.amount = quantity
+                    __ValueTree.subtotal = quantity;
+                    __ValueTree.UnitPrice = __ValueTree.subtotal;
+                    break;
+            }
+
+            //HACE EL CÁLCULO PARA EL IVA
+            if (__ValueTree.haveTax == true) {
+                __IVA = __IVA + __ValueTree.subtotal * 0.16
+                __ValueTree.Tax = parseFloat((__ValueTree.subtotal * 0.16).toFixed(2));
+            }
+
+            //HACE EL CÁLCULO DEL APOYO DEL 10% PARA LA DIVISIÓN DEL DESARROLLO URBANO
+            if (__idDivition == 2) {
+                __TableProducts.push(__ValueTree);
+                __TableProducts.forEach(x => {
+                    total = total + (x.subtotal);
+                });
+                __AIMCalculado = total * (__AIM / 100);
+
+            } else {
+                __TableProducts.push(__ValueTree);
+                __TableProducts.forEach(x => {
+                    total = total + (x.UnitPrice * x.quantity);
+                });
+            }
+
+            __suma = parseFloat(total.toFixed(2));
+            __totalComplet = __suma + __IVA;
+            FillTable();
+        }
+
+        function SumarMontoDelMismoConcepto(value) {
+            var totalQuantitySameConcept = 0;
+            var conceptFind = __TableProducts.find(x => x.CodeConcept == value.CodeConcept);
+
+            if (conceptFind != undefined) {
+                if (value.type == "TTP01") {
+                    totalQuantitySameConcept = parseInt(value.quantity.toString()) + parseInt(conceptFind.quantity.toString());
+                }
+                var index = __TableProducts.indexOf(conceptFind);
+                __TableProducts.splice(index, 1);
+            } else {
+                totalQuantitySameConcept = value.quantity;
+            }
+
+            return totalQuantitySameConcept;
+        }
+
+        function AddAIM() {
+            if (__idDivition == 2) {
+                if (FoundAIM()) {
+                    Swal.fire({
+                        type: 'warning',
+                        title: 'Advertencia',
+                        text: 'Ya está agregado el 10%, ya no se agregará otro más. Si quiere continuar para generar la orden, de click en ok',
+                        showConfirmButton: true,
+                        showCancelButton: true,
+                    }).then(response => {
+                        if (response.value) {
+                            LoadModalGeneraOrder();
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Advertencia',
+                        text: "Se agregará el 10% (AIM)",
+                        type: 'warning',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Aceptar',
+                        showCancelButton: true
+                    }).then((result) => {
+                        if (result.value) {
+                            let total = 0;
+                            let valueTree = new DebtDetailsVM({});
+                            axios.get("/Ordenes/GetTarriff/" + 3142).then(response => {
+                                var tariffSelect = new TariffProductVM(response.data);
+
+                                __TableProducts.forEach(x => {
+                                    total = total + x.subtotal
+                                });
+
+                                if (__AIMCalculado == 0) {
+                                    total = total * (__AIM / 100);
+                                    __AIMCalculado = total;
+                                }
+
+                                valueTree.NameConcept = tariffSelect.product.name;
+                                valueTree.amount = __AIMCalculado;
+                                valueTree.type = tariffSelect.type;
+                                valueTree.CodeConcept = tariffSelect.product.id;
+                                valueTree.percentage = tariffSelect.percentage;
+                                valueTree.timesFactor = tariffSelect.timesFactor;
+                                valueTree.haveTax = tariffSelect.haveTax;
+                                valueTree.Description = tariffSelect.product.name;
+                                valueTree.CodeConcept = tariffSelect.product.id;
+                                valueTree.Unity = tariffSelect.product.productParams[0].unitMeasurement;
+                                valueTree.UnitPrice = valueTree.amount;
+                                valueTree.subtotal = valueTree.amount;
+
+                                __TableProducts.push(valueTree);
+                                //__desarrolloUrbano = true;
+                                __totalComplet = __suma + __AIMCalculado;
+                                FillTable();
+                            });
+                            LoadModalGeneraOrder();
+                        }
+                    });
+                }
+            } else {
+                LoadModalGeneraOrder();
+            }
+        }
+
+        function FoundAIM() {
+            if (__TableProducts.find(x => x.CodeConcept == '3142')) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        //ABRIR EL MODAL PARA GENERAR LAS ORDENES
+        function LoadModalGeneraOrder() {
+            if (__WithAccount) {
+                $("#modalObservations").modal({ backdoor: true });
+            } else {
+                GetCountries("stateId");
+                SearchTownByIdState(21, "townId");
+                SearchSuburbByIdTown(2, "suburbId");
+                $("#modalDataTaxUser").modal({ backdoor: true });
+            }
+        }
+
+        //PARA LLENAR LA TABLA CON LOS PRODUCTOS SELECCIONADOS
+        function FillTable() {
+            $("#modalQuantityProduct").modal('hide');
+            console.log("__TableProducts: ", __TableProducts);
+            $("#tbodyProductst").html("");
+            __TableProducts.forEach(x => {
+                $("#tbodyProductst").append(`
+                    <tr>
+                        <td>${x.NameConcept}</td>
+                        <td>${FormatoPeso.format(x.UnitPrice)}</td>
+                        <td>${FormatoPeso.format(x.subtotal)}</td>
+                        <td>
+                            <a class="nav-link btn-flush" onclick="DeleteProduct(${x.CodeConcept})" data-caret="false" style="margin: 0 auto;">
+                                <i class="fas fa-trash iconX" title="Eliminar Producto"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `);
+            });
+
+            document.getElementById("divContentCardTotal").style.display = "flex";
+            $("#Subtotal").html(`<b>Subtotal: </b> ${FormatoPeso.format(__suma)}`);
+            $("#IVA").html(`<b>IVA: </b> ${FormatoPeso.format(__IVA)}`);
+            if (__idDivition == 2) {
+                $("#AIM").html(`<b>AIM: </b> ${FormatoPeso.format(__AIMCalculado)}`);
+            }
+            $("#Total").html(`<b>Total: </b> ${FormatoPeso.format(__totalComplet)}`);
+            document.getElementById("btnContinuar").disabled = false;
+        }
+
+        //PARA GENERAR LAS ORDENES CON TAX USER
+        function CreateOrderSaleTaxUser() {
+
+            var outdoor = document.getElementById("numExt");
+            if (outdoor.value == "" || outdoor.value == null) {
+                Swal.fire({
+                    type: 'info',
+                    title: 'Disculpa',
+                    text: 'Necesitas agregar el No. Ext para poder continuar',
+                    showConfirmButton: true,
+                });
+                return false;
+            }
+
+            Block();
+            var dateOrder = new Date();
+            var year = dateOrder.getFullYear();
+            var suburb = document.getElementById("suburbId").tagName == "INPUT" ? document.getElementById("suburbId").value : document.getElementById("suburbId").options[document.getElementById("suburbId").options.selectedIndex].innerText;
+            var town = document.getElementById("townId").tagName == "INPUT" ? document.getElementById("townId").value : document.getElementById("townId").options[document.getElementById("townId").options.selectedIndex].innerText;
+            var state = document.getElementById("stateId").tagName == "INPUT" ? document.getElementById("stateId").value : document.getElementById("stateId").options[document.getElementById("stateId").options.selectedIndex].innerText;
+
+            var tAddress = {
+                street: document.getElementById("street").value,
+                outdoor: document.getElementById("numExt").value,
+                indoor: document.getElementById("numInt").value,
+                zip: document.getElementById("zip").value,
+                suburb,
+                town,
+                state
+            }
+
+            var taxAddresses = new TaxAddressVM(tAddress);
+
+            var tUser = {
+                name: document.getElementById("nameTaxUser").value,
+                rfc: document.getElementById("rfcTaxUser").value != "" ? document.getElementById("rfcTaxUser").value : "XAXX010101000",
+                curp: document.getElementById("curpTaxUser").value != "" ? document.getElementById("curpTaxUser").value : "N/A",
+                phoneNumber: document.getElementById("phoneTaxUser").value != "" ? document.getElementById("phoneTaxUser").value : 0,
+                eMail: document.getElementById("emailTaxUser").value != "" ? document.getElementById("emailTaxUser").value : "N/A",
+                isProvider: document.getElementById("isProvider").checked,
+                taxAddresses: [taxAddresses]
+            }
+
+            var taxUser = new TaxUserVM(tUser);
+
+            var OrdS = {
+                dateOrder,
+                amount: __suma + __AIMCalculado,
+                year,
+                tax: __IVA,
+                observation: document.getElementById("observations").value != "" ? document.getElementById("observations").value : "N/A",
+                divisionId: __idDivition,
+                taxUser: taxUser,
+                orderSaleDetails: __TableProducts
+            }
+
+            var OrderSale = new OrderSaleVM(OrdS);
+
+            axios.post("/Ordenes/CreateOrders?isWithAccount=false", OrderSale).then(response => {
+                ClearModalTaxUser();
+                $("#modalDataTaxUser").modal('hide');
+                UnBlock();
+                var data = response.data;
+                Swal.fire({
+                    type: 'success',
+                    title: 'Correcto',
+                    text: 'Se generó la Orden correctamente',
+                    showConfirmButton: true,
+                }).then(response => {
+                    Block();
+                    axios.post('/Ordenes/GeneraPDF/TaxUser', data).then(response => {
+                        setTimeout(function () {
+                            DownloadPDF(response.data, "/Ordenes/Index");
+                        }, 500);
+                    });
+                });
+            }).catch(error => {
+                UnBlock();
+                Swal.fire({
+                    type: 'info',
+                    title: 'Disculpa',
+                    text: 'No se pudo generar la Orden. ' + error.response.data.error,
+                    showConfirmButton: true,
+                });
+                console.error(error.response);
+            });
+        }
+
+        //PARA GENERAR LAS ORDENES CON UNA CUENTA ENCONTRADA
+        function CreateOrderSaleWithAccount(observations) {
+            Block();
+
+            var debt = {
+                observations,
+                amount: __suma + __AIMCalculado,
+                tax: __IVA,
+                agreementId: __idAgreement,
+                debtDetails: __TableProducts
+            }
+
+            var Debt = new DebtVM(debt);
+            console.log("Debt: ", Debt);
+
+            axios.post("/Ordenes/CreateOrders?isWithAccount=true&idAgreement=" + __idAgreement, Debt).then(response => {
+                $("#observationsWithAccount").val("");
+                $("#modalObservations").modal('hide');
+                UnBlock();
+                var data = response.data;
+                console.log("Orden creada con cuenta: ", data);
+                Swal.fire({
+                    type: 'success',
+                    title: 'Correcto',
+                    text: 'Se generó el adeudo correctamente a la cuenta: ' + data.agreement.account,
+                    showConfirmButton: true,
+                }).then(response => {
+                    Block();
+                    axios.post('/Ordenes/GeneraPDF/WithAccount', data).then(response => {
+                        setTimeout(function () {
+                            DownloadPDF(response.data);
+                        }, 500);
+                    })
+                });
+            }).catch(error => {
+                UnBlock();
+                Swal.fire({
+                    type: 'info',
+                    title: 'Disculpa',
+                    text: 'No se pudo generar el adeudo. ' + error.response.data.error,
+                    showConfirmButton: true,
+                });
+                console.error(error.response);
+            });
+        }
+
+        //PARA LIMPIAR LOS CAMPOS DEL MODAL DE TAXUSER
+        function ClearModalTaxUser() {
+            $("#nameTaxUser").val("");
+            $("#rfcTaxUser").val("");
+            $("#curpTaxUser").val("");
+            $("#phoneTaxUser").val("");
+            $("#emailTaxUser").val("");
+            $("#street").val("");
+            $("#numExt").val("");
+            $("#numInt").val("");
+            $("#zip").val("");
+        }
+
+        function DeleteProduct(CodeConcept) {
+            var element = __TableProducts.find(x => x.CodeConcept == CodeConcept);
+            let index = 0, totalAIM = 0;
+            index = __TableProducts.indexOf(element);
+            if (element.haveTax == true) {
+                __suma = __suma - element.subtotal;
+                __IVA = __IVA - element.subtotal * 0.16;
+                __totalComplet = __IVA + __suma;
+            } else {
+                __suma = __suma - element.subtotal;
+                __totalComplet = __totalComplet - element.subtotal
+            }
+            if (__idDivition == 2) {
+                if (element.CodeConcept == '3142') {
+                    let total = 0;
+                    __TableProducts.splice(index, 1);
+                    __TableProducts.forEach(x => {
+                        total = total + x.subtotal;
+                    })
+                    __suma = parseFloat(total.toFixed(2));
+
+                    __totalComplet = __IVA + __suma;
+                } else {
+                    if (__TableProducts.find(x => x.CodeConcept == '3142')) {
+                        Swal.fire({
+                            type: 'info',
+                            title: 'Disculpa',
+                            text: 'Elimina el concepto del 10% para poder quitar otros conceptos',
+                            showConfirmButton: true,
+                        });
+                    }
+                    //else {
+                    //    __TableProducts.splice(index, 0);
+                    //}
+                }
+            }
+
+            if (__TableProducts.find(tb => tb.CodeConcept == '3142')) {
+                Swal.fire({
+                    type: 'info',
+                    title: 'Disculpa',
+                    text: 'Elimina el concepto del 10% para poder quitar otros conceptos',
+                    showConfirmButton: true,
+                });
+            } else {
+                __TableProducts.splice(index, 1);
+                if (__idDivition == 2) {
+                    __TableProducts.forEach(x => {
+                        totalAIM = totalAIM + x.subtotal;
+                    });
+                    __AIMCalculado = totalAIM * (__AIM / 100);
+                }
+                FillTable();
+                if (__TableProducts.length == 0) {
+                    __suma = 0;
+                    __IVA = 0;
+                    if (__idDivition == 2) {
+                        __AIMCalculado = 0;
+                    }
+                    __totalComplet = 0;
+                }
+            }
+        }
+
+        //PARA OBTENER EL NOMBRE DEL CONCEPTO COMPLETO, CONCATENANDO EL NOMBRE DE LOS PADRES
+        function GetParentsFromProducts(product) {
+            if (product != "") {
+                let cadena = "",
+                    name = product.name;
+
+                if (product.parent.name != "") {
+                    cadena = product.parent.name;
+                    if (product.parent.parent.name != "") {
+                        cadena = product.parent.parent.name + " - " + cadena;
+                        if (product.parent.parent.parent.name != "") {
+                            cadena = product.parent.parent.parent.name + " - " + cadena;
+                            if (product.parent.parent.parent.parent.name != "") {
+                                cadena = product.parent.parent.parent.parent.name + " - " + cadena;
+                                if (product.parent.parent.parent.parent.parent.name != "") {
+                                    cadena = product.parent.parent.parent.parent.parent.name + " - " + cadena;
+                                }
+                            }
+                        }
+                    }
+                }
+                return cadena + ": " + name;
+            }
+
+            return "N/A";
+
+        }
+    </script>
+}

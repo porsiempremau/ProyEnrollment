@@ -12,5 +12,7 @@ namespace GFD.Siscom.Enrollment.Models
         public int RegionsId { get; set; }
         public int ClasificationsId { get; set; }
         public int SuburbId { get; set; }
+        public TownVM Towns { get; set; }
+        public int TownsId { get; set; }
     }
 }
