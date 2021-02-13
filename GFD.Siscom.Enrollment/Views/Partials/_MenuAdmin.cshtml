@@ -220,6 +220,24 @@
                                     </i>Población Vulnerable
                                 </a>
                             </li>
+                            @if (Auth.Login.HasRoles("Admin"))
+                            {
+                                <li>
+                                    <a href="#">
+                                        <i class="metismenu-icon fas fa-file-alt"></i>
+                                        Autorización
+                                        <i class="metismenu-state-icon fa fa-angle-down caret-left"></i>
+                                    </a>
+                                    <ul>
+                                        <li class="@(url == "Discounts-AuthDiscountsIndex" ? "mm-active active-GFD" : "")">
+                                            <a href="/Discounts/AuthDiscountsIndex">
+                                                <i class="metismenu-icon">
+                                                </i>Autorizar Descuentos
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
                         </ul>
                     </li>
                 }
@@ -254,6 +272,8 @@
                         </ul>
                     </li>
                 }
+
+                
             </ul>
         </div>
     </div>

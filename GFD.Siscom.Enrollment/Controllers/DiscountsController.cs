@@ -150,6 +150,52 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+        #region AUTORIZACIÓN DE DESCUENTOS
+        [HttpGet("Discounts/AuthDiscountsIndex")]
+        public ActionResult AuthDiscountsIndex()
+        {
+            ViewData["Title"] = "Autorización de Descuentos";
+            return View("~/Views/Discounts/AuthDiscounts/AuthDiscountIndex.cshtml");
+        }
+
+        [HttpGet("Discounts/GetDiscountsToAuth")]
+        public async Task<IActionResult> GetDiscountsToAuth()
+        { 
+            try
+            {
+                var result = await RequestsApi.SendURIAsync("/api/DiscountAuthorizations/GetPendindDiscountAuthorizationList", HttpMethod.Get, Auth.Login.Token);
+                if (result.Contains("error"))
+                {
+                    return Conflict(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return Conflict(e.Message);
+            }
+        }
+
+        [HttpPost("Discounts/PostDiscountsToAuth")]
+        public async Task<IActionResult> PostDiscountsToAuth([FromBody] object data, [FromQuery] int id = 0)
+        {
+            try
+            {
+                var body = new StringContent(data.ToString(), Encoding.UTF8, "application/json");
+                var result = await RequestsApi.SendURIAsync("/api/DiscountAuthorizations/" + id, HttpMethod.Post, Auth.Login.Token, body);
+                if (result.Contains("error"))
+                {
+                    return Conflict(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return Conflict(e.Message);
+            }
+        }
+        #endregion
+
     }
 
     public class DiscountGroupVulnerable

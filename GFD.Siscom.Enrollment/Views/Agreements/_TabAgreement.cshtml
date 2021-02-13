@@ -304,20 +304,21 @@
     function SearchAgreementPrincipal(event, account) {
         event.preventDefault();
         Block();
+        var isContrato = isAyuntamiento ? "Predio" : "Contrato";
         axios.get("/Agreement/Get/List?account=" + account).then(response => {
             UnBlock();
             var data = response.data;
             if (data.length > 0) {
-                console.log("Agreement principal: ", data);
+                //console.log("Agreement principal: ", data);
                 document.getElementById("divContentCardWithData").style.display = "flex";
                 __IdAgreementPrincipal = data[0].agreementId;
-                console.log("__IdAgreementPrincipal: ", __IdAgreementPrincipal);
+                //console.log("__IdAgreementPrincipal: ", __IdAgreementPrincipal);
                 $("#AccountName").html(`<b>Nombre: </b> ${data[0].nombre}`);
                 $("#AccountAddress").html(`<b>Dirección: </b> ${data[0].address}`);
                 $("#AccountStatus").html(`<b>Status: </b> ${data[0].status}`);
                 Swal.fire({
                     title: "Bien",
-                    text: 'Datos encontrados',
+                    text: isContrato + ' principal encontrado',
                     type: 'success',
                     showConfirmButton: true,
                 });
