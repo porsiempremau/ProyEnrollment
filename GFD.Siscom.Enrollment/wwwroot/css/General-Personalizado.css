@@ -12,7 +12,7 @@
 }
 
 .style-theads {
-    background-color: #760000;
+    background-color: #383938;
     color: white;
 }
 
@@ -24,6 +24,10 @@ td {
     padding-bottom: 1px !important;
     padding-top: 1px !important;
     font-size: 13px !important;
+}
+
+tbody tr:hover{
+    background-color: #d3d3d3 !important;
 }
 
 th{
@@ -40,8 +44,8 @@ th{
     font-size: 14px;
 }
 
-.btn-GFD{
-    background-color:#760000;
+.btn-GFD {
+    background-color: #6b1414;
     color: white;
 }
 
@@ -51,7 +55,7 @@ th{
 }
 
 .title-head {
-    background-color: #036681;
+    background-color: #6b1414;
     color: white !important;
     padding-top: 10px;
     padding-bottom: 0px;
@@ -63,7 +67,7 @@ th{
 #resultadoRFC,
 #resultadoINE,
 #resultadoCURP {
-    background-color: #c70000;
+    background-color: #6b1414;
     color: white;
     font-weight: bold;
 }
@@ -80,7 +84,7 @@ th{
 }
 
 .color-header {
-    background-color: #074472 !important;
+    background-color: #6b1414 !important;
 }
 
 .color-white{
@@ -96,8 +100,13 @@ th{
 }
 
 .active-GFD {
-    background-color: #074472;
+    background-color: #6b1414;
     border-radius: 5px;
+}
+
+.active-GFD>a:hover{
+    color: #6b1414 !important;
+    background-color: #d3d3d3 !important;
 }
 
 .active-GFD>a{
@@ -105,17 +114,18 @@ th{
 }
 
 .active-GFD>a:hover{
-    color: #343a40 !important;
+    color: #6b1414 !important;
+    background-color: #d3d3d3 !important;
 }
 
 .iconX {
     margin: 0 auto !important;
     font-size: 17px;
-    color: #760000;
+    color: #6b1414;
 }
 
 .iconX:hover {
-    color: #760000;
+    color: #ce0000;
 }
 
 .disabled .iconX {
@@ -172,7 +182,7 @@ th{
 }
 
 .swal2-popup .swal2-styled.swal2-confirm {
-    background-color: #760000 !important;
+    background-color: #6b1414 !important;
     color: #fff !important;
 }
 
@@ -182,6 +192,7 @@ th{
 }
 
 .color-header-modals-gfd {
-    background-color: #760000;
+    background-color: #6b1414;
     padding: 1rem;
 }
+
