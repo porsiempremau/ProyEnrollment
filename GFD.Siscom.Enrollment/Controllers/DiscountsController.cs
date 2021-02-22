@@ -151,6 +151,7 @@ namespace GFD.Siscom.Enrollment.Controllers
         }
 
         #region AUTORIZACIÓN DE DESCUENTOS
+        [Role("Admin|Supervisor")]
         [HttpGet("Discounts/AuthDiscountsIndex")]
         public ActionResult AuthDiscountsIndex()
         {
@@ -158,6 +159,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             return View("~/Views/Discounts/AuthDiscounts/AuthDiscountIndex.cshtml");
         }
 
+        [Role("Admin|Supervisor")]
         [HttpGet("Discounts/GetDiscountsToAuth")]
         public async Task<IActionResult> GetDiscountsToAuth()
         { 
@@ -176,6 +178,7 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
+        [Role("Admin|Supervisor")]
         [HttpPost("Discounts/PostDiscountsToAuth")]
         public async Task<IActionResult> PostDiscountsToAuth([FromBody] object data, [FromQuery] int id = 0)
         {

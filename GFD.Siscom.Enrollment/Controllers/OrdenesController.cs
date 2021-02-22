@@ -26,11 +26,11 @@ namespace GFD.Siscom.Enrollment.Controllers
         private readonly Microsoft.AspNetCore.Hosting.IHostingEnvironment _hostingEnvironment;
         public Controller OtherController = null;
 
-        public OrdenesController(IOptions<BaseModel> app, Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnvironmen)
+        public OrdenesController(IOptions<BaseModel> app, Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnvironment)
         {
             appSettings = app;
             RequestsApi = new RequestApi(appSettings.Value.WebApiBaseUrl);
-            _hostingEnvironment = hostingEnvironmen;
+            _hostingEnvironment = hostingEnvironment;
         }
         // GET: OrdenesController
         [HttpGet("Ordenes/Index")]

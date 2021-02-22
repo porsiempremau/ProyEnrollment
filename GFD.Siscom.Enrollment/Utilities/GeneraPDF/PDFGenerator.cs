@@ -126,5 +126,32 @@ namespace GFD.Siscom.Enrollment.Utilities.GeneraPDF
                 return e.Message;
             }
         }
+
+        public async Task<string> GeneraConvenio(object data)
+        {
+            HtmlToPdfConverter htmlConverter = new HtmlToPdfConverter();
+            WebKitConverterSettings settings = new WebKitConverterSettings();
+            try
+            {
+                dynamic obj = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(data));
+                PartialPaymentAgreementVM partialPayment = JsonConvert.DeserializeObject<PartialPaymentAgreementVM>(JsonConvert.SerializeObject(obj["partialPayment"]));
+                string template = await ConvertViewsToHTML.RenderViewAsync(controller, "ConvenioPDF", data, true);
+                settings.WebKitPath = Path.Combine(_hostingEnvironment.ContentRootPath, "QtBinariesWindows");
+                htmlConverter.ConverterSettings = settings;
+                PdfDocument document = htmlConverter.Convert(template, "");
+                MemoryStream stream = new MemoryStream();
+                document.Save(stream);
+                stream.Position = 0;
+                document.Close(true);
+                string Filename = "Convenio-" + partialPayment.folio + ".pdf";
+                System.IO.File.WriteAllBytes(Path.Combine(_hostingEnvironment.WebRootPath, Filename), stream.ToArray());
+                return Filename;
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+        }
+
     }
 }

@@ -220,7 +220,7 @@
                                     </i>Población Vulnerable
                                 </a>
                             </li>
-                            @if (Auth.Login.HasRoles("Admin"))
+                            @if (Auth.Login.HasRoles("Admin|Supervisor"))
                             {
                                 <li>
                                     <a href="#">
@@ -232,7 +232,7 @@
                                         <li class="@(url == "Discounts-AuthDiscountsIndex" ? "mm-active active-GFD" : "")">
                                             <a href="/Discounts/AuthDiscountsIndex">
                                                 <i class="metismenu-icon">
-                                                </i>Autorizar Descuentos
+                                                </i>Autorizar Descuento
                                             </a>
                                         </li>
                                     </ul>
@@ -273,7 +273,39 @@
                     </li>
                 }
 
-                
+                @if (Auth.Login.HasRoles("Admin|Supervisor"))
+                {
+                    <li>
+                        <a href="#">
+                            <i class="metismenu-icon fas fa-ban"></i>
+                            Cancelación
+                            <i class="metismenu-state-icon fa fa-angle-down caret-left"></i>
+                        </a>
+                        <ul>
+                            <li class="@(ViewData["Title"].ToString() == "Autorización de Cancelaciones" ? "mm-active active-GFD" : "")">
+                                <a href="/Cancelations/CancelationsToAuthIndex">
+                                    <i class="metismenu-icon">
+                                    </i>Autorizar
+                                </a>
+                            </li>
+                            <li class="@(ViewData["Title"].ToString() == "Búsqueda de Cancelaciones" ? "mm-active active-GFD" : "")">
+                                <a href="/Cancelations/CancelationsToAuthIndex?SearchByDate=true">
+                                    <i class="metismenu-icon">
+                                    </i>Cancelaciones
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    if (!Plataform.IsAyuntamiento && Auth.Login.HasRoles("Admin|Supervisor"))
+                    {
+                        <li class="@(url == "Convenios-Index" ? "mm-active" : "")">
+                            <a href="/Convenios/Index">
+                                <i class="metismenu-icon fas fa-hand-holding-usd"></i>
+                                Convenios
+                            </a>
+                        </li>
+                    }
+                }
             </ul>
         </div>
     </div>

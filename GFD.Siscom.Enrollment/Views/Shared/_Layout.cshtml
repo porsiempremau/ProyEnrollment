@@ -1,4 +1,5 @@
 ﻿@using GFD.Siscom.Enrollment.Utilities.Auth;
+@using GFD.Siscom.Enrollment.Utilities;
 
 <!DOCTYPE html>
 <html lang="es-mx">
@@ -15,16 +16,18 @@
     <meta name="msapplication-tap-highlight" content="no">
     <link href="~/assets/css/main.cba69814a806ecc7945a.css" rel="stylesheet">
     <link href="~/css/General.css" rel="stylesheet" />
+    @*<link href="~/css/General-Personalizado.css" rel="stylesheet" />*@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
-    
+
     <link href="~/css/Loader.css" rel="stylesheet" />
     @* FILEINPUT *@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.0.9/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="~/js/fileinput.min.js"></script>
+
     @* MAP *@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
           integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
@@ -32,6 +35,7 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
             integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
             crossorigin=""></script>
+
     <style>
         .swal2-container {
             zoom: 0.77;
@@ -61,6 +65,7 @@
     <div class="app-drawer-overlay d-none animated fadeIn"></div>
 
     <script>
+        var isAyuntamiento = '@Plataform.IsAyuntamiento' == 'True' ? true : false;
         const FormatoPeso = new Intl.NumberFormat('es-MX', {
             style: 'currency',
             currency: 'MXN'
@@ -98,28 +103,47 @@
     <script type="text/javascript" src="~/assets/scripts/main.cba69814a806ecc7945a.js"></script>
     <script src="~/js/DataTables.js"></script>
     <script src="~/js/SerializerForm.js"></script>
+
+    <!--MODELS JS-->
     <script src="~/js/Models/Agreement.js"></script>
     <script src="~/js/Models/PaymentOrders.js"></script>
     <script src="~/js/Models/Discounts.js"></script>
+    <script src="~/js/Models/Cancelation.js"></script>
+    <script src="~/js/Models/Convenios.js"></script>
     <script src="~/js/JavaScriptGeneral.js"></script>
     <script src="~/js/DownLoadPDF.js"></script>
+
+    @* Firebase *@
+    <!-- Insert these scripts at the bottom of the HTML, but before you use any Firebase services -->
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <script defer src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+    <!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
+    <!--script defer src="https://www.gstatic.com/firebasejs/8.2.4/firebase-analytics.js"></!script -->
+    <!-- Add Firebase products that you want to use -->
+    <script defer src="https://www.gstatic.com/firebasejs/8.2.4/firebase-auth.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/8.2.4/firebase-firestore.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/8.2.4/firebase-database.js"></script>
+    <script defer src="~/js/Firebase/Firebase.js"></script>
+
     @* SweetAlert *@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
 
+    @* Axios *@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>*@
 
     @* DataTable *@
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+
     @* BlockUI *@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.min.js" integrity="sha512-eYSzo+20ajZMRsjxB6L7eyqo5kuXuS2+wEbbOkpaur+sA2shQameiJiWEzCIDwJqaB0a4a6tCuEvCOBHUg3Skg==" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.js" integrity="sha512-QSb5le+VXUEVEQbfljCv8vPnfSbVoBF/iE+c6MqDDqvmzqnr4KL04qdQMCm0fJvC3gCWMpoYhmvKBFqm1Z4c9A==" crossorigin="anonymous"></script>
 
     @RenderSection("Scripts", required: false)
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> <!-- PARA EL DRAGGABLE DE LOS MODALES -->
+    <!-- PARA EL DRAGGABLE DE LOS MODALES -->
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
         $(".modal-dialog").draggable({
             handle: ".modalHeader"

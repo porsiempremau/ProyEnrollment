@@ -113,7 +113,6 @@ namespace GFD.Siscom.Enrollment.Controllers
             }
         }
 
-        [Role("Admin|Supervisor|Super|Isabi")]
         [HttpGet("Debt/DownloadPDF/{fileName}")]
         public async Task<IActionResult> PrintPDF([FromRoute] string fileName)
         {

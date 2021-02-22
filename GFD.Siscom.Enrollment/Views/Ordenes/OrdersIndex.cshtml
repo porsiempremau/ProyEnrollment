@@ -78,14 +78,15 @@
                     <thead class="style-theads">
                         <tr>
                             <th>Concepto</th>
-                            <th>Precio Inicial</th>
+                            <th>P.U.</th>
+                            <th>Cantidad</th>
                             <th>Monto</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody id="tbodyProductst">
                         <tr>
-                            <td colspan="4" style="font-size: 14px; text-align:center;">Sin Productos Seleccionados</td>
+                            <td colspan="5" style="font-size: 14px; text-align:center;">Sin Productos Seleccionados</td>
                         </tr>
                     </tbody>
                 </table>
@@ -132,7 +133,6 @@
         let __ValueTree = new DebtDetailsVM({});
         var __TableProducts = [];
         let __AIMCalculado = 0, __IVA = 0, __suma = 0, __totalComplet = 0;
-        //var __desarrolloUrbano = false;
         var __WithAccount = false;
 
         window.onload = function () {
@@ -239,37 +239,19 @@
                         __data.push(__TREE[i]);
                     }
                 }
-
-                //console.log("__data: ", __data);
-
+                //INVOCÓ LA FUNCIÓN PARA ARMAR EL ÁRBOL
                 BuildTree(__data);
-
             }).catch(error => {
                 UnBlock();
                 console.error(error.response);
                 Swal.fire({
                     title: "Disculpa",
                     text: error.response.data.error,
-                    type: 'info',
+                    icon: 'info',
                     showConfirmButton: true,
                 });
             });
         }
-
-        //function Filter(value) {
-        //    //var result = __TREE2.filter(function (entry) {
-        //    //    var found = entry.name === value;
-        //    //    console.log("Found: ", found);
-        //    //});
-        //    var array = [];
-        //    __TREE2.filter(x => {
-        //        if (x.name == value) {
-        //            array.push(x);
-        //            $('#arbol').html("");
-        //            BuildTree(array);
-        //        }
-        //    });
-        //}
 
         function BuildTree(data) {
             $('#arbol').tree({
@@ -281,12 +263,11 @@
                     $li.find('.jqTree-GFD').before('<i class="fa fa-minus" style="margin-top: 6px; font-size: 8px; color: #9f9f9f;"></i>');
                 },
                 onCanSelectNode: function (node) {
+                    //NODOS SIN HIJOS PUEDEN SER SELECCIONADOS
                     if (node.children.length == 0) {
-                        //Nodos sin hijos pueden ser seleccionados
                         GetTarriffProduct(node);
                     }
-                    else {
-                        //Nodos padres no son seleccionados
+                    else { //NODOS PADRES NO PUEDEN SER SELECCIONADOS
                         return false;
                     }
                 }
@@ -294,12 +275,11 @@
         }
 
         function GetTarriffProduct(product) {
-            console.log("product: ", product);
             var nameConcept = GetParentsFromProducts(product);
             if (__idDivition == 2) {
                 if (FoundAIM()) {
                     Swal.fire({
-                        type: 'info',
+                        icon: 'info',
                         title: 'Disculpa',
                         text: 'Quita el concepto del 10% para agregar mas conceptos',
                         showConfirmButton: true,
@@ -309,10 +289,10 @@
             }
             Block();
             let valueTree = new DebtDetailsVM({});
+            //OBTENEMOS LA TARIFA DEL CONCEPTO SELECCIONADO
             axios.get("/Ordenes/GetTarriff/" + product.id).then(response => {
                 UnBlock();
                 var tariffSelect = new TariffProductVM(response.data);
-                console.log("tariffSelect: ", tariffSelect);
                 valueTree.NameConcept = nameConcept;
                 valueTree.amount = tariffSelect.amount;
                 valueTree.type = tariffSelect.type;
@@ -325,7 +305,7 @@
                 valueTree.Unity = tariffSelect.product.productParams[0].unitMeasurement;
                 valueTree.UnitPrice = tariffSelect.amount;
                 valueTree.subtotal = tariffSelect.amount;
-                console.log("valueTree: ", valueTree)
+
                 __ValueTree = valueTree;
                 OpenModalQuantityProduct(valueTree);
 
@@ -389,7 +369,7 @@
                     mesagge = "No puedes agregar importe invalido";
                 }
                 Swal.fire({
-                    type: 'info',
+                    icon: 'info',
                     title: 'Disculpa',
                     text: mesagge,
                     showConfirmButton: true,
@@ -400,7 +380,6 @@
             if (__ValueTree.type == "TTP01") {
                 __ValueTree.quantity = quantity;
             }
-
             //ESTA FUNCIÓN ES PARA AGREGAR PRODUCTOS QUE SON IGUALES EN EL MISMO TR DE LA TABLA Y NO LO AGREGUE COMO PRODUCTO NUEVO
             var quantityResult = SumarMontoDelMismoConcepto(__ValueTree);
 
@@ -408,6 +387,7 @@
                 case "TTP01":
                     __ValueTree.subtotal = __ValueTree.amount * quantityResult;
                     __ValueTree.quantity = quantityResult;
+                    __ValueTree.amount = __ValueTree.subtotal;
                     break;
                 case "TTP02":
                     __ValueTree.subtotal = (quantity * __ValueTree.percentage) / 100;
@@ -463,6 +443,7 @@
 
             __suma = parseFloat(total.toFixed(2));
             __totalComplet = __suma + __IVA;
+            //PINTAMOS LA TABLA CON LOS PRODUCTOS SELECCIONADOS
             FillTable();
         }
 
@@ -487,7 +468,7 @@
             if (__idDivition == 2) {
                 if (FoundAIM()) {
                     Swal.fire({
-                        type: 'warning',
+                        icon: 'warning',
                         title: 'Advertencia',
                         text: 'Ya está agregado el 10%, ya no se agregará otro más. Si quiere continuar para generar la orden, de click en ok',
                         showConfirmButton: true,
@@ -501,7 +482,7 @@
                     Swal.fire({
                         title: 'Advertencia',
                         text: "Se agregará el 10% (AIM)",
-                        type: 'warning',
+                        icon: 'warning',
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
                         confirmButtonText: 'Aceptar',
@@ -536,7 +517,6 @@
                                 valueTree.subtotal = valueTree.amount;
 
                                 __TableProducts.push(valueTree);
-                                //__desarrolloUrbano = true;
                                 __totalComplet = __suma + __AIMCalculado;
                                 FillTable();
                             });
@@ -572,13 +552,14 @@
         //PARA LLENAR LA TABLA CON LOS PRODUCTOS SELECCIONADOS
         function FillTable() {
             $("#modalQuantityProduct").modal('hide');
-            console.log("__TableProducts: ", __TableProducts);
+            //console.log("__TableProducts: ", __TableProducts);
             $("#tbodyProductst").html("");
             __TableProducts.forEach(x => {
                 $("#tbodyProductst").append(`
                     <tr>
                         <td>${x.NameConcept}</td>
                         <td>${FormatoPeso.format(x.UnitPrice)}</td>
+                        <td style="text-align: center;">${x.quantity}</td>
                         <td>${FormatoPeso.format(x.subtotal)}</td>
                         <td>
                             <a class="nav-link btn-flush" onclick="DeleteProduct(${x.CodeConcept})" data-caret="false" style="margin: 0 auto;">
@@ -605,7 +586,7 @@
             var outdoor = document.getElementById("numExt");
             if (outdoor.value == "" || outdoor.value == null) {
                 Swal.fire({
-                    type: 'info',
+                    icon: 'info',
                     title: 'Disculpa',
                     text: 'Necesitas agregar el No. Ext para poder continuar',
                     showConfirmButton: true,
@@ -663,7 +644,7 @@
                 UnBlock();
                 var data = response.data;
                 Swal.fire({
-                    type: 'success',
+                    icon: 'success',
                     title: 'Correcto',
                     text: 'Se generó la Orden correctamente',
                     showConfirmButton: true,
@@ -678,7 +659,7 @@
             }).catch(error => {
                 UnBlock();
                 Swal.fire({
-                    type: 'info',
+                    icon: 'info',
                     title: 'Disculpa',
                     text: 'No se pudo generar la Orden. ' + error.response.data.error,
                     showConfirmButton: true,
@@ -700,7 +681,7 @@
             }
 
             var Debt = new DebtVM(debt);
-            console.log("Debt: ", Debt);
+            //console.log("Debt: ", Debt);
 
             axios.post("/Ordenes/CreateOrders?isWithAccount=true&idAgreement=" + __idAgreement, Debt).then(response => {
                 $("#observationsWithAccount").val("");
@@ -709,7 +690,7 @@
                 var data = response.data;
                 console.log("Orden creada con cuenta: ", data);
                 Swal.fire({
-                    type: 'success',
+                    icon: 'success',
                     title: 'Correcto',
                     text: 'Se generó el adeudo correctamente a la cuenta: ' + data.agreement.account,
                     showConfirmButton: true,
@@ -724,7 +705,7 @@
             }).catch(error => {
                 UnBlock();
                 Swal.fire({
-                    type: 'info',
+                    icon: 'info',
                     title: 'Disculpa',
                     text: 'No se pudo generar el adeudo. ' + error.response.data.error,
                     showConfirmButton: true,
@@ -771,7 +752,7 @@
                 } else {
                     if (__TableProducts.find(x => x.CodeConcept == '3142')) {
                         Swal.fire({
-                            type: 'info',
+                            icon: 'info',
                             title: 'Disculpa',
                             text: 'Elimina el concepto del 10% para poder quitar otros conceptos',
                             showConfirmButton: true,
@@ -785,7 +766,7 @@
 
             if (__TableProducts.find(tb => tb.CodeConcept == '3142')) {
                 Swal.fire({
-                    type: 'info',
+                    icon: 'info',
                     title: 'Disculpa',
                     text: 'Elimina el concepto del 10% para poder quitar otros conceptos',
                     showConfirmButton: true,
@@ -837,5 +818,20 @@
             return "N/A";
 
         }
+
+        //function Filter(value) {
+        //    //var result = __TREE2.filter(function (entry) {
+        //    //    var found = entry.name === value;
+        //    //    console.log("Found: ", found);
+        //    //});
+        //    var array = [];
+        //    __TREE2.filter(x => {
+        //        if (x.name == value) {
+        //            array.push(x);
+        //            $('#arbol').html("");
+        //            BuildTree(array);
+        //        }
+        //    });
+        //}
     </script>
 }

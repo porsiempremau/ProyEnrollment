@@ -2,6 +2,7 @@
     id;
     account;
     accountAdjusted;
+    nameUserRequest;
     nameUserResponse;
     status;
     amountDiscount;
@@ -20,6 +21,7 @@
         this.status = authdiscount.status || '';
         this.account = authdiscount.account || '';
         this.accountAdjusted = authdiscount.accountAdjusted || '';
+        this.nameUserRequest = authdiscount.nameUserRequest || '';
         this.nameUserResponse = authdiscount.nameUserResponse || '';
         this.amount = authdiscount.amount || 0;
         this.branchOffice = authdiscount.branchOffice || '';

@@ -52,7 +52,7 @@
         </div>
 
         <div class="col-md-12">
-            @if (Plataform.IsAyuntamiento && idAgreement > 0 && Auth.Login.HasRole("Admin"))
+            @if (Plataform.IsAyuntamiento && idAgreement > 0 && (Auth.Login.User == "60f03677-8082-4069-902b-ce9fbf8cdca7" || Auth.Login.User == "100433da-580f-4f77-b5bf-4877423387df"))
             {
                 <div style="margin-top: 7px;">
                     <button type="button" class="btn btn-GFD" onclick="GetFolio()" title="Descargar Constancia de No Adeudo"><i class="fas fa-file-download"></i> Constancia de no adeudo</button>
@@ -117,8 +117,7 @@
     <partial name="~/Views/Agreements/_ModalDebtsFromAgreement.cshtml" />
     <script>
 
-        var isAyuntamiento = '@Plataform.IsAyuntamiento' == 'True' ? true : false,
-            __date = new Date(),
+        var __date = new Date(),
             __IdAgreementPrincipal = 0,
             __checkIsDerivative = document.getElementById("isDerivative"),
             __AccountAyuntamiento = "",
@@ -161,7 +160,7 @@
 
         @*if ('@Plataform.IsAyuntamiento' == 'False')
         {
-            
+
             __TypeAgreement = "AGR01";
 
         } else {
@@ -235,7 +234,7 @@
                     } else {
                         document.getElementById("isDerivative").checked = data.typeAgreement == "AGR01" ? false : true;
                     }
-                    
+
                     document.getElementById("isDerivative").disabled = true;
                     $("#typeConsume").val(data.typeConsumeId);
                     $("#account").val(data.account);
@@ -371,7 +370,7 @@
                         Swal.fire({
                             title: "Disculpa",
                             text: "No puedes desactivar o cancelar esta cuenta, porque aun tiene adeudo",
-                            type: 'info',
+                            icon: 'info',
                             showConfirmButton: true,
                         });
                         _continue = false;
@@ -447,8 +446,8 @@
                 agreement.userId = __userId;
                 agreement.observations = GetValue("observations", false) != "" ? GetValue("observations", false) : "N/A";
                 agreement.servicesId = servicesList;
-                agreement.adresses = addressesList;
-                agreement.clients = clientsList;
+                agreement.adresses = @idAgreement > 0 ? [] : addressesList;
+                agreement.clients = @idAgreement > 0 ? [] : clientsList;
                 agreement.agreementDetails = [];
 
                 //SI ES RUSTICO, AL NÚMERO DE CUENTA SE LE AGREGA UNA "R" AL FINAL
@@ -465,7 +464,7 @@
                         Swal.fire({
                             title: "Bien",
                             text: response.data,
-                            type: 'success',
+                            icon: 'success',
                             showConfirmButton: true,
                         }).then(response => {
                             //SI ES AYUNTAMIENTO
@@ -495,7 +494,7 @@
                             Swal.fire({
                                 title: "Bien",
                                 text: response.data.success,
-                                type: 'success',
+                                icon: 'success',
                                 showConfirmButton: true,
                             }).then(response => {
                                 if (isAyuntamiento) {
@@ -516,14 +515,14 @@
                         Swal.fire({
                             title: "Disculpa",
                             text: error.response.request.response,
-                            type: 'info',
+                            icon: 'info',
                             showConfirmButton: true,
                         });
                     } else {
                         Swal.fire({
                             title: "Disculpa",
                             text: error.response.data.error,
-                            type: 'info',
+                            icon: 'info',
                             showConfirmButton: true,
                         });
                     }
@@ -555,7 +554,7 @@
                         Swal.fire({
                             title: "Disculpa",
                             text: 'Debes agregar el número de cuenta',
-                            type: 'info',
+                            icon: 'info',
                             showConfirmButton: true,
                         }).then(response => {
                             tab.classList.remove("active");
@@ -573,7 +572,7 @@
                     Swal.fire({
                         title: "Disculpa",
                         text: mesagge,
-                        type: 'info',
+                        icon: 'info',
                         showConfirmButton: true,
                     }).then(response => {
                         tab.classList.remove("active");
@@ -598,7 +597,7 @@
                 Swal.fire({
                     title: "Disculpa",
                     text: 'Debes agregar un cliente',
-                    type: 'info',
+                    icon: 'info',
                     showConfirmButton: true,
                 }).then(response => {
                     tabClient.classList.add("active");
@@ -770,7 +769,7 @@
                     UnBlock();
                     console.log(error.response)
                     Swal.fire({
-                        type: 'info',
+                        icon: 'info',
                         title: 'Disculpa',
                         text: error.response.data.error,
                         showConfirmButton: true,
@@ -787,7 +786,7 @@
 
             if (yearSelected > __date.getFullYear()) {
                 Swal.fire({
-                    type: 'info',
+                    icon: 'info',
                     title: 'Disculpa',
                     text: 'Aun no llega ese año',
                     showConfirmButton: true,
@@ -841,7 +840,7 @@
                 if (month == __date.getMonth() && year == __date.getFullYear()) {
                     UnBlock();
                     Swal.fire({
-                        type: 'success',
+                        icon: 'success',
                         title: 'Bien',
                         text: response.data,
                         showConfirmButton: true,
@@ -854,7 +853,7 @@
                 if (month == date.getMonth() && year == date.getFullYear()) {
                     UnBlock();
                     Swal.fire({
-                        type: 'info',
+                        icon: 'info',
                         title: 'Disculpa',
                         text: error.response.data.error,
                         showConfirmButton: true,
@@ -923,7 +922,7 @@
             Swal.fire({
                 title: title,
                 text: "¿Está deacuerdo con esto?",
-                type: 'warning',
+                icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
@@ -944,7 +943,7 @@
                     text = "Se actualizó la deuda";
                 }
                 Swal.fire({
-                    type: 'success',
+                    icon: 'success',
                     title: '¡Correcto!',
                     text: text,
                     showConfirmButton: true,
@@ -958,7 +957,7 @@
             }).catch(error => {
                 UnBlock();
                 Swal.fire({
-                    type: 'info',
+                    icon: 'info',
                     title: '¡Discupe!',
                     text: error.response.data.error,
                     showConfirmButton: true,
@@ -976,7 +975,7 @@
                 //SI TIENE DEUDA MOSTRAMOS EL SIGUIENTE MENSAJE
                 if (__ListDebts.length > 0) {
                     Swal.fire({
-                        type: 'warning',
+                        icon: 'warning',
                         title: 'Disculpa',
                         text: 'Esta cuenta tiene deuda, no puede descargar Constancia de No Adeudo',
                         showConfirmButton: true,
@@ -1016,7 +1015,7 @@
                 } else { //SI NO TIENE DEUD, CONTINUARÁ CON EL PROCESO, AGREGARÁ A LA TABLA PROOFNODEBT UN REGISTRO PARA LA CONSTANCIA QUE SERÁ DESCARGADA
                     UnBlock();
                     Swal.fire({
-                        type: 'success',
+                        icon: 'success',
                         title: 'Bien',
                         text: 'Cuenta sin deuda, se descargará la Constancia de no Adeudo',
                         showConfirmButton: true,

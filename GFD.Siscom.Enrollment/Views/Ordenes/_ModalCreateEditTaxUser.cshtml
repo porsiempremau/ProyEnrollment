@@ -187,7 +187,7 @@
             UnBlock();
             var taxUser = new TaxUserVM(response.data);
             var taxAddresses = new TaxAddressVM(taxUser.taxAddresses[0]);
-            console.log("Taxuser encontrado: ", taxUser);
+            //console.log("Taxuser encontrado: ", taxUser);
 
             $("#divContentState").html(`<label>Estado:</label><input class="form-control form-control-sm" id="stateId" name="stateId"/>`);
             $("#divContentTown").html(`<label>Municipio:</label><input class="form-control form-control-sm" id="townId" name="townId"/>`);
@@ -207,7 +207,7 @@
             $("#suburbId").val(taxAddresses.suburb);
 
             Swal.fire({
-                type: 'success',
+                icon: 'success',
                 title: 'Encontrado',
                 showConfirmButton: false,
                 timer: 700
@@ -215,7 +215,7 @@
         }).catch(error => {
             UnBlock();
             Swal.fire({
-                type: 'info',
+                icon: 'info',
                 title: 'Disculpa',
                 text: 'No se encontró cliente con este rfc: ' + rfc,
                 showConfirmButton: true,

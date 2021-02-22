@@ -1,0 +1,260 @@
+﻿@model object;
+@using GFD.Siscom.Enrollment.Utilities.Auth;
+@using Newtonsoft.Json;
+@{
+    dynamic obj = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(Model));
+    bool SearchByDate = obj["byDate"];
+}
+<div class="app-page-title">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div class="page-title-icon">
+                <i class="fas fa-paste">
+                </i>
+            </div>
+            <h1 class="style-main-title">@ViewData["Title"]</h1>
+        </div>
+    </div>
+</div>
+<br />
+@if (SearchByDate)
+{
+    <form id="FromData" onsubmit="SearchCancelationsByDate(event, document.getElementById('dateCancelation').value)">
+        <div class="row">
+            <div class="col-md-3">
+                <label>Fecha: </label>
+                <input type="date" class="form-control form-control-sm" id="dateCancelation" />
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-GFD margin-top-btns">
+                    <i class="fas fa-search"></i>
+                    Buscar
+                </button>
+            </div>
+        </div>
+    </form>
+    <br />
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <table style="width: 100%;" id="TableCancelToAuth" class="table table-hover table-striped table-bordered">
+                    <thead class="style-theads">
+                        <tr>
+                            <th>Petición</th>
+                            <th>Monto</th>
+                            <th>Fecha Solicitado</th>
+                            <th>Motivo</th>
+                            <th>Sucursal</th>
+                            <th>Comprobante</th>
+                            <th>Status</th>
+                            @if (!SearchByDate)
+                            {
+                                <th></th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyCancelToAuth"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        var __searchByDate = '@SearchByDate' == 'True' ? true : false;
+        var __dataCancel = [], __ListCancelToAuth = [], __ListCancel = [];
+        var __dateToday = new Date();
+        var __dateYesterday = SumarORestarDias(new Date(), -1);
+
+        window.onload = function () {
+            GetCancelations();
+        }
+
+        function SearchCancelationsByDate(event, dateInput) {
+            //ESTE MÉTODO LO UTILIZAMOS PARA LA LISTA DE SOLICITUDES DE CANCELACIÓN, DONDE EL USUARIO PUEDE PASAR UNA FECHA COMO FILTRO DE BÚSQUEDA
+            event.preventDefault();
+            var dateinput = new Date(dateInput);
+            var daySelected = SumarORestarDias(dateinput, 1);
+            var dateToBeforeDay = new Date(dateInput);
+            __ListCancel = [];
+            __ListCancelToAuth = [];
+            Block();
+            AddElemtsToList(daySelected, dateToBeforeDay);
+        }
+
+        async function GetCancelations() {
+            Block();
+            ClearDataTable("TableCancelToAuth");
+            $("#tbodyCancelToAuth").html("");
+            //OBTENEMOS TODAS LAS SOLICITUDES DE CANCELACIÓN 
+            await axios.get("/Cancelations/GetCancelations").then(response => {
+                //LOS DATOS LOS GUARDAMOS EN LA SIGUIENTE VARIABLE GLOBAL. ESTOS DATOS LOS UTILIZAMOS PARA CUANDO SEA BÚSQUEDA POR FECHA, PARA NO VOLVER HACER PETICIÓN A LA API
+                __dataCancel = response.data;
+            }).catch(error => {
+                UnBlock();
+                Swal.fire({
+                    title: "Disculpa",
+                    text: 'Ocurrió un problema: ' + error.response.request.response,
+                    type: 'info',
+                    showConfirmButton: true,
+                });
+                console.error(error.response);
+            }); 
+
+            //AGREMAMOS LOS DATOS A LA NUEVA LISTA 
+            await AddElemtsToList(__dateToday, __dateYesterday);
+        }
+
+        function AddElemtsToList(today, yesterday) {
+            if (__dataCancel.length > 0) {
+                __dataCancel.forEach(x => {
+                    //MODELAMOS LOS DATOS
+                    var cancelation = new CancelationVM(x);
+                    var dateRequest = new Date(cancelation.dateRequest);
+                    //VERIFICAMOS QUE SOLO GUARDEMOS EN LA NUEVA LISTA LOS DATOS CON EL DÍA ACTUAL O EL DÍA SELECCIONADO (LISTA DE SOLICITUDES DE CANCELACIÓN)
+                    if (dateRequest <= today && dateRequest > yesterday) {
+                        //SI ES EN AUTORIZACIÓN DE SOLICITUDES DE CANCELACIÓN, REALIZAMOS LO SIGUIENTE
+                        if (!__searchByDate) {
+                            //SOLO GUARDAREMOS LOS DATOS QUE TENGAN UN STATUS IGUAL A ESC01, PORQUE SON LOS QUE SE PUEDEN AUTORIZAR LA SOLICITUD DE CANCELACIÓN
+                            if (cancelation.status == "ESC01") {
+                                __ListCancel.push(cancelation);
+                            }
+                        } else {
+                            //SI ES EN BÚSQUEDA POR FECHA, MANDAMOS TODOS LOS DATOS, YA QUE EN ESTÁ, ES SOLO LECTURA
+                            __ListCancel.push(cancelation);
+                        }                        
+                    }
+                });
+                //OBTENEMOS LA INFORMACIÓN CON EL transactionId
+                GetCancelationsTransaction();
+            }
+        }
+
+        function GetCancelationsTransaction() {
+            if (__ListCancel.length == 0) {
+                ClearDataTable("TableCancelToAuth");
+                $("#tbodyCancelToAuth").html("");
+                $("#tbodyCancelToAuth").append(`
+                    <tr>
+                        <td colspan="8" style="font-size: 20px; text-align: center">Solicitudes de cancelación no encontradas</td>
+                    </tr>
+                `);
+                setTimeout(() => {
+                    UnBlock();
+                }, 1170);
+                return false;
+            } 
+
+            for (var i = 0; i < __ListCancel.length; i++) {
+                var ct = new CancelationTransactionVM(__ListCancel[i]);
+                axios.get("/Cancelations/GetCancelationsTransactionId/" + ct.transactionId).then(response => {
+                    var cancelTran = new CancelationTransactionVM(response.data);
+                    __ListCancelToAuth.push(cancelTran);
+                    //HASTA QUE SEA EL ÚLTIMO AGREGADO AL ARREGLO __ListCancelToAuth, LLENAREMOS LA TABLA, PARA NO REPETIR EL PROCESO CADA VEZ QUE SE AGREGUE UN ELEMENTO AL ARREGLO ANTERIORMENTE MENCIONADO
+                    if (i == __ListCancelToAuth.length) {
+                        FillTableCancelations(__ListCancelToAuth);
+                    }
+
+                }).catch(error => {
+                    UnBlock();
+                    console.log(error.response);
+                });
+            }
+        }
+
+        function FillTableCancelations(list) {
+            ClearDataTable("TableCancelToAuth");
+            $("#tbodyCancelToAuth").html("");
+            list.forEach(x => {
+                var cancel = new CancelationTransactionVM(x);
+                var dateRequ = getFormateDate(cancel.dateRequest);
+                var status = getDescriptionType(cancel.status, STATUS);
+                var lastRow = __searchByDate ? "" : `<td>
+                    <a class="nav-link btn-flush" onclick="QuestionToCancel(${cancel.id})" data-caret="false" style="margin: 0 auto;">
+                        <i class="fas fa-vote-yea iconX" title="Autorizar"></i>
+                    </a>
+                </td>`;
+
+                $("#tbodyCancelToAuth").append(`
+                    <tr>
+                        <td>${cancel.userName}</td>
+                        <td>${FormatoPeso.format(cancel.amount)}</td>
+                        <td>${dateRequ}</td>
+                        <td>${cancel.reason}</td>
+                        <td>${cancel.branchOffice}</td>
+                        <td>${cancel.printingFolio}</td>
+                        <td>${status}</td>
+                        ${lastRow}
+                    </tr>
+                `);             
+            });
+
+            if (list.length > 10) {
+                loadDataTable("TableCancelToAuth");
+            }
+            UnBlock();
+        }
+
+        function QuestionToCancel(idCancelation) {
+            var mesagge = "¿Está seguro que desea autorizar esta cancelación?";
+            var textConfirmBtn = "Autorizar Cancelación";
+            Swal.fire({
+                title: mesagge,
+                icon: 'info',
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: textConfirmBtn,
+                input: 'text'
+            }).then(response => {
+                if (response.isConfirmed && response.value == "") {
+                    Swal.fire("Necesitas agregar una descripción");
+                }
+
+                if (response.isConfirmed && response.value != "") {
+                    AuthorizeCancelation(idCancelation, response.value);
+                }
+            });
+        }
+
+        function AuthorizeCancelation(idCancelation, description) {
+            Block();
+            var item = __ListCancelToAuth.find(x => x.id == idCancelation);
+            var cancel = new CancelationTransactionVM(item);
+
+            var CancelationToAuth = {
+                id: cancel.id,
+                status: "ESC04",
+                dateRequest: cancel.dateRequest,
+                reason: cancel.reason,
+                manager: '@Auth.Login.FullName',
+                dateAuthorization: dateToday,
+                managerObservation: description,
+                keyFirebase: cancel.keyFirebase,
+                transactionId: cancel.transactionId,
+                transaction: null
+            }
+
+            axios.post("/Cancelations/PostCancelation", CancelationToAuth).then(response => {
+                UnBlock();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Bien',
+                    text: 'Autorizado correctamente',
+                    showConfirmButton: true
+                });
+            }).catch(error => {
+                UnBlock();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Disculpa',
+                    text: 'Ocurrió un problema: ' + error.response.request.response,
+                    showConfirmButton: true
+                });
+                console.error(error.response);
+            });
+        }
+    </script>
+}

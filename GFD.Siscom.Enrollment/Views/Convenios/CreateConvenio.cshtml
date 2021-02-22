@@ -1,0 +1,332 @@
+﻿
+<div class="app-page-title">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div class="page-title-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h1 class="style-main-title">@ViewData["Title"]</h1>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-4">
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Datos Para Convenio</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <form id="FromDataAccount" onsubmit="TieneConvenio(document.getElementById('agreementAccount').value)">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <label>Cuenta:</label>
+                                    <input class="form-control form-control-sm" id="agreementAccount" name="agreementAccount" required />
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-GFD margin-top-btns" title="Buscar Cuenta">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="divContentDataAgreement" class="col-md-12" style="display:none; margin-top:20px;">
+                        <div class="main-card mb-3 card">
+                            <div class="card-body" style="background-color: #e8e8e8;">
+                                <div style="display: flex;">
+                                    <i class="fas fa-user" style="margin-top: 3px;"></i><p id="AccountName" style="margin-bottom: 0px; margin-left: 7px;"></p>
+                                </div>
+                                <div style="display: flex;">
+                                    <i class="fas fa-map-marked-alt" style="margin-top: 3px;"></i><p id="AccountAddress" style="margin-bottom: 0px; margin-left: 7px;"></p>
+                                </div>
+                                <div style="display: flex;">
+                                    <i class="fas fa-file-contract" style="margin-top: 3px;"></i><p id="AccountStatus" style="margin-bottom: 0px; margin-left: 7px;"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="FromDataToConvenio" onsubmit="GeneraConvenio()" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label>Contribuyente:</label>
+                            <input id="name" name="name" class="form-control form-control-sm" disabled />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Número de Cuotas:</label>
+                            <input type="number" id="numPayments" name="numPayments" class="form-control form-control-sm" min="1" max="30" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label>No. Coutas:</label>
+                            <select id="numCuotas" name="numCuotas" class="form-control form-control-sm" required>
+                                <option value="7">7 días</option>
+                                <option value="15">15 días</option>
+                                <option value="30">30 días</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Identificación:</label>
+                            <select id="identification" name="identification" class="form-control form-control-sm" required>
+                                <option value="INE">INE</option>
+                                <option value="PASAPORTE">PASAPORTE</option>
+                                <option value="CÉDULA PROFESIONAL">CÉDULA PROFESIONAL</option>
+                                <option value="LICENCIA">LICENCIA</option>
+                                <option value="INAPAM">INAPAM</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label>No. Identificación:</label>
+                            <input id="numIdentification" name="numIdentification" class="form-control form-control-sm" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Correo:</label>
+                            <input type="email" id="email" name="email" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-6">
+                            <label>Teléfono:</label>
+                            <input type="text" id="phone" name="phone" class="form-control form-control-sm" maxlength="10" required />
+                        </div>
+
+                        <div class="col-md-12">
+                            <label>Observaciones:</label>
+                            <textarea id="observations" name="observations" class="form-control"></textarea>
+                        </div>
+
+                        <div class="col-md-12" style="margin-top:10px;">
+                            <button type="submit" id="btnGeneraConvenio" class="btn btn-GFD float-right">
+                                Generar Convenio
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="main-card mb-3 card">
+            <div class="title-head">
+                <p>Adeudo</p>
+            </div>
+            <div class="card-body">
+                <table style="width: 100%;" id="TableDebts" class="table table-hover table-striped table-bordered">
+                    <thead class="style-theads">
+                        <tr>
+                            <th>Perido</th>
+                            <th>Concepto</th>
+                            <th>Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyDebts">
+                        <tr>
+                            <td colspan="11" style="font-size: 20px; text-align: center">Sin Datos</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="divContentCardTotal" class="row" style="display: none;">
+            <div class="col-md-7"></div>
+            <div class="col-md-5">
+                <div class="main-card mb-3 card">
+                    <div class="card-body">
+                        <p id="Total" class="payment-order-results-total"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{ 
+    <script>
+        var __agreementId = 0,
+            __DisableBtn = false,
+            formConvenio = document.getElementById("FromDataToConvenio");
+
+        window.onload = function () {
+            formConvenio.phone.addEventListener("keypress", onlyNumbers, false);
+        }
+
+        //COMPROBAMOS QUE LA CUENTA NO TENGA UN CONVENIO ACTIVO
+        function TieneConvenio(account) {
+            event.preventDefault();
+            Block();
+            axios.get("/Convenios/FindByParameter?account=" + account).then(response => {
+                console.log(response.data);
+                var active = response.data.find(x => x.description == "ACTIVO");
+                if (active) {
+                    //TIENE CONVENIO
+                    SearchAgreement(account, active.folio);
+                } else {
+                    //SI TIENE CONVENIO INACTIVO, PUEDE GENERAR UNO NUEVO
+                    SearchAgreement(account, "");
+                }                
+            }).catch(error => {
+                //NO TIENE CONVENIO
+                SearchAgreement(account, "");
+            });
+        }
+
+        function SearchAgreement(account, folio) {
+            event.preventDefault();
+            axios.get("/Agreement/Get/List?account=" + account).then(response => {
+                var data = response.data;
+                if (data.length > 0) {
+                    console.log("Agreement principal: ", data);
+                    document.getElementById("divContentDataAgreement").style.display = "block";
+                    __agreementId = data[0].agreementId;
+                    //SE PINTAN LOS DATOS DEL AGREEMENT EN LA CARD
+                    $("#AccountName").html(`<b>Nombre: </b> ${data[0].nombre}`);
+                    $("#AccountAddress").html(`<b>Dirección: </b> ${data[0].address}`);
+                    $("#AccountStatus").html(`<b>Status: </b> ${data[0].status}`);
+                    //SI EN LA BÚSQUEDA SE ENCUENTRA UN FOLIO CON STATUS ACTIVO
+                    if (folio != "") {
+                        UnBlock();
+                        Swal.fire({
+                            title: "Disculpa",
+                            html: `Esta cuenta ya tiene convenio. <br/> Folio: <b style="font-weight: 700;">${folio}</b>`,
+                            icon: 'info',
+                            showConfirmButton: true,
+                        }).then(response => {
+                            CleanComponents();
+                        });
+                    } else if ((data[0].status == "Activo" || data[0].status == "ACTIVO") && folio == "") { //SI NO TIENE CONVENIO, CONTINUA CON EL PROCESOS...
+                        document.getElementById("FromDataToConvenio").style.display = "flex";
+                        $("#name").val(data[0].nombre);
+                        //SE OBTIENE LOS DEBT PARA PINTAR EN LA TABLA
+                        GetDataAgreement(__agreementId);
+                    } else {
+                        UnBlock();
+                        Swal.fire({
+                            title: "Disculpa",
+                            text: 'No puede generar convenio si la cuenta no está ACTIVA',
+                            icon: 'info',
+                            showConfirmButton: true,
+                        }).then(response => {
+                            CleanComponents();
+                        });
+                    }
+                } else {
+                    UnBlock();
+                    __agreementId = 0;
+                }
+            }).catch(error => {
+                UnBlock();
+                CatchError(error);
+            });
+        }
+
+        function CleanComponents() {
+            document.getElementById("FromDataToConvenio").style.display = "none";
+            document.getElementById("divContentCardTotal").style.display = "none";
+            ClearDataTable("TableDebts");
+            $("#tbodyDebts").html(`
+                <tr>
+                    <td colspan="3" class="message-sin-datos-table">Sin Datos</td>
+                </tr>
+            `);
+        }
+
+        function GetDataAgreement(agreementId) {
+            ClearDataTable("TableDebts");
+            $("#tbodyDebts").html("");
+            var total = 0;
+            axios.get("/Convenios/FindByParameter?agreementId=" + agreementId).then(response => {
+                var data = response.data;
+                console.log("data: ", data);
+                if (data.length > 0) {
+                    document.getElementById("btnGeneraConvenio").disabled = false;
+                    data.forEach(x => {
+                        var fromDate = x.fromDate.replace("12:00:00 a. m.", "");
+                        var untilDate = x.untilDate.replace("12:00:00 a. m.", "");
+                        $("#tbodyDebts").append(`
+                            <tr>
+                                <td>${fromDate} - ${untilDate}</td>
+                                <td>${x.nameConcept}</td>
+                                <td>${FormatoPeso.format(x.amount)}</td >
+                            </tr>
+                        `);
+                        total = total + x.amount;
+                    });
+                    document.getElementById("divContentCardTotal").style.display = "flex";
+                    $("#Total").html(`<b>Total: </b> ${FormatoPeso.format(total)}`);
+                    UnBlock();
+                    Swal.fire({
+                        title: "Bien",
+                        text: 'Datos encontrados',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 1700
+                    });
+                } else {
+                    document.getElementById("btnGeneraConvenio").disabled = true;
+                    $("#tbodyDebts").append(`
+                        <tr>
+                            <td colspan="3" class="message-sin-datos-table">Sin Deuda</td>
+                        </tr>
+                    `);
+                    UnBlock();
+                }
+                if (data.length > 10) {
+                    loadDataTable("TableDebts");
+                }
+            }).catch(error => {
+                UnBlock();
+                CatchError(error);
+            });
+        }
+
+        function GeneraConvenio() {
+            event.preventDefault();
+            var numberPayments = parseInt(formConvenio.numPayments.value),
+                releaseDay = parseInt(formConvenio.numCuotas.value);
+
+            Block();
+            var PartialPayment = {
+                idAgreement: __agreementId,
+                numberPayments,
+                observations: formConvenio.observations.value,
+                signatureName: formConvenio.name.value,
+                idNumber: formConvenio.numIdentification.value,
+                idCard: formConvenio.identification.value,
+                email: formConvenio.email.value,
+                phone: formConvenio.phone.value,
+                releaseDay
+            }
+
+            if (numberPayments <= 12 && releaseDay == 30 || numberPayments <= 24 && releaseDay <= 15) {
+                axios.post("/Convenios/PostConvenio", PartialPayment).then(response => {
+                    UnBlock();
+                    var folio = response.data;
+                    Swal.fire({
+                        title: "Bien",
+                        html: `Convenio generado correctamente. <br/> Folio: <b style="font-weight: 700;">${folio}</b>`,
+                        icon: 'success',
+                        showConfirmButton: true,
+                    }).then(response => {
+                        window.location.href = "/Convenios/Index";
+                    });
+                }).catch(error => {
+                    UnBlock();
+                    CatchError(error);
+                });
+            } else {
+                UnBlock();
+                Swal.fire({
+                    title: "Disculpa",
+                    text: 'El numero de pagos debe ser 12 o menos para 30 dias y para 15 y 7 días 24 pagos o menos',
+                    icon: 'info',
+                    showConfirmButton: true,
+                });
+            }
+        }
+    </script>
+}

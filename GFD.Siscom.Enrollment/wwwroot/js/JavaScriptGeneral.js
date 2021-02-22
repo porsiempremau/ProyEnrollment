@@ -1,4 +1,8 @@
 ﻿//var __ListDivision = [];
+//var distinct = Array.from(new Set(data.map(s => s))).map(s => {
+//    var dataAgreement = data.find(x => x.agreementId == s.idAgreement);
+//    return dataAgreement;
+//});
 
 const GetDescriptionDivision = () => {
     return new Promise((resolve, reject) => {
@@ -373,8 +377,37 @@ function loadFileInput(idFileInput, accept = ['jpg', 'png', 'pdf', 'jpeg']) {
     });
 }
 
-function CathErrors(error) {
+function CatchError(e) {
+    if (e.response) {
+        if (e.response.data) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Disculpa',
+                text: 'Ha suscedido algo inesperado: ' + e.response.data.error,
+                showConfirmButton: true,
+            });
+        } else {
+            Swal.fire({
+                icon: 'info',
+                title: 'Disculpa',
+                text: 'Ha suscedido algo inesperado: ' + e.response.request.response,
+                showConfirmButton: true,
+            });
+        }
+    } else {
+        Swal.fire({
+            icon: 'info',
+            title: 'Disculpa',
+            text: 'Ha suscedido algo inesperado',
+            showConfirmButton: true,
+        });
+    }
+    console.log("Error: ", e.response);
+}
 
+function SumarORestarDias(date, days) {
+    date.setDate(date.getDate() + days);
+    return date;
 }
 
 const YEAR = [
@@ -1466,6 +1499,22 @@ const STATUS = [
     {
         "idType": "EOS04",
         "description": "VENCIDO",
+    },
+    {
+        "idType": "ESC01",
+        "description": "SOLICITADO",
+    },
+    {
+        "idType": "ESC02",
+        "description": "AUTORIZADO",
+    },
+    {
+        "idType": "ESC03",
+        "description": "CANCELADO",
+    },
+    {
+        "idType": "ESC04",
+        "description": "RECHAZADO",
     }
 
 ]

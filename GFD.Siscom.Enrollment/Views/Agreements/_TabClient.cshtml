@@ -207,7 +207,7 @@
             Swal.fire({
                 title: "Disculpa",
                 text: "El primer contribuyente agregado debe ser propietario, posteriormente podrás agregar un usuario",
-                type: 'info',
+                icon: 'info',
                 showConfirmButton: true,
             });
             return false;
@@ -219,7 +219,7 @@
             Swal.fire({
                 title: "Disculpa",
                 text: "Ya se registró un cliente propietario, no puede haber más de dos",
-                type: 'info',
+                icon: 'info',
                 showConfirmButton: true,
             });
             return false;
@@ -359,7 +359,7 @@
         Swal.fire({
             title: 'Se eliminará el contribuyente',
             text: "¿Está deacuerdo con esto?",
-            type: 'warning',
+            icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
@@ -512,7 +512,7 @@
             Swal.fire({
                 title: "Bien",
                 text: response.data,
-                type: 'success',
+                icon: 'success',
                 showConfirmButton: true,
             });
             //.then(response => {
@@ -523,7 +523,7 @@
             Swal.fire({
                 title: "Disculpa",
                 text: error.response.data,
-                type: 'info',
+                icon: 'info',
                 showConfirmButton: true,
             });
         });
@@ -550,7 +550,7 @@
         if (name == "") {
             UnBlock();
             Swal.fire({
-                type: 'info',
+                icon: 'info',
                 title: 'Disculpa',
                 text: 'Debes agregar un nombre para realizar la busqueda',
                 showConfirmButton: true

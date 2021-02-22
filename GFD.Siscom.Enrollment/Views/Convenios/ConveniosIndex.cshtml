@@ -1,0 +1,275 @@
+﻿
+@using GFD.Siscom.Enrollment.Utilities.Auth;
+
+<div class="app-page-title">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div class="page-title-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h1 class="style-main-title">@ViewData["Title"]</h1>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <input type="checkbox" id="isCheck" name="isCheck" onchange="Check(this)" />
+        <label>Buscar por cuenta:</label>
+    </div>
+    @if (Auth.Login.HasRoles("Admin|Supervisor|Super"))
+    {
+        <div class="col-md-6">
+            <a type="button" class="btn btn-GFD float-right style-btn-agregar-nuevo" href="/Convenios/CrearConvenioView">
+                <i class="fas fa-plus-circle" title="Crear Convenio"></i>
+                Crear Convenio
+            </a>
+        </div>
+    }
+</div>
+<form id="FormDataAccount" onsubmit="GetPartialPayments()" style="display: none;">
+    <div class="row">
+        <div class="col-md-3">
+            <label>Cuenta: </label>
+            <input type="text" id="account" name="account" class="form-control form-control-sm" required />
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-GFD float-left margin-top-btns">
+                <i class="fas fa-search" title="Buscar"></i> Buscar
+            </button>
+        </div>
+    </div>
+</form>
+
+<form id="FormDataFolio" onsubmit="GetPartialPayments()">
+    <div class="row">
+        <div class="col-md-3">
+            <label>Folio: </label>
+            <input type="text" id="folio" name="folio" class="form-control form-control-sm" required />
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-GFD float-left margin-top-btns">
+                <i class="fas fa-search" title="Buscar"></i> Buscar
+            </button>
+        </div>
+    </div>
+</form>
+<br />
+<div class="row">
+    <div class="col-md-12">
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <table style="width: 100%;" id="TableConvenios" class="table table-hover table-striped table-bordered">
+                    <thead class="style-theads">
+                        <tr>
+                            <th>Id</th>
+                            <th>Cuenta</th>
+                            <th>Folio</th>
+                            <th>Expedición</th>
+                            <th>Monto</th>
+                            <th>No. Cuotas</th>
+                            <th>Descripción</th>
+                            <th>Expiración</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyConvenios">
+                        <tr>
+                            <td colspan="11" class="message-sin-datos-table">Sin Datos</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <partial name="~/Views/Convenios/_ModalLiberaCuotas.cshtml"/>
+    <script>
+        var __IdPartialPayment = 0;
+
+        function Check(element) {
+            if (element.checked) {
+                document.getElementById("FormDataAccount").style.display = "block";
+                document.getElementById("FormDataFolio").style.display = "none";
+            } else {
+                document.getElementById("FormDataAccount").style.display = "none";
+                document.getElementById("FormDataFolio").style.display = "block";
+            }
+        }
+
+        function GetPartialPayments() {
+            event.preventDefault();
+            Block();
+            ClearDataTable("TableConvenios");
+            var check = document.getElementById("isCheck");
+            var parameter = document.getElementById("folio").value,
+                url = "/Convenios/FindByParameter?folio=" + parameter;
+
+            if (check.checked) {
+                parameter = document.getElementById("account").value;
+                url = "/Convenios/FindByParameter?account=" + parameter;
+            }
+            $("#tbodyConvenios").html("");
+            axios.get(url).then(response => {
+                UnBlock();
+                var list = response.data;
+                console.log("List partial payment: ", list);
+                if (list.length > 0) {
+                    list.forEach(x => {
+                        var partial = new PartialPaymentVM(x);
+                        var expirationDate = partial.expiration_date.replace("12:00:00 a. m.", "");
+                        $("#tbodyConvenios").append(`
+                            <tr>
+                                <td>${partial.idPartialPayment}</td>
+                                <td>${partial.account}</td>
+                                <td>${partial.folio}</td>
+                                <td>${partial.partialPaymentDate}</td>
+                                <td>${FormatoPeso.format(partial.amount)}</td>
+                                <td>${partial.numberPayments}</td>
+                                <td>${partial.description}</td>
+                                <td>${expirationDate}</td>
+                                <td>
+                                    <a class="nav-link btn-flush" onclick="OpenModalLiberarCuota(${partial.idPartialPayment}, ${partial.agreementId})" data-caret="false" style="margin: 0 auto;">
+                                        <i class="fas fa-check-square iconX" title="Liberar Cuota"></i>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a class="nav-link btn-flush ${partial.description == 'ACTIVO' ? '' : 'disabled'}" onclick="CancelarConvenio(${partial.agreementId})" data-caret="false" style="margin: 0 auto;">
+                                        <i class="fas fa-ban iconX" title="Cancelar Convenio"></i>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a class="nav-link btn-flush ${partial.description == 'ACTIVO' ? '' : 'disabled'}" onclick="DownloadConvenio('${partial.account}', '${partial.agreementId}', '${partial.amount}', '${partial.folio}', '${partial.idPartialPayment}', '${partial.numberPayments}')" data-caret="false" style="margin: 0 auto;">
+                                        <i class="fas fa-download iconX" title="Descarga Convenio"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                } else {
+                    $("#tbodyConvenios").append(`
+                        <tr>
+                            <td colspan="11" style="text-align: center; font-size: 14px;">No se encontraron datos</td>
+                        </tr>
+                    `);
+                }
+
+                if (list.length > 10) {
+                    loadDataTable("TableConvenios");
+                }
+            }).catch(error => {
+                UnBlock();
+                CatchError(error);
+            });
+        }
+
+        function DownloadConvenio(account, agreementId, amount, folio, idPartialPayment, numberPayments) {
+            Block();
+            var PPay = {
+                account,
+                agreementId: parseInt(agreementId),
+                amount: parseFloat(amount),
+                folio,
+                idPartialPayment: parseInt(idPartialPayment),
+                numberPayments: parseInt(numberPayments)
+            }
+            var PartialPayment = new PartialPaymentVM(PPay);
+            axios.post("/Convenios/GeneraPDFConvenio", PartialPayment).then(response => {
+                DownloadPDF(response.data);
+            }).catch(error => {
+
+            });
+        }
+
+        function CancelarConvenio(agreementId) {
+            Swal.fire({
+                title: 'Se cancelará convenio',
+                text: "¿Está seguro?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Aceptar'
+            }).then(response => {
+                if (response.value) {
+                    Block();
+                    axios.post("/Convenios/CancelarConvenio/" + agreementId).then(response => {
+                        UnBlock();
+                        console.log(response.data);
+                        Swal.fire({
+                            icon: "success",
+                            title: "Correcto",
+                            text: response.data,
+                            showConfirmButton: true,
+                        }).then(response => {
+                            GetPartialPayments();
+                        });
+                    }).catch(error => {
+                        UnBlock();
+                        CatchError(error);
+                    });
+                }
+            });
+
+        }
+
+        function OpenModalLiberarCuota(idPartialPayment, agreementId) {
+            Block();
+            __IdPartialPayment = idPartialPayment;
+            $("#modalLiberaCuotas").modal({ backdoor: true });
+            $("#agreementIdModalLiberacionCuota").val(agreementId);
+            GetPaymentDetails(idPartialPayment);
+        }
+
+        function GetPaymentDetails(idPartialPayment) {
+            $("#tbodyConvenioDetails").html("");
+            axios.get("/Convenios/GetPartialPaymentDetails/" + idPartialPayment).then(response => {
+                UnBlock();
+                console.log("Details partial payment", response.data);
+                var p = response.data;
+                if (p.length > 0) {
+                    p.forEach(x => {
+                        var pDetails = new PartialPaymentDetailsVM(x);
+                        $("#tbodyConvenioDetails").append(`
+                            <tr>
+                                <td>${pDetails.paymentNumber}</td>
+                                <td>${FormatoPeso.format(pDetails.amount)}</td>
+                                <td>${FormatoPeso.format(pDetails.iva)}</td>
+                                <td>${FormatoPeso.format(pDetails.onAccount)}</td>
+                                <td>${pDetails.description}</td>
+                                <td>${pDetails.releasePeriod != "01/01/1900" ? pDetails.releasePeriod : "-"}</td>
+                                <td>${pDetails.releaseDate != "01/01/1900" ? pDetails.releaseDate : "-"}</td>
+                                <td>${pDetails.paymentDay != "01/01/1900" ? pDetails.paymentDay : "-"}</td>
+                            </tr>
+                        `);
+                    });
+                }
+            }).catch(error => {
+                UnBlock();
+                CatchError(error);
+            });
+        }
+
+        function LiberarCuota(agreementId) {
+            Block();
+            axios.post("/Convenios/BillingPartialPayment/" + agreementId).then(response => {
+                UnBlock();
+                console.log(response.data);
+                Swal.fire({
+                    icon: "success",
+                    title: "Correcto",
+                    text: response.data,
+                    showConfirmButton: true,
+                }).then(response => {
+                    GetPaymentDetails(__IdPartialPayment);
+                });
+            }).catch(error => {
+                UnBlock();
+                CatchError(error);
+            });
+        }
+    </script>
+}

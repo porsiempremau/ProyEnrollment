@@ -24,19 +24,6 @@
 
     decimal total = 0;
     decimal iva = 0;
-    //DateTime date = d.AddMonths(2);
-    //var fechaLimite = (date.Day < 10 ? "0" + date.Day.ToString() : date.Day.ToString()) + "/" + (date.Month < 10 ? "0" + date.Month.ToString() : date.Month.ToString()) + "/" + date.Year.ToString();
-
-    //string situacionSocial = "";
-    //if (agreement.agreementDiscounts.Count() == 0)
-    //{
-    //    situacionSocial = "NINGUNO";
-    //}
-    //else
-    //{
-    //    situacionSocial = agreement.agreementDiscounts.Where(x => x.isActive == true).First().discount.Name;
-    //}
-
 }
 
 <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
@@ -137,14 +124,62 @@
                     {
                         foreach (var itemDetail in item.DebtDetails)
                         {
-                            <tr>
-                                <td style="border: 1px solid #ddd; padding: 7px;">@itemDetail.NameConcept</td>
-                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@item.FromDate.ToString("dd/MM/yyyy") - @item.UntilDate.ToString("dd/MM/yyyy")</td>
-                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@item.Status</td>
-                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@(string.Format(new CultureInfo("es-MX"), "{0:C2}", itemDetail.Amount))</td>
-                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@(string.Format(new CultureInfo("es-MX"), "{0:C2}", itemDetail.OnAccount))</td>
-                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@(string.Format(new CultureInfo("es-MX"), "{0:C2}", itemDetail.Amount - itemDetail.OnAccount))</td>
-                            </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 7px;">@itemDetail.NameConcept</td>
+                        <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@item.FromDate.ToString("dd/MM/yyyy") - @item.UntilDate.ToString("dd/MM/yyyy")</td>
+                        @switch (item.Status)
+                        {
+                            case "ED001":
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">ACTIVO</td>
+                                break;
+                            case "ED002":
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">INTEGRADO</td>
+                                break;
+                            case "ED003":
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">ANULADO POR DESCUENTO</td>
+                                break;
+                            case "ED004":
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">PARCIAL</td>
+                                break;
+                            case "ED005":
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">PAGADO</td>
+                                break;
+                            case "ED006":
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">CANCELADO</td>
+                                break;
+                            case "ED007":
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">PARCIAL CON ANTICIPO</td>
+                                break;
+                            case "ED008":
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">PAGADO CON ANTICIPO</td>
+                                break;
+                            case "ED009":
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">CONDONADO</td>
+                                break;
+                            case "ED010":
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">CADUCIDAD</td>
+                                break;
+                            case "ED011":
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">ACTIVO CON DESCUENTO</td>
+                                break;
+                            case "ED012":
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">PAGADO ACREDITADO</td>
+                                break;
+                            case "ED013":
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">DEUDA EN CONVENIO</td>
+                                break;
+                            case "ED014":
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">INCOBRABLE</td>
+                                break;
+                            case "ED015":
+                                <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">APOYO COVID</td>
+                                break;
+                        }
+
+                        <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@(string.Format(new CultureInfo("es-MX"), "{0:C2}", itemDetail.Amount))</td>
+                        <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@(string.Format(new CultureInfo("es-MX"), "{0:C2}", itemDetail.OnAccount))</td>
+                        <td style="border: 1px solid #ddd; padding: 7px; text-align: center;">@(string.Format(new CultureInfo("es-MX"), "{0:C2}", itemDetail.Amount - itemDetail.OnAccount))</td>
+                    </tr>
                             iva = iva + itemDetail.Tax;
                         }
 
@@ -165,3 +200,4 @@
         <div style="width: 50%; text-align: center; height: 100px; display: inline-block;"></div>
     </div>
 </div>
+

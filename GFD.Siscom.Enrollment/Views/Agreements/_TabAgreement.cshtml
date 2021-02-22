@@ -319,7 +319,7 @@
                 Swal.fire({
                     title: "Bien",
                     text: isContrato + ' principal encontrado',
-                    type: 'success',
+                    icon: 'success',
                     showConfirmButton: true,
                 });
             } else {
@@ -330,7 +330,7 @@
             Swal.fire({
                 title: "Disculpa",
                 text: error.response.request.response,
-                type: 'info',
+                icon: 'info',
                 showConfirmButton: true,
             });
             console.log("Error: ", error.response);
@@ -365,7 +365,7 @@
             Swal.fire({
                 title: "Cuenta Validada",
                 text: response.data,
-                type: 'success',
+                icon: 'success',
                 showConfirmButton: true,
             }).then(response => {
                 document.getElementById("TabClient").classList.remove("disabled");
@@ -388,7 +388,7 @@
             Swal.fire({
                 title: "Disculpa",
                 text: error.response.data,
-                type: 'info',
+                icon: 'info',
                 showConfirmButton: true,
             }).then(response => {
                 document.getElementById("TabClient").classList.add("disabled");
@@ -434,7 +434,7 @@
                 Swal.fire({
                     title: "Bien",
                     text: response.data,
-                    type: 'success',
+                    icon: 'success',
                     showConfirmButton: true,
                 }).then(response => {
                     resolve(true);
@@ -445,7 +445,7 @@
                 Swal.fire({
                     title: "Disculpa",
                     text: response.data,
-                    type: 'info',
+                    icon: 'info',
                     showConfirmButton: true,
                 }).then(response => {
                     reject(false);

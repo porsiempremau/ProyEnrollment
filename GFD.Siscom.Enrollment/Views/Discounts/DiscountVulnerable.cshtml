@@ -279,13 +279,13 @@
                                     var FromDate = getFormateDate(x.fromDate);
                                     var UntilDate = getFormateDate(x.untilDate);
                                     $("#tbody").append(`
-                                    <tr>
-                                        <td>${x.typeService}</td>
-                                        <td>${x.descriptionType}</td>
-                                        <td>${FromDate} - ${UntilDate}</td>
-                                        <td>${FormatoPeso.format(x.amount)}</td >
-                                    </tr>
-                                `);
+                                        <tr>
+                                            <td>${x.typeService}</td>
+                                            <td>${x.descriptionType}</td>
+                                            <td>${FromDate} - ${UntilDate}</td>
+                                            <td>${FormatoPeso.format(x.amount)}</td >
+                                        </tr>
+                                    `);
                                 }
                             });
 

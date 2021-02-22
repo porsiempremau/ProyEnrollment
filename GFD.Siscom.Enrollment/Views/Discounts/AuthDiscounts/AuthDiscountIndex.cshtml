@@ -53,7 +53,7 @@
             axios.get("/Discounts/GetDiscountsToAuth").then(response => {
                 UnBlock();
                 __ListDiscountToAuth = response.data;
-                console.log("List Discount to auth: ", __ListDiscountToAuth);
+                //console.log("List Discount to auth: ", __ListDiscountToAuth);
                 if (__ListDiscountToAuth.length > 0) {
                     __ListDiscountToAuth.forEach(x => {
                         var discount = new AuthDiscount(x);
@@ -62,7 +62,7 @@
                                 <td>${discount.account}</td>
                                 <td>${FormatoPeso.format(discount.amount)}</td>
                                 <td>${FormatoPeso.format(discount.amountDiscount)}</td>
-                                <td>${discount.nameUserResponse}</td>
+                                <td>${discount.nameUserRequest}</td>
                                 <td>${discount.branchOffice}</td>
                                 <td>${discount.fileName}</td>
                                 <td>
@@ -81,7 +81,7 @@
                 } else {
                     $("#tbodyDiscountToAuth").append(`
                             <tr>
-                                <td colspan="7" style="font-size: 20px; text-align: center">Datos no encontrados</td>
+                                <td colspan="8" style="font-size: 20px; text-align: center">Datos no encontrados</td>
                             </tr>
                         `);
                 }
@@ -116,18 +116,17 @@
                 confirmButtonText: textConfirmBtn,
                 input: 'text'
             }).then(response => {
-                //console.log(response);
                 if (response.isConfirmed && response.value == "") {
                     Swal.fire("Necesitas agregar una descripción");
                 }
 
                 if (response.isConfirmed && response.value != "") {
-                    Authorize(idDiscount, response.value, isCancel);
+                    AuthorizeOrCancel(idDiscount, response.value, isCancel);
                 }
             });
         }
 
-        function Authorize(idDiscount, description, isCancel) {
+        function AuthorizeOrCancel(idDiscount, description, isCancel) {
             Block();
             var item = __ListDiscountToAuth.find(x => x.id == idDiscount);
             var discount = new AuthDiscount(item);
@@ -143,7 +142,7 @@
                 Swal.fire({
                     icon: 'success',
                     title: 'Bien',
-                    text: 'Se autorizado correctamente',
+                    text: 'Autorizado correctamente',
                     showConfirmButton: true
                 });
             }).catch(error => {
