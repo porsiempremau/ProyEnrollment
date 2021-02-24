@@ -85,11 +85,11 @@
     <div class="row">
         <div class="col-md-2">
             <label>Fecha Inicio:</label>
-            <input type="date" id="startDate" name="startDate" class="form-control" required/>
+            <input type="date" id="startDate" name="startDate" class="form-control" required />
         </div>
         <div class="col-md-2">
             <label>Fecha Fin:</label>
-            <input type="date" id="endDate" name="endDate" class="form-control" required/>
+            <input type="date" id="endDate" name="endDate" class="form-control" required />
         </div>
         <div class="col-md-2">
             <label>División:</label><br />
@@ -126,7 +126,8 @@
 </div>
 
 @section Scripts{
-    <script src="~/js/RenderMultiselect.js"></script>
+    <script src="~/js/Reports/RenderMultiselect.js"></script>
+    <script src="~/js/Reports/FieldsToReports.js"></script>
     <script type="text/javascript" src="~/js/DevExtreme/Lib/js/jszip.js"></script>
     <script type="text/javascript" src="~/js/DevExtreme/Lib/js/jszip.min.js"></script>
     <script type="text/javascript" src="~/js/DevExtreme/Lib/js/dx.all.js"></script>
@@ -194,73 +195,7 @@
 
             axios.post("/Reports/GetData?typeReport=" + __NameReport, body).then(response => {
                 const data = response.data;
-                switch (__NameReport) {
-                    case "Orders":
-                        fields = [
-                            {
-                                caption: "División",
-                                dataField: "division",
-                                area: "row",
-                            },
-                            {
-                                caption: "Folio",
-                                dataField: "folio",
-                                dataType: "text",
-                                area: "row",
-                            },
-                            {
-                                caption: "Descripción",
-                                dataField: "description",
-                                area: "row"
-                            },
-                            {
-                                caption: "Se creó",
-                                dataField: "fechaOS",
-                                format: "text",
-                                area: "row"
-                            },
-                            {
-                                caption: "Cliente",
-                                dataField: "cliente",
-                                dataType: "text",
-                                area: "row"
-                            }, {
-                                caption: "Estado",
-                                dataField: "estado",
-                                dataType: "text",
-                                area: "column"
-                            }, {
-                                caption: "Descuento",
-                                dataField: "descuento",
-                                dataType: "number",
-                                summaryType: "sum",
-                                format: "$ #,##0.##",
-                                area: "data"
-                            }, {
-                                caption: "Subtotal",
-                                dataField: "subtotal",
-                                dataType: "number",
-                                summaryType: "sum",
-                                format: "$ #,##0.##",
-                                area: "data"
-                            }, {
-                                caption: "I.V.A.",
-                                dataField: "iva",
-                                dataType: "number",
-                                summaryType: "sum",
-                                format: "$ #,##0.##",
-                                area: "data"
-                            }, {
-                                caption: "Total",
-                                dataField: "total",
-                                dataType: "number",
-                                summaryType: "sum",
-                                format: "$ #,##0.##",
-                                area: "data"
-                            }
-                        ];
-                        break;
-                }
+                fields = GetFieldsToReport(__NameReport);
                 GeneraGridDevExpress(fields, '@ViewData["Title"]', data);
                 UnBlock();
             }).catch(error => {
