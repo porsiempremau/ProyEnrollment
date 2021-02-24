@@ -4042,19 +4042,19 @@ textarea.form-control.is-invalid {
 }
 
 .btn {
-  display         : inline-block;
-  font-weight     : 400;
-  color           : #495057;
-  text-align      : center;
-  vertical-align  : middle;
-  user-select     : none;
-  background-color: transparent;
-  border          : 1px solid transparent;
-  padding         : .375rem .75rem;
-  font-size       : 1rem;
-  line-height     : 1.5;
-  border-radius   : .25rem;
-  transition      : color 0.15s, background-color 0.15s, border-color 0.15s, box-shadow 0.15s
+  display         : inline-block  ;
+  font-weight     : 400  ;
+  color           : #495057  ;
+  text-align      : center  ;
+  vertical-align  : middle  ;
+  user-select     : none  ;
+  background-color: transparent  ;
+  border          : 1px solid transparent  ;
+  padding         : .375rem .75rem  ;
+  font-size       : 1rem  ;
+  line-height     : 1.5  ;
+  border-radius   : .25rem  ;
+  transition      : color 0.15s, background-color 0.15s, border-color 0.15s, box-shadow 0.15s ;
 }
 
 @media screen and (prefers-reduced-motion: reduce) {
@@ -22680,7 +22680,7 @@ legend {
 .app-logo {
   height    : 23px;
   width     : 97px;
-  background: url(assets/images/logo-inverse.png)
+  background: url(../../img/AYUNTAMIENTO/Logo.png);
 }
 
 .app-logo-inverse {

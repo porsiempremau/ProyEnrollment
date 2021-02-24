@@ -98,7 +98,7 @@
                             <i class="fas fa-save"></i>
                             Guardar Contrato
                         </button>
-                        <button type="button" id="btnAddDebt" style="display: none;" data-toggle="modal" data-target="#modalAddDebtAgreement"></button>
+                        @*<button type="button" id="btnAddDebt" style="display: none;" data-toggle="modal" data-target="#modalAddDebtAgreement"></button>*@
                     }
 
                     @*<button type="button" id="btnSimulation" style="display: none;" data-toggle="modal" data-target="#modalSimulation"></button>*@
@@ -502,7 +502,7 @@
                                         Simulation(__AccountAyuntamiento);
                                     });
                                 } else {
-                                    $("#btnAddDebt").click();
+                                    $("#modalAddDebtAgreement").modal({ backdoor: true });
                                 }
                             });
                         }).catch(error => {
@@ -846,6 +846,9 @@
                         showConfirmButton: true,
                     }).then(response => {
                         $("#modalAddDebtAgreement").modal('hide');
+                        if (@idAgreement == 0) {
+                            window.location.href = "/Agreement/List";
+                        }
                     });
                 }
 

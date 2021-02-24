@@ -247,14 +247,14 @@
                     <li>
                         <a href="#">
                             <i class="metismenu-icon fas fa-file-alt"></i>
-                            Ordenes
+                            Órdenes
                             <i class="metismenu-state-icon fa fa-angle-down caret-left"></i>
                         </a>
                         <ul>
                             <li class="@(url == "Ordenes-Index" ? "mm-active active-GFD" : "")">
                                 <a href="/Ordenes/Index">
                                     <i class="metismenu-icon">
-                                    </i>Ordenes de Pago
+                                    </i>Órdenes de Pago
                                 </a>
                             </li>
                             <li class="@(url == "Ordenes-SearchOrderByDateIndex" ? "mm-active active-GFD" : "")">
@@ -305,6 +305,27 @@
                             </a>
                         </li>
                     }
+                }
+
+
+
+                @if (Auth.Login.HasRoles("Admin|Supervisor"))
+                {
+                    <li>
+                        <a href="#">
+                            <i class="metismenu-icon fas fa-chart-line"></i>
+                            Reportes
+                            <i class="metismenu-state-icon fa fa-angle-down caret-left"></i>
+                        </a>
+                        <ul>
+                            <li class="@(ViewData["Title"].ToString() == "Reporte de Ordenes" ? "mm-active active-GFD" : "")">
+                                <a href="/Reports/Index?report=Orders&title=Ordenes">
+                                    <i class="metismenu-icon">
+                                    </i>Ordenes
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                 }
             </ul>
         </div>

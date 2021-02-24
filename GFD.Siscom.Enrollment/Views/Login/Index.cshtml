@@ -1,4 +1,5 @@
-﻿@{ 
+﻿@using GFD.Siscom.Enrollment.Utilities;
+@{ 
     Layout = "~/Views/Shared/_LoginLayout.cshtml";
 }
 
@@ -32,7 +33,18 @@
         </div>
         <div class="h-100 d-flex bg-white justify-content-center align-items-center col-md-12 col-lg-5">
             <div class="mx-auto app-login-box col-sm-12 col-md-10 col-lg-9">
-                <div class="app-logo"></div>
+                <div style="text-align: center;">
+                    @if (Plataform.IsAyuntamiento)
+                    {
+                        <img src="~/img/AYUNTAMIENTO/Logo.png" style="width:200px; height:inherit;" />
+                    }
+                    else
+                    {
+                        <img src="~/img/AGUA/sosapac-sistema4.png" style="width:200px; height:inherit;" />
+                    }
+                </div>
+                <br />
+                <br />
                 <h4 class="mb-0">
                     <span class="d-block">Ingreso al Sistema</span>
                     @*<span>Please sign in to your account.</span>*@
@@ -56,7 +68,7 @@
                         <div class="d-flex align-items-center">
                             <div class="ml-auto">
                                 @*<a href="javascript:void(0);" class="btn-lg btn btn-link">Recover Password</a>*@
-                                <button type="submit" class="btn btn-primary btn-lg">Ingresar</button>
+                                <button type="submit" class="btn btn-GFD btn-lg">Ingresar</button>
                             </div>
                         </div>
                     </form>

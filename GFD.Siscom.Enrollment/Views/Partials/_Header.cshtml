@@ -61,14 +61,14 @@
                             <div class="btn-group">
                                 @*<a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="p-0 btn">*@
                                 <a onclick="openLogout()" data-toggle="" aria-haspopup="true" aria-expanded="false" class="p-0 btn">
-                                    <img width="42" class="rounded-circle" src="~/img/Login/siscom-logo.png"
-                                         alt="">
+                                    @*<img width="42" class="rounded-circle" src="~/img/Login/siscom-logo.png" alt="">*@
+                                    <img width="42" src="~/img/GFDSISCOM/ICO_SISCOMgris.png" />
                                     <i class="fa fa-angle-down ml-2 opacity-8 color-white"></i>
                                 </a>
                                 <div id="DropDown" tabindex="-1" role="menu" aria-hidden="true"
                                      class="rm-pointers dropdown-menu-lg dropdown-menu dropdown-menu-right">
                                     <div class="dropdown-menu-header">
-                                        <div class="dropdown-menu-header-inner bg-info">
+                                        <div class="dropdown-menu-header-inner">
                                             <div class="menu-header-image opacity-2">
                                                 @*style="background-image: url('assets/images/dropdown-header/city3.jpg');">*@
                                             </div>
@@ -76,18 +76,18 @@
                                                 <div class="widget-content p-0">
                                                     <div class="widget-content-wrapper">
                                                         <div class="widget-content-left mr-3">
-                                                            <img width="42" class="rounded-circle"
-                                                                 src="~/img/Login/siscom-logo.png" alt="">
+                                                            @*<img width="42" class="rounded-circle" src="~/img/Login/siscom-logo.png" alt="">*@
+                                                            <img width="67" src="~/img/GFDSISCOM/ICO_SISCOMgris2.png" />
                                                         </div>
                                                         <div class="widget-content-left">
-                                                            <div class="widget-heading color-white">
+                                                            <div class="widget-heading color-fullmane-logout">
                                                                 @Auth.Login.FullName
                                                             </div>
-                                                            <div class="widget-subheading opacity-8 color-white">
-                                                                @Auth.Login.Email
+                                                            <div class="widget-subheading opacity-8 color-perfil-logout">
+                                                                <b class="color-label-porfil-logout">Perfil:</b> @Auth.Login.RolName[0]
                                                             </div>
-                                                            <div class="widget-subheading opacity-8 color-white">
-                                                                <b>Perfil:</b> @Auth.Login.RolName[0]
+                                                            <div class="widget-subheading opacity-8 color-email-logout">
+                                                                @Auth.Login.Email
                                                             </div>
                                                         </div>
                                                         <div class="widget-content-right mr-2">

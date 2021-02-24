@@ -27,7 +27,7 @@ td {
 }
 
 tbody tr:hover{
-    background-color: #d3d3d3 !important;
+    background-color: #f9cdcf !important;
 }
 
 th{
@@ -45,13 +45,13 @@ th{
 }
 
 .btn-GFD {
-    background-color: #6b1414;
-    color: white;
+    background-color: #6b1414 !important;
+    color: white !important;
 }
 
 .btn-GFD:hover {
-    background-color: #760000;
-    color: white;
+    background-color: #bc0000 !important;
+    color: white !important;
 }
 
 .title-head {
@@ -196,3 +196,31 @@ th{
     padding: 1rem;
 }
 
+.select-multiple-style{
+    width: 100%;
+}
+
+.multiple-select-popup-gfd{
+    height: 50vh !important;
+    overflow-y: auto !important;
+}
+
+.color-fullmane-logout{
+    color: #6b1414;
+}
+
+.color-perfil-logout {
+    color: #616161;
+}
+
+.color-email-logout {
+    color: #616161;
+}
+
+.color-label-porfil-logout {
+    color: #3e3e3e !important;
+}
+
+.text-align-left {
+    text-align: left !important;
+}

@@ -1,0 +1,390 @@
+﻿@model object;
+@using Newtonsoft.Json;
+@{
+    dynamic data = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(Model));
+    string NameReport = data["NameReport"];
+}
+
+@* Select Multiple *@
+@*<link href="~/Select-Multiple/docs/css/bootstrap-4.5.2.min.css" rel="stylesheet" />*@
+@*<link href="~/Select-Multiple/docs/css/bootstrap-example.min.css" rel="stylesheet" />*@
+<link href="~/Select-Multiple/docs/css/prettify.min.css" rel="stylesheet" />
+
+<script src="~/Select-Multiple/docs/js/jquery-2.1.3.min.js"></script>
+<script src="~/Select-Multiple/docs/js/bootstrap.bundle-4.5.2.min.js"></script>
+<script src="~/Select-Multiple/docs/js/prettify.min.js"></script>
+
+<link href="~/Select-Multiple/dist/css/bootstrap-multiselect.css" rel="stylesheet" />
+<script src="~/Select-Multiple/dist/js/bootstrap-multiselect.js"></script>
+
+@* DevExpress *@
+<link rel="stylesheet" href="~/js/DevExtreme/Lib/css/dx.common.css">
+<link rel="stylesheet" href="~/js/DevExtreme/Lib/css/dx.light.css">
+<style>
+    .currency {
+        text-align: center;
+    }
+
+    #PivotGrid {
+        max-height: 570px;
+    }
+
+    .options {
+        padding: 20px;
+        margin-top: 20px;
+        background-color: rgba(191, 191, 191, 0.15);
+    }
+
+    .caption {
+        font-size: 18px;
+        font-weight: 500;
+    }
+
+    .option {
+        width: 24%;
+        display: inline-block;
+        margin-top: 10px;
+    }
+
+
+    .btn {
+        display: inline-block !important;
+        font-weight: 400 !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        user-select: none !important;
+        border: 1px solid transparent !important;
+        padding: .375rem .75rem !important;
+        line-height: 1.5 !important;
+        border-radius: .25rem !important;
+        transition: color 0.15s, background-color 0.15s, border-color 0.15s, box-shadow 0.15s !important;
+    }
+
+    tbody tr:hover {
+        background-color: transparent !important;
+    }
+
+    .dx-scrollable-content > table > tbody > tr > td:hover {
+        background-color: transparent !important;
+    }
+</style>
+
+<div class="app-page-title">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div class="page-title-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h1 class="style-main-title">@ViewData["Title"]</h1>
+        </div>
+    </div>
+</div>
+
+
+<form id="FormData" onsubmit="GetData()">
+    <div class="row">
+        <div class="col-md-2">
+            <label>Fecha Inicio:</label>
+            <input type="date" id="startDate" name="startDate" class="form-control" required/>
+        </div>
+        <div class="col-md-2">
+            <label>Fecha Fin:</label>
+            <input type="date" id="endDate" name="endDate" class="form-control" required/>
+        </div>
+        <div class="col-md-2">
+            <label>División:</label><br />
+            <select id="division" multiple="multiple" class="form-control select-multiple-style">
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label>Usuario:</label><br />
+            <select id="users" multiple="multiple" class="form-control">
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-GFD margin-top-btns">
+                <i class="fas fa-search"></i>
+                Buscar
+            </button>
+        </div>
+    </div>
+</form>
+
+<br />
+<div class="row">
+    <div class="col-md-12">
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                <div class="dx-viewport">
+                    <div class="demo-container">
+                        <div id="PivotGrid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/js/RenderMultiselect.js"></script>
+    <script type="text/javascript" src="~/js/DevExtreme/Lib/js/jszip.js"></script>
+    <script type="text/javascript" src="~/js/DevExtreme/Lib/js/jszip.min.js"></script>
+    <script type="text/javascript" src="~/js/DevExtreme/Lib/js/dx.all.js"></script>
+    <script type="text/javascript" src="~/js/DevExtreme/Lib/js/localization/dx.messages.en.js"></script>
+    <script>
+        var __NameReport = '@NameReport';
+
+        window.onload = function () {
+            Block();
+            renderSelect("division", "Division");
+            renderSelect("users", "UserRolesManager/Users", UnBlock);
+        }
+
+        function GetData() {
+            Block();
+            //PARA QUE NO RECARGUE LA PÁGIAN CUANDO OCUPAMOS UN ONSUBMIT
+            event.preventDefault();
+
+            //OBTENEMOS EL ARREGLO CON LOS OPTIONS SELECIONADOS DE DIVISION Y USERS
+            var divisionIds = document.getElementById("division").selectedOptions;
+            var userBoxIds = document.getElementById("users").selectedOptions;
+
+            var stringDivisionId = "", stringUsersId = "";
+
+            var fields = [];
+
+            //VAMOS A CREAR EL STRING CON TODOS LOS IDS SELECIONADOS DE DIVISION Y USUARIOS
+            for (var i = 0; i < divisionIds.length; i++) {
+                if (i == (divisionIds.length - 1)) {
+                    //ES PARA QUE CUANDO SEA EL ÚLTIMO ID NO AGREGUE "," (COMA) AL FINAL
+                    stringDivisionId += divisionIds[i].value;
+                } else {
+                    stringDivisionId += divisionIds[i].value + ",";
+                }
+            }
+
+            for (var i = 0; i < userBoxIds.length; i++) {
+                if (i == (userBoxIds.length - 1)) {
+                    //ES PARA QUE CUANDO SEA EL ÚLTIMO ID NO AGREGUE "," (COMA) AL FINAL
+                    stringUsersId += userBoxIds[i].value;
+                } else {
+                    stringUsersId += userBoxIds[i].value + ",";
+                }
+            }
+
+            //console.log("stringDivisionId: ", stringDivisionId);
+            //console.log("stringUsersId: ", stringUsersId);
+
+            var body = {
+                fechaIni: document.getElementById("startDate").value,
+                fechaFin: document.getElementById("endDate").value,
+                cajeroId: stringUsersId,
+                cajeroNombre: "",
+                cajeroAPaterno: "",
+                cajeroAMaterno: "",
+                oficinas: stringDivisionId,
+                statusIFB: "",
+                pwaFiltrarPorContrato: true,
+                pwaColonias: "",
+                pwaRutas: "",
+                pwaServicios: "",
+                pwaTomas: ""
+            }
+            console.log("Body: ", body);
+
+            axios.post("/Reports/GetData?typeReport=" + __NameReport, body).then(response => {
+                const data = response.data;
+                switch (__NameReport) {
+                    case "Orders":
+                        fields = [
+                            {
+                                caption: "División",
+                                dataField: "division",
+                                area: "row",
+                            },
+                            {
+                                caption: "Folio",
+                                dataField: "folio",
+                                dataType: "text",
+                                area: "row",
+                            },
+                            {
+                                caption: "Descripción",
+                                dataField: "description",
+                                area: "row"
+                            },
+                            {
+                                caption: "Se creó",
+                                dataField: "fechaOS",
+                                format: "text",
+                                area: "row"
+                            },
+                            {
+                                caption: "Cliente",
+                                dataField: "cliente",
+                                dataType: "text",
+                                area: "row"
+                            }, {
+                                caption: "Estado",
+                                dataField: "estado",
+                                dataType: "text",
+                                area: "column"
+                            }, {
+                                caption: "Descuento",
+                                dataField: "descuento",
+                                dataType: "number",
+                                summaryType: "sum",
+                                format: "$ #,##0.##",
+                                area: "data"
+                            }, {
+                                caption: "Subtotal",
+                                dataField: "subtotal",
+                                dataType: "number",
+                                summaryType: "sum",
+                                format: "$ #,##0.##",
+                                area: "data"
+                            }, {
+                                caption: "I.V.A.",
+                                dataField: "iva",
+                                dataType: "number",
+                                summaryType: "sum",
+                                format: "$ #,##0.##",
+                                area: "data"
+                            }, {
+                                caption: "Total",
+                                dataField: "total",
+                                dataType: "number",
+                                summaryType: "sum",
+                                format: "$ #,##0.##",
+                                area: "data"
+                            }
+                        ];
+                        break;
+                }
+                GeneraGridDevExpress(fields, '@ViewData["Title"]', data);
+                UnBlock();
+            }).catch(error => {
+                UnBlock();
+                CatchError(error);
+            });
+        }
+
+        function GeneraGridDevExpress(fields, NameReport, data) {
+            var salesPivotGrid = $("#PivotGrid").dxPivotGrid({
+                allowSortingBySummary: true,
+                allowSorting: true,
+                allowFiltering: true,
+                allowExpandAll: true,
+                height: 490,
+                showBorders: true,
+                fieldPanel: {
+                    showColumnFields: true,
+                    showDataFields: true,
+                    showFilterFields: true,
+                    showRowFields: true,
+                    allowFieldDragging: true,
+                    visible: true
+                },
+                fieldChooser: {
+                    height: 500
+                },
+                scrolling: {
+                    mode: "virtual"
+                },
+                export: {
+                    enabled: true,
+                    fileName: NameReport,
+                },
+                dataSource: {
+                    fields: fields,
+                    store: data
+                },
+                onContextMenuPreparing: contextMenuPreparing
+            }).dxPivotGrid("instance");
+
+
+            //$("#show-data-fields").dxCheckBox({
+            //    text: "Show Data Fields",
+            //    value: true,
+            //    onValueChanged: function (data) {
+            //        salesPivotGrid.option("fieldPanel.showDataFields", data.value);
+            //    }
+            //});
+
+            //$("#show-row-fields").dxCheckBox({
+            //    text: "Show Row Fields",
+            //    value: true,
+            //    onValueChanged: function (data) {
+            //        salesPivotGrid.option("fieldPanel.showRowFields", data.value);
+            //    }
+            //});
+
+            //$("#show-column-fields").dxCheckBox({
+            //    text: "Show Column Fields",
+            //    value: true,
+            //    onValueChanged: function (data) {
+            //        salesPivotGrid.option("fieldPanel.showColumnFields", data.value);
+            //    }
+            //});
+
+            //$("#show-filter-fields").dxCheckBox({
+            //    text: "Show Filter Fields",
+            //    value: true,
+            //    onValueChanged: function (data) {
+            //        salesPivotGrid.option("fieldPanel.showFilterFields", data.value);
+            //    }
+            //});
+
+            function contextMenuPreparing(e) {
+                var dataSource = e.component.getDataSource(),
+                    sourceField = e.field;
+
+                if (sourceField) {
+                    if (!sourceField.groupName || sourceField.groupIndex === 0) {
+                        e.items.push({
+                            text: "Hide field",
+                            onItemClick: function () {
+                                var fieldIndex;
+                                if (sourceField.groupName) {
+                                    fieldIndex = dataSource.getAreaFields(sourceField.area, true)[sourceField.areaIndex].index;
+                                } else {
+                                    fieldIndex = sourceField.index;
+                                }
+
+                                dataSource.field(fieldIndex, {
+                                    area: null
+                                });
+                                dataSource.load();
+                            }
+                        });
+                    }
+
+                    if (sourceField.dataType === "number") {
+                        var setSummaryType = function (args) {
+                            dataSource.field(sourceField.index, {
+                                summaryType: args.itemData.value
+                            });
+
+                            dataSource.load();
+                        },
+                            menuItems = [];
+
+                        e.items.push({ text: "Summary Type", items: menuItems });
+
+                        $.each(["Sum", "Avg", "Min", "Max"], function (_, summaryType) {
+                            var summaryTypeValue = summaryType.toLowerCase();
+
+                            menuItems.push({
+                                text: summaryType,
+                                value: summaryType.toLowerCase(),
+                                onItemClick: setSummaryType,
+                                selected: e.field.summaryType === summaryTypeValue
+                            });
+                        });
+                    }
+                }
+            }
+        }
+
+    </script>
+}

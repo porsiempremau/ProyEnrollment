@@ -33,24 +33,24 @@ var CancelRequest = databaseService.ref("CancelRequest");
 
 DiscountAuthorization.on("child_added", function (snapshot, prevChildKey) {
     var list = snapshot.val();
-    console.log("list Discount: ", list);
+    //console.log("list Discount: ", list);
     var d = new Date(list.RequestDate);
     var validate = ValidateDate(dateCurrentlyAuth, d);
     if (list.Status == "Activo" && validate) {
         contDiscount = contDiscount + 1;
-        console.log("list Discount: ", list);
+        //console.log("list Discount: ", list);
     }
     $("#divNumberAuthDiscount").html(contDiscount > 0 ? `<span class="badge badge-pill badge-danger">${contDiscount}</span>` : "");
 });
 
 CancelRequest.on("child_added", function (snapshot, prevChildKey) {
     var list = snapshot.val();
-    console.log("List CancelRequest: ", list);
+    //console.log("List CancelRequest: ", list);
     var d = new Date(list.DateRequest);
     var validate = ValidateDate(dateCurrentlyAuth, d);
     if (list.Status == "ESC01" && validate) {
         contCancel = contCancel + 1;
-        console.log("List CancelRequest: ", list);
+        //console.log("List CancelRequest: ", list);
     }
     $("#divNumberAuthCancel").html(contCancel > 0 ? `<span class="badge badge-pill badge-danger">${contCancel}</span>` : "");
 });
